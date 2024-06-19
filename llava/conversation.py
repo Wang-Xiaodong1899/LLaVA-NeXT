@@ -349,7 +349,7 @@ conv_llava_llama_2 = Conversation(
 )
 
 try:
-    llama3_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B-Instruct")
+    llama3_tokenizer = AutoTokenizer.from_pretrained("/mnt/storage/user/wangxiaodong/LLaVA-NeXT/Meta-Llama-3-8B-Instruct")
 except Exception as e:
     print("Error loading llama3 tokenizer")
     print(e)
@@ -361,7 +361,7 @@ conv_llava_llama_3 = Conversation(
     messages=[],
     offset=0,
     sep_style=SeparatorStyle.LLAMA_3,
-    tokenizer_id="meta-llama/Meta-Llama-3-8B-Instruct",
+    tokenizer_id="/mnt/storage/user/wangxiaodong/LLaVA-NeXT/Meta-Llama-3-8B-Instruct",
     tokenizer=llama3_tokenizer,
     stop_token_ids=[128009],
 )

@@ -43,4 +43,9 @@ logs
 scripts/dist_*
 logs/
 submissions/
-# work_dirs
+work_dirs
+
+# models
+LLaVA-NeXT-Video-7B/*
+LLaVA-NeXT-Video-7B-DPO/*
+llama3-llava-next-8b/*
