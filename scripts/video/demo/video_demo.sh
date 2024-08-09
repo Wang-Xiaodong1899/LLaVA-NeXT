@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/mnt/storage/user/wangxiaodong/LLaVA-NeXT"
+ROOT_DIR="/mnt/bn/vl-research/workspace/yhzhang/LLaVA-NeXT"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -15,8 +15,10 @@ CKPT=$1
 CONV_MODE=$2
 FRAMES=$3
 POOL_STRIDE=$4
-OVERWRITE=$5
-VIDEO_PATH=$6
+POOL_MODE=$5
+NEWLINE_POSITION=$6
+OVERWRITE=$7
+VIDEO_PATH=$8
 
 
 if [ "$OVERWRITE" = False ]; then
@@ -35,6 +37,7 @@ python3 playground/demo/video_demo.py \
     --overwrite ${OVERWRITE} \
     --mm_spatial_pool_stride ${POOL_STRIDE:-4} \
     --for_get_frames_num $FRAMES \
-    --conv-mode $CONV_MODE 
-
-
+    --conv-mode $CONV_MODE \
+    --mm_spatial_pool_mode ${POOL_MODE:-average} \
+    --mm_newline_position ${NEWLINE_POSITION:-grid} \
+    --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, the background scenes."

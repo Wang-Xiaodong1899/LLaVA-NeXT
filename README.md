@@ -3,18 +3,35 @@
 </p>
 
 # LLaVA-NeXT: Open Large Multimodal Models
+[![Static Badge](https://img.shields.io/badge/llava_onevision-paper-green)](https://arxiv.org/abs/2408.03326)
 [![llava_next-blog](https://img.shields.io/badge/llava_next-blog-green)](https://llava-vl.github.io/blog/)
-[![llava_next-demo](https://img.shields.io/badge/llava_next-image_demo-red)](https://llava-next.lmms-lab.com/)
-[![llava_next-video_demo](https://img.shields.io/badge/llava_next-video_demo-red)](https://llavanext-video.lmms-lab.com/)
-[![llava_next-image_checkpoints](https://img.shields.io/badge/llava_next-image_checkpoints-blue)](https://huggingface.co/lmms-lab)
+
+[![llava_onevision-demo](https://img.shields.io/badge/llava_onevision-demo-red)](https://llava-onevision.lmms-lab.com/)
+[![llava_next-interleave_demo](https://img.shields.io/badge/llava_next-interleave_demo-red)](https://huggingface.co/spaces/lmms-lab/LLaVA-NeXT-Interleave-Demo)
+[![llava_next-video_demo](https://img.shields.io/badge/llava_next-video_demo-red)](https://huggingface.co/spaces/WildVision/vision-arena)
+
+[![llava_onevision-checkpoints](https://img.shields.io/badge/llava_onevision-checkpoints-blue)](https://huggingface.co/collections/lmms-lab/llava-onevision-66a259c3526e15166d6bba37)
+[![llava_next-interleave_checkpoints](https://img.shields.io/badge/llava_next-interleave_checkpoints-blue)](https://huggingface.co/collections/lmms-lab/llava-next-interleave-66763c55c411b340b35873d1)
 [![llava_next-video_checkpoints](https://img.shields.io/badge/llava_next-video_checkpoints-blue)](https://huggingface.co/collections/lmms-lab/llava-next-video-661e86f5e8dabc3ff793c944)
+[![llava_next-image_checkpoints](https://img.shields.io/badge/llava_next-image_checkpoints-blue)](https://huggingface.co/lmms-lab)
 
-## Release
+## Release Notes
+
+- [2024/08/06] 🔥 **LLaVA-OneVision** is [released](https://llava-vl.github.io/blog/2024-08-05-llava-onevision/). The new 0.5/7/72B model achieves the state-of-the-art level and comparable to most powerful commercial models performance on several single-image, multi-image, and video benchmarks. We benchmarked on a total of 47 benchmarks to comprehensively reflect our model's true capabilities in diverse domains. We also release our training code, and single-image/multi-image data mixture in [LLaVA-OneVision Data](https://huggingface.co/datasets/lmms-lab/LLaVA-OneVision-Data)! Our video part data will be released via next upgrade of video specific model, stay tuned! Our training code can be directly used to train on single-image, multi-image and video data.
+  - Check our [Paper](https://arxiv.org/abs/2408.03326) for more details and to see our insights on training one model to rule them all.
+  - Check our [LLaVA-OneVision Doc](https://github.com/LLaVA-VL/LLaVA-NeXT/blob/main/docs/LLaVA_OneVision.md) for inference and evaluation guidance.
+  - Check our [Training Scripts](https://github.com/LLaVA-VL/LLaVA-NeXT/blob/main/scripts/train) to start training models on single-image/multi-image/video data.
+  
+- [2024/07/16] 🔥 **LLaVA-NeXT-Video** has been upgraded. The new 32B model achieves the best open-source performance on several video benchmarks, including [Video-MME](https://video-mme.github.io/home_page.html#leaderboard). Please refer to [this page](docs/LLaVA-NeXT-Video_0716.md) for details, refer to [llava_next-video_demo](https://huggingface.co/spaces/WildVision/vision-arena) for demo.
 
 
+- [2024/06/23] 🔥 **LLaVA-NeXT-Interleave** is released. We utilize image-text interleaved format to unify multi-image, video, and 3D tasks in one LLM and achieve **SoTA** performance on a wide range of benchmarks. Check out [paper](https://arxiv.org/pdf/2407.07895), [blog](https://llava-vl.github.io/blog/2024-06-16-llava-next-interleave/), and [checkpoints](https://huggingface.co/collections/lmms-lab/llava-next-interleave-66763c55c411b340b35873d1) to see new capabilities and improved performance! We have released 0.5b, 7b, and 7b-dpo models.
+  * An all-round LLM for multi-image, video, and 3D with strong performance \[[demo](https://huggingface.co/spaces/lmms-lab/LLaVA-NeXT-Interleave-Demo)\]
+  * Construct interleave training data [**M4-Instruct**](https://huggingface.co/datasets/lmms-lab/M4-Instruct-Data)
+  * Construct multi-image benchmark [**LLaVA-Interleave Bench**](https://huggingface.co/datasets/lmms-lab/LLaVA-NeXT-Interleave-Bench)
 
 
-- [2024/05/25] 🔥 Wondering "[What Else Influences Visual Instruction Tuning Beyond Data?](https://llava-vl.github.io/blog/2024-05-25-llava-next-ablations/)" Our new [blog](https://llava-vl.github.io/blog/2024-05-25-llava-next-ablations/) summarizes empirical explorations to ablate the various design choices in improving LMMs except instruct data itself. Meanwhile, open-source the recapioned high-quality data using LLaVA-NeXT-34B on [COCO] [LCS] [CC3M].
+- [2024/05/25] 🔥 Wondering "[What Else Influences Visual Instruction Tuning Beyond Data?](https://llava-vl.github.io/blog/2024-05-25-llava-next-ablations/)" Our new [blog](https://llava-vl.github.io/blog/2024-05-25-llava-next-ablations/) summarizes empirical explorations to ablate the various design choices in improving LMMs except instruct data itself. Meanwhile, open-source the recapioned high-quality data using LLaVA-NeXT-34B on [[COCO]](https://huggingface.co/datasets/lmms-lab/LLaVA-ReCap-118K) [[LCS]](https://huggingface.co/datasets/lmms-lab/LLaVA-ReCap-558K) [[CC3M]](https://huggingface.co/datasets/lmms-lab/LLaVA-ReCap-CC3M).
   * Architectures (LMM & Vision Encoder)
   * Visual Representations (Resolution & # Tokens)
   * Training Strategies (High-quality data & Trainable modules)
@@ -84,8 +101,10 @@ Please checkout the following page for more inference & evaluation details.
 
 
 #### - LLaVA-NeXT: A Strong Zero-shot Video Understanding Model
-- [LLaVA-NeXT-Video](./docs/LLaVA-NeXT-Video.md): for video inference and evaluation scripts.
+- [LLaVA-NeXT-Video](./docs/LLaVA-NeXT-Video.md): for video inference and evaluation scripts. We recommend to use [LMMs-video](https://lmms-lab.github.io/posts/lmms-eval-0.2/) for evaluation.
 
+#### - LLaVA-NeXT: Tackling Multi-image, Video, and 3D in Large Multimodal Models
+- [LLaVA-NeXT-Interleave](./docs/LLaVA-NeXT-Interleave.md): for multi-image demo and evaluation scripts.
 
 ## SGLang for SpeedUp Inference and Deployment
 
@@ -124,6 +143,21 @@ Checkout the HTTP Post/Get and SRT usage at [sglang/examples/usage/llava](https:
 
 If you find it useful for your research and applications, please cite related papers/blogs using this BibTeX:
 ```bibtex
+@article{li2024llava,
+  title={LLaVA-NeXT-Interleave: Tackling Multi-image, Video, and 3D in Large Multimodal Models},
+  author={Li, Feng and Zhang, Renrui and Zhang, Hao and Zhang, Yuanhan and Li, Bo and Li, Wei and Ma, Zejun and Li, Chunyuan},
+  journal={arXiv preprint arXiv:2407.07895},
+  year={2024}
+}
+
+@misc{li2024llavanext-ablations,
+	title={LLaVA-NeXT: What Else Influences Visual Instruction Tuning Beyond Data?},
+	url={https://llava-vl.github.io/blog/2024-05-25-llava-next-ablations/},
+	author={Li, Bo and Zhang, Hao and Zhang, Kaichen and Guo, Dong and Zhang, Yuanhan and Zhang, Renrui and Li, Feng and Liu, Ziwei and Li, Chunyuan},
+	month={May},
+	year={2024}
+}
+
 @misc{li2024llavanext-strong,
     title={LLaVA-NeXT: Stronger LLMs Supercharge Multimodal Capabilities in the Wild},
     url={https://llava-vl.github.io/blog/2024-05-10-llava-next-stronger-llms/},
@@ -132,7 +166,7 @@ If you find it useful for your research and applications, please cite related pa
     year={2024}
 }
 
-@misc{zhang2024llavanextvideo,
+@misc{zhang2024llavanext-video,
   title={LLaVA-NeXT: A Strong Zero-shot Video Understanding Model},
   url={https://llava-vl.github.io/blog/2024-04-30-llava-next-video/},
   author={Zhang, Yuanhan and Li, Bo and Liu, haotian and Lee, Yong jae and Gui, Liangke and Fu, Di and Feng, Jiashi and Liu, Ziwei and Li, Chunyuan},

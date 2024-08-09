@@ -21,6 +21,7 @@ dist
 .DS_Store
 wandb
 output
+llavavid
 
 checkpoints
 project_checkpoints
@@ -49,3 +50,30 @@ work_dirs
 LLaVA-NeXT-Video-7B/*
 LLaVA-NeXT-Video-7B-DPO/*
 llama3-llava-next-8b/*
+cn_scripts/
+internal_project_checkpoints/
+work_dirs
+scripts/i18n/*
+playground/.nfs028b000000010add00000001
+HIP
+playground/.nfs028b0000017bff2c00000012
+scripts/qwen
+scripts/vicuna
+scripts/mistral
+scripts/baseline_rep
+scripts/cn_boli01_hl
+scripts/cn_boli01_lf
+scripts/cn_lf
+scripts/cn_lq
+scripts/cn_yg
+scripts/cn_yg_hao
+scripts/eva_encoder
+scripts/i18n
+scripts/i18n_higher_res
+scripts/multi-images
+scratchpad
+build/
+playground/*.json
+mlx_configs/
+data_processing/
+# demo/
