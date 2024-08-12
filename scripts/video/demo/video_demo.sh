@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/mnt/bn/vl-research/workspace/yhzhang/LLaVA-NeXT"
+ROOT_DIR="/mnt/storage/user/wangxiaodong/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -41,3 +41,6 @@ python3 playground/demo/video_demo.py \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
     --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, the background scenes."
+
+# example
+# bash scripts/video/demo/video_demo.sh /mnt/storage/user/wangxiaodong/LLaVA-NeXT/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True playground/demo/xU25MMA2N4aVtYay.mp4

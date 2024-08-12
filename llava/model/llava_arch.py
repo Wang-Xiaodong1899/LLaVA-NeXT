@@ -231,7 +231,7 @@ class LlavaMetaForCausalLM(ABC):
             video_idx_in_batch = []
             for _ in range(len(modalities)):
                 if modalities[_] == "video":
-                    video_idx_in_batch.append(_)
+                    video_idx_in_batch.append(_) # [0, 1]
 
             # print(video_idx_in_batch)
 
@@ -248,14 +248,20 @@ class LlavaMetaForCausalLM(ABC):
             encoded_image_features = self.encode_images(concat_images)
 
             # This is a list, each element is [num_images, patch * patch, dim]
-            # rank_print(f"Concat images : {concat_images.shape}")
+            # rank_print(f"encoded_image_features : {encoded_image_features.shape}") # [20, 576, 4096]
+            # rank_print(f'video_idx_in_batch: {video_idx_in_batch}')
             encoded_image_features = torch.split(encoded_image_features, split_sizes)
+            # rank_print(f"after encoded_image_features len : {len(encoded_image_features)}")
             image_features = []
             for idx, image_feat in enumerate(encoded_image_features):
                 if idx in video_idx_in_batch:
                     image_features.append(self.get_2dPool(image_feat))
                 else:
                     image_features.append(image_feat)
+            
+            # print shape
+            # for feat in image_features:
+            #     rank0_print(f'feat shape: {feat.shape}') # [10, 144, 4096]
             # image_features = self.encode_multimodals(concat_images, video_idx_in_batch, split_sizes)
             # rank_print(f"Encoded image feats : {[x.shape for x in image_features]}")
             # image_features = torch.split(image_features, split_sizes, dim=0)
@@ -267,6 +273,7 @@ class LlavaMetaForCausalLM(ABC):
 
             elif mm_patch_merge_type.startswith("spatial"):
                 new_image_features = []
+                # rank_print(f"image_features shape : {image_features[0].shape}") # [10, 144, 4096]
                 for image_idx, image_feature in enumerate(image_features):
                     # FIXME: now assume the image is square, and split to 2x2 patches
                     # num_patches = h * w, where h = w = sqrt(num_patches)
@@ -362,7 +369,7 @@ class LlavaMetaForCausalLM(ABC):
                         if "unpad" in mm_patch_merge_type:
                             image_feature = torch.cat((image_feature, self.model.image_newline[None]), dim=0)
 
-                    new_image_features.append(image_feature)
+                    # new_image_features.append(image_feature) # TODO xiaodong debug
                 image_features = new_image_features
             else:
                 raise ValueError(f"Unexpected mm_patch_merge_type: {self.config.mm_patch_merge_type}")
@@ -372,7 +379,7 @@ class LlavaMetaForCausalLM(ABC):
         # TODO: image start / end is not implemented here to support pretraining.
         if getattr(self.config, "tune_mm_mlp_adapter", False) and getattr(self.config, "mm_use_im_start_end", False):
             raise NotImplementedError
-        # rank_print(f"Total images : {len(image_features)}")
+        # rank_print(f"Total images : {len(image_features)}, image feat shape: {image_features[0].shape}")
 
         # Let's just add dummy tensors if they do not exist,
         # it is a headache to deal with None all the time.
@@ -424,6 +431,7 @@ class LlavaMetaForCausalLM(ABC):
             cur_new_input_embeds = []
             cur_new_labels = []
 
+            # rank_print(f"before loop num_images : {num_images}")
             for i in range(num_images + 1):
                 cur_new_input_embeds.append(cur_input_embeds_no_im[i])
                 cur_new_labels.append(cur_labels_noim[i])
@@ -437,7 +445,9 @@ class LlavaMetaForCausalLM(ABC):
                     cur_new_labels.append(torch.full((cur_image_features.shape[0],), IGNORE_INDEX, device=cur_labels.device, dtype=cur_labels.dtype))
 
             cur_new_input_embeds = [x.to(self.device) for x in cur_new_input_embeds]
-
+            # rank_print(f"cur_new_input_embeds : {len(cur_new_input_embeds)}")
+            # for item in cur_new_input_embeds:
+            #     rank0_print(item.shape)
             # import pdb; pdb.set_trace()
             cur_new_input_embeds = torch.cat(cur_new_input_embeds)
             cur_new_labels = torch.cat(cur_new_labels)

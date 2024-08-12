@@ -49,7 +49,7 @@ work_dirs
 # models
 LLaVA-NeXT-Video-7B/*
 LLaVA-NeXT-Video-7B-DPO/*
-llama3-llava-next-8b/*
+llama3-llava-next-8b
 cn_scripts/
 internal_project_checkpoints/
 work_dirs
@@ -77,3 +77,5 @@ playground/*.json
 mlx_configs/
 data_processing/
 # demo/
+vicuna
+Bunny-v1_1-4B

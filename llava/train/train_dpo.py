@@ -38,7 +38,7 @@ import tokenizers
 from llava.constants import IGNORE_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN, IMAGE_TOKEN_INDEX
 from torch.utils.data import Dataset
 from llava.train.llava_trainer import LLaVADPOTrainer
-from data_processing.utils import load_jsonl, load_json
+# from data_processing.utils import load_jsonl, load_json
 from llava import conversation as conversation_lib
 from llava.model import *
 from llava.model.language_model.llava_qwen import LlavaQwenConfig
@@ -61,6 +61,19 @@ local_rank = None
 import numpy as np
 
 IS_TOKENIZER_GREATER_THAN_0_14 = version.parse(tokenizers.__version__) >= version.parse("0.14")
+
+
+def load_json(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    return data
+
+def load_jsonl(file_path):
+    data = []
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            data.append(json.loads(line))
+    return data
 
 
 @dataclass
@@ -111,6 +124,8 @@ class ModelArguments:
 
     s2: Optional[bool] = field(default=False)
     s2_scales: Optional[str] = field(default="336,672,1008")
+    
+    mm_newline_position:  str = field(default="no_token")
 
 
 @dataclass
@@ -904,6 +919,24 @@ def load_data(data_path):
         data_list = load_json(data_path)
     return data_list
 
+def find_existing_video_file(video_folder, video_file):
+    original_file_path = os.path.join(video_folder, video_file)
+    
+    if os.path.exists(original_file_path):
+        return original_file_path
+
+    index = 0
+    while True:
+        indexed_file_path = os.path.join(video_folder, f"{video_file}_{index}")
+        
+        if os.path.exists(indexed_file_path):
+            return indexed_file_path
+
+        index += 1
+        
+        if index > 2:
+            return None
+
 
 class DPODataset(Dataset):
     """Dataset for DPODataset fine-tuning."""
@@ -1098,7 +1131,8 @@ class DPODataset(Dataset):
             video_folder = self.data_args.video_folder
             video_file = os.path.join(video_folder, video_file)
             suffix = video_file.split(".")[-1]
-            if not os.path.exists(video_file):
+            video_file = find_existing_video_file(video_folder, video_file)
+            if video_file is None:
                 print("File {} not exist!".format(video_file))
 
             if suffix == "pkl":
@@ -1127,7 +1161,7 @@ class DPODataset(Dataset):
                     frame_files.sort()  # Ensure the frames are sorted if they are named sequentially
 
                     # TODO: Hard CODE: Determine the indices for uniformly sampling 10 frames
-                    num_frames_to_sample = 10
+                    num_frames_to_sample = 10 # previous author hard code sampling 10 frames
 
                     total_frames = len(frame_files)
 
@@ -1352,10 +1386,13 @@ def get_model(model_args, training_args, bnb_model_from_pretrained_args):
         # overwrite_config["tokenizer_model_max_length"] = model_args.tokenizer_model_max_length
 
     if model_args.mm_spatial_pool_stride is not None and model_args.mm_spatial_pool_out_channels is not None and model_args.mm_spatial_pool_mode is not None and model_args.mm_resampler_type is not None and cfg_pretrained is not None:
+    # NOTE here will print overwrite
         overwrite_config["mm_resampler_type"] = model_args.mm_resampler_type
         overwrite_config["mm_spatial_pool_stride"] = model_args.mm_spatial_pool_stride
         overwrite_config["mm_spatial_pool_out_channels"] = model_args.mm_spatial_pool_out_channels
         overwrite_config["mm_spatial_pool_mode"] = model_args.mm_spatial_pool_mode
+        # NOTE add mm_newline_position
+        overwrite_config["mm_newline_position"] = model_args.mm_newline_position
 
     if overwrite_config:
         rank0_print(f"Overwriting config with {overwrite_config}")
@@ -1592,6 +1629,9 @@ def train(attn_implementation=None):
     else:
         if tokenizer.unk_token is not None:
             tokenizer.pad_token = tokenizer.unk_token
+        # NOTE add pad_token
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token_id = 0
         if model_args.version in conversation_lib.conv_templates:
             conversation_lib.default_conversation = conversation_lib.conv_templates[model_args.version]
         else:
@@ -1732,6 +1772,7 @@ def train(attn_implementation=None):
                         module = module.to(torch.bfloat16)
 
     train_dataset = make_dpo_data_module(tokenizer=tokenizer, data_args=data_args)
+    print(f'train_dataset length: {len(train_dataset)}')
     data_collator = DPODataCollator(
         tokenizer,
         label_pad_token_id=IGNORE_INDEX,

@@ -1,9 +1,35 @@
-export OMP_NUM_THREADS=8
-export NCCL_IB_DISABLE=0
-export NCCL_IB_GID_INDEX=3
-# export NCCL_IB_HCA=${ARNOLD_RDMA_DEVICE}
-export NCCL_SOCKET_IFNAME=eth0
-export NCCL_DEBUG=INFO
+# export OMP_NUM_THREADS=8
+# export NCCL_IB_DISABLE=0
+# export NCCL_IB_GID_INDEX=3
+# # export NCCL_IB_HCA=${ARNOLD_RDMA_DEVICE}
+# export NCCL_SOCKET_IFNAME=eth0
+# export NCCL_DEBUG=INFO
+export NCCL_P2P_DISABLE=1
+export NCCL_IB_DISABLE=1
+
+lr=${1:-"5e-7"}
+
+
+# export WANDB_MODE=disabled
+export WANDB_PROJECT=llama3-llava-next
+export WANDB_NAME=dpo
+
+# gpu_ids=0
+gpu_ids=0,1,2,3,4,5,6,7
+export CUDA_VISIBLE_DEVICES=$gpu_ids
+n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
+echo "Using $n_gpu GPUs: $gpu_ids"
+
+output_dir=/mnt/storage/user/wangxiaodong/LLaVA-NeXT/${WANDB_PROJECT}/${WANDB_NAME}
+mkdir -p $output_dir
+
+# DATA
+data_path=/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_5171.jsonl
+
+# sudo chmod +x -R .
+# export PYTHONPATH=.
+
+port=19001
 
 VISION_MODEL_VERSION="/mnt/storage/user/wangxiaodong/.cache/huggingface/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
@@ -14,15 +40,16 @@ VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 PROMPT_VERSION="llava_llama_3"
 
 #torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
-ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
+# ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
+torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo.py \
     --deepspeed scripts/zero3.json \
     --model_name_or_path /mnt/storage/user/wangxiaodong/LLaVA-NeXT/llama3-llava-next-8b \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
-    --data_path="/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_5171.jsonl" \
+    --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /mnt/storage/user/wangxiaodong/RLAIF-V/data_process/dataset/frames \
+    --video_folder /mnt/storage/user/wangxiaodong/RLAIF-V/data_process/shareVideoGPTV/frames \
     --mm_tunable_parts="mm_vision_tower,mm_mlp_adapter,mm_language_model" \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
@@ -30,15 +57,17 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nno
     --mm_use_im_start_end False \
     --mm_use_im_patch_token False \
     --mm_spatial_pool_stride 2 \
+    --mm_newline_position "no_token" \
     --mm_resampler_type "spatial_pool" \
     --mm_spatial_pool_out_channels 1024 \
     --group_by_modality_length True \
     --image_aspect_ratio anyres \
     --image_grid_pinpoints "[(336, 672), (672, 336), (672, 672), (1008, 336), (336, 1008)]" \
-    --mm_patch_merge_type unires \
-    --bf16 True \
-    --run_name $MID_RUN_NAME \
-    --output_dir "checkpoints/${MID_RUN_NAME}" \
+    --mm_patch_merge_type spatial_unpad \
+    --bf16 False \
+    --fp16 True \
+    --run_name $WANDB_NAME \
+    --output_dir $output_dir \
     --num_train_epochs 3 \
     --per_device_train_batch_size 1 \
     --per_device_eval_batch_size 4 \
@@ -47,7 +76,7 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nno
     --save_strategy "steps" \
     --save_steps 3000 \
     --save_total_limit 1 \
-    --learning_rate 5e-7 \
+    --learning_rate $lr \
     --weight_decay 0. \
     --warmup_ratio 0.1 \
     --lr_scheduler_type "linear" \
@@ -61,4 +90,4 @@ ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nno
     --torch_compile True \
     --torch_compile_backend "inductor" \
     --dataloader_drop_last True \
-    --attn_implementation None
+    --attn_implementation sdpa
