@@ -32,6 +32,8 @@ import math
 import re
 import torch
 
+import torchvision.transforms as transforms
+
 import transformers
 import tokenizers
 
@@ -1131,7 +1133,7 @@ class DPODataset(Dataset):
             video_folder = self.data_args.video_folder
             video_file = os.path.join(video_folder, video_file)
             suffix = video_file.split(".")[-1]
-            video_file = find_existing_video_file(video_folder, video_file)
+            # video_file = find_existing_video_file(video_folder, video_file)
             if video_file is None:
                 print("File {} not exist!".format(video_file))
 
@@ -1216,6 +1218,21 @@ class DPODataset(Dataset):
         data_dict["has_image"] = has_image
         return data_dict
 
+from PIL import ImageFilter
+class GaussianBlur(object):
+    """Gaussian blur augmentation from SimCLR: https://arxiv.org/abs/2002.05709"""
+
+    def __init__(self, sigma=[.1, 2.]):
+        self.sigma = sigma
+
+    def __call__(self, x):
+        sigma = random.uniform(self.sigma[0], self.sigma[1])
+        x = x.filter(ImageFilter.GaussianBlur(radius=sigma))
+        return x
+
+def augmentation(frame, transform, state):
+    torch.set_rng_state(state)
+    return transform(frame)
 
 @dataclass
 class DPODataCollator(DPODataCollatorWithPadding):
@@ -1332,6 +1349,22 @@ class DPODataCollator(DPODataCollatorWithPadding):
             padded_batch["modalities"] = [im[2] for im_list in images for im in im_list]
             images = [im[0] for im_list in images for im in im_list]
             # import pdb;pdb.set_trace()
+            
+            # add augmentation
+            
+            aug_tranform = [
+                transforms.RandomResizedCrop(224, scale=(0.08, 1.)),
+                transforms.RandomApply([
+                    transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
+                ], p=0.8),
+                transforms.RandomGrayscale(p=0.2),
+                transforms.RandomApply([GaussianBlur([.1, 2.])], p=1.0),
+                transforms.RandomHorizontalFlip()
+            ]
+            
+            state = torch.get_rng_state()
+            # video = torch.stack([augmentation(v, aug_tranform, state) for v in video], dim=0)
+            # TODO image_process
 
             padded_batch["images"] = images
             # padded_batch["images"] =[padded_batch["modalities"], images]

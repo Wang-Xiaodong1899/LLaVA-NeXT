@@ -7,12 +7,12 @@
 export NCCL_P2P_DISABLE=1
 export NCCL_IB_DISABLE=1
 
-lr=${1:-"5e-7"}
+lr=${1:-"5e-8"}
 
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next
-export WANDB_NAME=dpo
+export WANDB_NAME=llava_dpo_17k_run1
 
 # gpu_ids=0
 gpu_ids=0,1,2,3,4,5,6,7
@@ -24,7 +24,7 @@ output_dir=/mnt/storage/user/wangxiaodong/LLaVA-NeXT/${WANDB_PROJECT}/${WANDB_NA
 mkdir -p $output_dir
 
 # DATA
-data_path=/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_5171.jsonl
+data_path=/mnt/storage/user/wangxiaodong/data/shareVideoGPTV/sft_dpo_17k.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -49,7 +49,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /mnt/storage/user/wangxiaodong/RLAIF-V/data_process/shareVideoGPTV/frames \
+    --video_folder /mnt/storage/user/wangxiaodong/data/shareVideoGPTV/dpo_train_data \
     --mm_tunable_parts="mm_vision_tower,mm_mlp_adapter,mm_language_model" \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
@@ -74,15 +74,15 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 3000 \
-    --save_total_limit 1 \
+    --save_steps 2000 \
+    --save_total_limit 3 \
     --learning_rate $lr \
     --weight_decay 0. \
     --warmup_ratio 0.1 \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
     --tf32 False \
-    --model_max_length 32768 \
+    --model_max_length 4096 \
     --gradient_checkpointing True \
     --dataloader_num_workers 16 \
     --lazy_preprocess True \
@@ -90,4 +90,6 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --torch_compile True \
     --torch_compile_backend "inductor" \
     --dataloader_drop_last True \
-    --attn_implementation sdpa
+    --attn_implementation sdpa \
+    --image_split_resolution 224 \
+    --image_crop_resolution 224

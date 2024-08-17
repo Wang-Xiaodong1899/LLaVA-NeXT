@@ -68,19 +68,40 @@ def parse_args():
 
 
 def load_video(video_path, args):
-    vr = VideoReader(video_path, ctx=cpu(0))
-    total_frame_num = len(vr)
-    fps = round(vr.get_avg_fps())
-    frame_idx = [i for i in range(0, len(vr), fps)]
-    # sample_fps = args.for_get_frames_num if total_frame_num > args.for_get_frames_num else total_frame_num
-    if len(frame_idx) > args.for_get_frames_num or args.force_sample:
-        sample_fps = args.for_get_frames_num
-        uniform_sampled_frames = np.linspace(0, total_frame_num - 1, sample_fps, dtype=int)
-        frame_idx = uniform_sampled_frames.tolist()
-    spare_frames = vr.get_batch(frame_idx).asnumpy()
-    # Save frames as images
-    # for i, frame in enumerate(spare_frames):
-    #     cv2.imwrite(f'{args.output_dir}/frame_{i}.jpg', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+    if os.path.isdir(video_path):
+        frame_files = [os.path.join(video_path, f) for f in os.listdir(video_path) if os.path.isfile(os.path.join(video_path, f))]
+        frame_files.sort()  # Ensure the frames are sorted if they are named sequentially
+        num_frames_to_sample = args.for_get_frames_num # previous author hard code sampling 10 frames
+
+        total_frames = len(frame_files)
+
+        sampled_indices = np.linspace(0, total_frames - 1, num_frames_to_sample, dtype=int)
+
+        # Read and store the sampled frames
+        video = []
+        for idx in sampled_indices:
+            frame_path = frame_files[idx]
+            try:
+                with Image.open(frame_path) as img:
+                    frame = img.convert("RGB")
+                    video.append(frame)
+            except IOError:
+                print(f"Failed to read frame at path: {frame_path}")
+        return video
+    else:
+        vr = VideoReader(video_path, ctx=cpu(0))
+        total_frame_num = len(vr)
+        fps = round(vr.get_avg_fps())
+        frame_idx = [i for i in range(0, len(vr), fps)]
+        # sample_fps = args.for_get_frames_num if total_frame_num > args.for_get_frames_num else total_frame_num
+        if len(frame_idx) > args.for_get_frames_num or args.force_sample:
+            sample_fps = args.for_get_frames_num
+            uniform_sampled_frames = np.linspace(0, total_frame_num - 1, sample_fps, dtype=int)
+            frame_idx = uniform_sampled_frames.tolist()
+        spare_frames = vr.get_batch(frame_idx).asnumpy()
+        # Save frames as images
+        # for i, frame in enumerate(spare_frames):
+        #     cv2.imwrite(f'{args.output_dir}/frame_{i}.jpg', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 
     return spare_frames
 
@@ -136,7 +157,7 @@ def run_inference(args):
                     overwrite_config["max_sequence_length"] = 4096 * scaling_factor
                     overwrite_config["tokenizer_model_max_length"] = 4096 * scaling_factor
 
-            tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name, load_8bit=args.load_8bit, overwrite_config=overwrite_config)
+            tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name, load_8bit=args.load_8bit, overwrite_config=overwrite_config) #, multimodal=True)
         else:
             tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name)
     else:
@@ -157,10 +178,11 @@ def run_inference(args):
     # Check if the video_path is a directory or a file
     if os.path.isdir(video_path):
         # If it's a directory, loop over all files in the directory
-        for filename in os.listdir(video_path):
-                    # Load the video file
-            cur_video_path = os.path.join(video_path, f"{filename}")
-            all_video_pathes.append(os.path.join(video_path, cur_video_path))
+        # for filename in os.listdir(video_path):
+        #             # Load the video file
+        #     cur_video_path = os.path.join(video_path, f"{filename}")
+        #     all_video_pathes.append(os.path.join(video_path, cur_video_path))
+        all_video_pathes = [video_path]
     else:
         # If it's a file, just process the video
         all_video_pathes.append(video_path) 

@@ -248,7 +248,7 @@ class LlavaMetaForCausalLM(ABC):
             encoded_image_features = self.encode_images(concat_images)
 
             # This is a list, each element is [num_images, patch * patch, dim]
-            # rank_print(f"encoded_image_features : {encoded_image_features.shape}") # [20, 576, 4096]
+            # rank_print(f"encoded_image_features : {encoded_image_features.shape}") # [20, 576, 4096], 576=24*24
             # rank_print(f'video_idx_in_batch: {video_idx_in_batch}')
             encoded_image_features = torch.split(encoded_image_features, split_sizes)
             # rank_print(f"after encoded_image_features len : {len(encoded_image_features)}")
@@ -369,7 +369,8 @@ class LlavaMetaForCausalLM(ABC):
                         if "unpad" in mm_patch_merge_type:
                             image_feature = torch.cat((image_feature, self.model.image_newline[None]), dim=0)
 
-                    # new_image_features.append(image_feature) # TODO xiaodong debug
+                    if image_idx not in video_idx_in_batch:
+                        new_image_features.append(image_feature) # TODO xiaodong debug
                 image_features = new_image_features
             else:
                 raise ValueError(f"Unexpected mm_patch_merge_type: {self.config.mm_patch_merge_type}")

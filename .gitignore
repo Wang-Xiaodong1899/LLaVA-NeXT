@@ -79,3 +79,7 @@ data_processing/
 # demo/
 vicuna
 Bunny-v1_1-4B
+llava-next/*
+
+# results
+results

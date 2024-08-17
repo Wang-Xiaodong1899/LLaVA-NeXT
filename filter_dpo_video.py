@@ -55,4 +55,41 @@ def filter_directory():
 
     print(f"匹配的 IDs 已保存到 {filtered_json_file_path}")
 
-filter_directory()
+
+def filter_item_by_id():
+    jsonl_file_path = '/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_17k.jsonl'
+    new_jsonl_file_path = '/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_17k_ours.json'
+
+    ids = []
+    
+    data_root = '/mnt/storage/user/wangxiaodong/data/Hound-DPO/dpo_train_data'
+    
+    folder_ids = []
+    folders = os.listdir(data_root)
+    for f in folders:
+        if os.path.isdir(os.path.join(data_root, f)):
+            folder_ids.append(f)
+    
+    print(f'foloder length: {len(folder_ids)}')
+    
+    all_data = []
+
+    existing_items = []
+    with open(jsonl_file_path, 'r') as jsonl_file:
+        for line in jsonl_file:
+
+            data = json.loads(line)
+            all_data.append(data)
+
+            if 'video' in data:
+                if data['video'] in folder_ids:
+                    existing_items.append(data)
+    
+    print(f'all items {len(all_data)}')
+    print(f'selected items {len(existing_items)}')
+    
+    with open(new_jsonl_file_path, 'w') as jsonl_file:
+        for entry in existing_items:
+            jsonl_file.write(json.dumps(entry) + '\n')
+
+filter_item_by_id()
