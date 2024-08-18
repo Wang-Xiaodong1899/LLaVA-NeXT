@@ -1163,7 +1163,7 @@ class DPODataset(Dataset):
                     frame_files.sort()  # Ensure the frames are sorted if they are named sequentially
 
                     # TODO: Hard CODE: Determine the indices for uniformly sampling 10 frames
-                    num_frames_to_sample = 10 # previous author hard code sampling 10 frames
+                    num_frames_to_sample = self.data_args.frames_upbound # previous author hard code sampling 10 frames
 
                     total_frames = len(frame_files)
 

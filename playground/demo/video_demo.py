@@ -92,6 +92,7 @@ def load_video(video_path, args):
         vr = VideoReader(video_path, ctx=cpu(0))
         total_frame_num = len(vr)
         fps = round(vr.get_avg_fps())
+        print(f'fps: {fps}')
         frame_idx = [i for i in range(0, len(vr), fps)]
         # sample_fps = args.for_get_frames_num if total_frame_num > args.for_get_frames_num else total_frame_num
         if len(frame_idx) > args.for_get_frames_num or args.force_sample:
@@ -99,6 +100,7 @@ def load_video(video_path, args):
             uniform_sampled_frames = np.linspace(0, total_frame_num - 1, sample_fps, dtype=int)
             frame_idx = uniform_sampled_frames.tolist()
         spare_frames = vr.get_batch(frame_idx).asnumpy()
+        print(f'frame length: {len(spare_frames)}')
         # Save frames as images
         # for i, frame in enumerate(spare_frames):
         #     cv2.imwrite(f'{args.output_dir}/frame_{i}.jpg', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))

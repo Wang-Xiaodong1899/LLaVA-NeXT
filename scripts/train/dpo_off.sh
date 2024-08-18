@@ -12,7 +12,7 @@ lr=${1:-"5e-7"}
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next
-export WANDB_NAME=llava_dpo_17k_run2
+export WANDB_NAME=llava_dpo_17k_run3
 
 # gpu_ids=0
 gpu_ids=0,1,2,3,4,5,6,7
@@ -43,7 +43,7 @@ PROMPT_VERSION="vicuna_v1"
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo.py \
-    --deepspeed scripts/zero3.json \
+    --deepspeed scripts/zero3_offload.json \
     --model_name_or_path /mnt/storage/user/wangxiaodong/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
@@ -51,7 +51,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_folder xxx \
     --video_folder /mnt/storage/user/wangxiaodong/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
-    --frames_upbound 16 \
+    --frames_upbound 32 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \

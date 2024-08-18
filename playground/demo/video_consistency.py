@@ -88,7 +88,6 @@ def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, 
             pass
         else:
             video[:slice_len, ...] = patch_images
-
         return patch_images, slice_len
     else:
         print("video path: {} error.".format(video_path))
@@ -302,4 +301,5 @@ def run_inference(args):
 
 if __name__ == "__main__":
     args = parse_args()
+    print(f'eval frames: {args.for_get_frames_num}')
     run_inference(args)

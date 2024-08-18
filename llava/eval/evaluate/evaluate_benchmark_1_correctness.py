@@ -25,6 +25,11 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+from openai import OpenAI
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key='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',
+)
 
 def annotate(prediction_set, caption_files, output_dir):
     """
@@ -39,7 +44,7 @@ def annotate(prediction_set, caption_files, output_dir):
         pred = qa_set['pred']
         try:
             # Compute the correctness score
-            completion = openai.ChatCompletion.create(
+            completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {
@@ -69,7 +74,7 @@ def annotate(prediction_set, caption_files, output_dir):
                 ]
             )
             # Convert response to a Python dictionary.
-            response_message = completion["choices"][0]["message"]["content"]
+            response_message = completion.choices[0].message.content
             response_dict = ast.literal_eval(response_message)
             result_qa_pair = [response_dict, qa_set]
 

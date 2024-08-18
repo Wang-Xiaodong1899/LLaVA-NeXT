@@ -130,54 +130,58 @@ def main():
     caption_files = [f"{id}.json" for id in id_list]
 
     output_dir = args.output_dir
-    # Generate output directory if not exists.
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    
+    if os.path.exists(output_dir):
+        pass
+    else:
+        # Generate output directory if not exists.
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        # Preparing dictionary of question-answer sets
+        prediction_set = {}
+        for sample in new_pred_contents:
+            id = sample['video_name']
+            question1 = sample['prompt_1']
+            question2 = sample['prompt_2']
+            answer = sample['answer']
+            pred1 = sample['text_1']
+            pred2 = sample['text_2']
+            qa_set = {"q1": question1, "q2": question2, "a": answer, "pred1": pred1, "pred2": pred2}
+            prediction_set[id] = qa_set
 
-    # Preparing dictionary of question-answer sets
-    prediction_set = {}
-    for sample in new_pred_contents:
-        id = sample['video_name']
-        question1 = sample['prompt_1']
-        question2 = sample['prompt_2']
-        answer = sample['answer']
-        pred1 = sample['text_1']
-        pred2 = sample['text_2']
-        qa_set = {"q1": question1, "q2": question2, "a": answer, "pred1": pred1, "pred2": pred2}
-        prediction_set[id] = qa_set
+        # Set the OpenAI API key.
+        # openai.api_key = args.api_key
+        num_tasks = args.num_tasks
 
-    # Set the OpenAI API key.
-    # openai.api_key = args.api_key
-    num_tasks = args.num_tasks
+        # While loop to ensure that all captions are processed.
+        while True:
+            try:
+                # Files that have not been processed yet.
+                completed_files = os.listdir(output_dir)
+                print(f"completed_files: {len(completed_files)}")
 
-    # While loop to ensure that all captions are processed.
-    while True:
-        try:
-            # Files that have not been processed yet.
-            completed_files = os.listdir(output_dir)
-            print(f"completed_files: {len(completed_files)}")
+                # Files that have not been processed yet.
+                incomplete_files = [f for f in caption_files if f not in completed_files]
+                print(f"incomplete_files: {len(incomplete_files)}")
 
-            # Files that have not been processed yet.
-            incomplete_files = [f for f in caption_files if f not in completed_files]
-            print(f"incomplete_files: {len(incomplete_files)}")
+                # Break the loop when there are no incomplete files
+                if len(incomplete_files) == 0:
+                    break
+                if len(incomplete_files) <= num_tasks:
+                    num_tasks = 1
 
-            # Break the loop when there are no incomplete files
-            if len(incomplete_files) == 0:
-                break
-            if len(incomplete_files) <= num_tasks:
-                num_tasks = 1
+                # Split tasks into parts.
+                part_len = len(incomplete_files) // num_tasks
+                all_parts = [incomplete_files[i:i + part_len] for i in range(0, len(incomplete_files), part_len)]
+                task_args = [(prediction_set, part, args.output_dir) for part in all_parts]
 
-            # Split tasks into parts.
-            part_len = len(incomplete_files) // num_tasks
-            all_parts = [incomplete_files[i:i + part_len] for i in range(0, len(incomplete_files), part_len)]
-            task_args = [(prediction_set, part, args.output_dir) for part in all_parts]
+                # Use a pool of workers to process the files in parallel.
+                with Pool() as pool:
+                    pool.starmap(annotate, task_args)
 
-            # Use a pool of workers to process the files in parallel.
-            with Pool() as pool:
-                pool.starmap(annotate, task_args)
-
-        except Exception as e:
-            print(f"Error: {e}")
+            except Exception as e:
+                print(f"Error: {e}")
 
     # Combine all the processed files into one
     combined_contents = {}

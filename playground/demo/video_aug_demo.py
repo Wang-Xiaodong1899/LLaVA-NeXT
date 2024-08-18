@@ -374,4 +374,5 @@ def run_inference(args):
 
 if __name__ == "__main__":
     args = parse_args()
+    print(f'eval frames: {args.for_get_frames_num}')
     run_inference(args)

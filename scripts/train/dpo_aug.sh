@@ -12,7 +12,7 @@ lr=${1:-"5e-7"}
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next
-export WANDB_NAME=llava_dpo_17k_run2
+export WANDB_NAME=llava_dpo_aug_5k
 
 # gpu_ids=0
 gpu_ids=0,1,2,3,4,5,6,7
@@ -24,7 +24,7 @@ output_dir=/mnt/storage/user/wangxiaodong/LLaVA-NeXT/${WANDB_PROJECT}/${WANDB_NA
 mkdir -p $output_dir
 
 # DATA
-data_path=/mnt/storage/user/wangxiaodong/data/shareVideoGPTV/sft_dpo_17k.jsonl
+data_path=/mnt/storage/user/wangxiaodong/LLaVA-NeXT/work_dirs/video_aug/LLaVA-NeXT-Video-7B_vicuna_v1_frames_32_stride_2/aug_preference_0_5000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -75,7 +75,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1000 \
+    --save_steps 500 \
     --save_total_limit 3 \
     --learning_rate $lr \
     --weight_decay 0. \

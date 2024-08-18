@@ -73,6 +73,8 @@ def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, 
         t_stride = int(round(float(fps) / sample_fps))
 
         all_pos = list(range(f_start, f_end + 1, t_stride))
+        
+        print(f'all pos {len(all_pos)}')
         if len(all_pos) > max_frames:
             sample_pos = [all_pos[_] for _ in np.linspace(0, len(all_pos) - 1, num=max_frames, dtype=int)]
         else:
@@ -82,13 +84,15 @@ def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, 
 
         patch_images = torch.stack([image_processor.preprocess(img, return_tensors='pt')['pixel_values'][0] for img in patch_images])
         slice_len = patch_images.shape[0]
+        
+        print(f'slice_len: {slice_len}')
 
         max_video_length = max_video_length if max_video_length > slice_len else slice_len
         if slice_len < 1:
             pass
         else:
             video[:slice_len, ...] = patch_images
-
+        print(f'len of patch_images: {len(patch_images)}')
         return patch_images, slice_len
     else:
         print("video path: {} error.".format(video_path))
@@ -264,4 +268,5 @@ def run_inference(args):
 
 if __name__ == "__main__":
     args = parse_args()
+    print(f'eval frames: {args.for_get_frames_num}')
     run_inference(args)
