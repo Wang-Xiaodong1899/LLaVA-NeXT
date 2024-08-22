@@ -88,6 +88,7 @@ def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, 
             pass
         else:
             video[:slice_len, ...] = patch_images
+        print(f'slice_len: {slice_len}') # 32
         return patch_images, slice_len
     else:
         print("video path: {} error.".format(video_path))

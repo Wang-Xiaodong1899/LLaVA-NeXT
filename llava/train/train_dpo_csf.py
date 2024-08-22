@@ -39,7 +39,7 @@ import tokenizers
 
 from llava.constants import IGNORE_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN, IMAGE_TOKEN_INDEX
 from torch.utils.data import Dataset
-from llava.train.llava_trainer import LLaVADPOTrainer
+from llava.train.llava_trainer import LLaVADPOTrainer, LLaVACDPOTrainer
 # from data_processing.utils import load_jsonl, load_json
 from llava import conversation as conversation_lib
 from llava.model import *
@@ -183,6 +183,8 @@ class TrainingArguments(transformers.TrainingArguments):
     gamma: float = field(default=1.0)
     generate_during_eval: bool = field(default=False)
     precompute_ref_log_probs: bool = field(default=False)
+    enable_video_fast: bool = field(default=False)
+    enable_video_slow: bool = field(default=False)
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):
@@ -1191,6 +1193,7 @@ class DPODataset(Dataset):
         has_image = ("image" in self.list_data_dict[i]) or ("video" in self.list_data_dict[i])
         # data_dict = preprocess(sources, self.tokenizer, has_image=has_image)
         data_dict = copy.deepcopy(self.list_data_dict[i])  # inplace modification following
+        # NOTE already copy keys
 
         if "prompt" in data_dict:
             prompt = data_dict["prompt"]
@@ -1259,7 +1262,6 @@ class DPODataCollator(DPODataCollatorWithPadding):
         #     attention_mask=input_ids.ne(self.tokenizer.pad_token_id),
         # )
         padded_batch = {}
-        #NOTE define chosen_input_ids and rejected_input_ids
         for k in batch[0].keys():
             if k.endswith("_input_ids") or k.endswith("_attention_mask") or k.endswith("_labels"):
                 # if "prompt" in k:
@@ -1320,7 +1322,7 @@ class DPODataCollator(DPODataCollatorWithPadding):
             for type_key, tokens in toks.items():
                 if type_key == "token_type_ids":
                     continue
-                batch[f"{k}_{type_key}"] = tokens
+                batch[f"{k}_{type_key}"] = tokens # get chosen_input_ids, rejected_input_ids
         return batch
 
     def __call__(self, features: List[Dict[str, Any]]) -> Dict[str, Any]:

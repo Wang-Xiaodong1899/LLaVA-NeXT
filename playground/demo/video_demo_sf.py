@@ -11,7 +11,6 @@ import json
 import os
 import math
 from tqdm import tqdm
-import torchvision.transforms as transforms
 from decord import VideoReader, cpu
 
 from transformers import AutoConfig
@@ -65,28 +64,8 @@ def parse_args():
     parser.add_argument("--api_key", type=str, help="OpenAI API key")
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
-    parser.add_argument("--add-aug", type=str, default="mocov3")
-    parser.add_argument("--jsonl-file", type=str, default="xxx")
-    parser.add_argument("--start", type=int, default=0)
-    parser.add_argument("--end", type=int, default=20000)
     return parser.parse_args()
 
-import random
-from PIL import ImageFilter
-class GaussianBlur(object):
-    """Gaussian blur augmentation from SimCLR: https://arxiv.org/abs/2002.05709"""
-
-    def __init__(self, sigma=[.1, 2.]):
-        self.sigma = sigma
-
-    def __call__(self, x):
-        sigma = random.uniform(self.sigma[0], self.sigma[1])
-        x = x.filter(ImageFilter.GaussianBlur(radius=sigma))
-        return x
-
-def augmentation(frame, transform, state):
-    torch.set_rng_state(state)
-    return transform(frame)
 
 def load_video(video_path, args):
     if os.path.isdir(video_path):
@@ -108,34 +87,12 @@ def load_video(video_path, args):
                     video.append(frame)
             except IOError:
                 print(f"Failed to read frame at path: {frame_path}")
-        
-        # add augmentation
-        aug_tranform = transforms.Compose([
-            transforms.RandomResizedCrop(224, scale=(0.08, 1.)),
-            transforms.RandomApply([
-                transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
-            ], p=0.8),
-            transforms.RandomGrayscale(p=0.2),
-            transforms.RandomApply([GaussianBlur([.1, 2.])], p=1.0),
-            transforms.RandomHorizontalFlip()
-        ])
-        
-        # # save original video frame
-        # for (idx, v) in enumerate(video):
-        #     v.save(f'{os.path.basename(video_path)}_00{idx}.jpg')
-        if args.add_aug:
-            state = torch.get_rng_state()
-            video = [augmentation(v, aug_tranform, state) for v in video]
-        
-        # save aug video frame
-        # for (idx, v) in enumerate(video):
-        #     v.save(f'{os.path.basename(video_path)}_00{idx}_aug.jpg')
-        
         return video
     else:
         vr = VideoReader(video_path, ctx=cpu(0))
         total_frame_num = len(vr)
         fps = round(vr.get_avg_fps())
+        print(f'video total_frame_num: {total_frame_num}, fps: {fps}')
         frame_idx = [i for i in range(0, len(vr), fps)]
         # sample_fps = args.for_get_frames_num if total_frame_num > args.for_get_frames_num else total_frame_num
         if len(frame_idx) > args.for_get_frames_num or args.force_sample:
@@ -143,6 +100,7 @@ def load_video(video_path, args):
             uniform_sampled_frames = np.linspace(0, total_frame_num - 1, sample_fps, dtype=int)
             frame_idx = uniform_sampled_frames.tolist()
         spare_frames = vr.get_batch(frame_idx).asnumpy()
+        print(f'frame length: {len(spare_frames)}')
         # Save frames as images
         # for i, frame in enumerate(spare_frames):
         #     cv2.imwrite(f'{args.output_dir}/frame_{i}.jpg', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
@@ -220,18 +178,19 @@ def run_inference(args):
     all_video_pathes = []
 
     # Check if the video_path is a directory or a file
-    print(f'args video path: {video_path}')
     if os.path.isdir(video_path):
-        # If it's a directory, input each dir
-        for filename in os.listdir(video_path):
-            if os.path.isdir(os.path.join(video_path, filename)):
-                all_video_pathes.append(os.path.join(video_path, filename))
+        # If it's a directory, loop over all files in the directory
+        # for filename in os.listdir(video_path):
+        #             # Load the video file
+        #     cur_video_path = os.path.join(video_path, f"{filename}")
+        #     all_video_pathes.append(os.path.join(video_path, cur_video_path))
+        all_video_pathes = [video_path]
     else:
         # If it's a file, just process the video
         all_video_pathes.append(video_path) 
 
     # import pdb;pdb.set_trace()
-    for video_path in tqdm(all_video_pathes):
+    for video_path in all_video_pathes:
 
         sample_set = {}
         question = args.prompt
@@ -256,7 +215,7 @@ def run_inference(args):
             if model.config.mm_use_im_start_end:
                 qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
             else:
-                qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
+                qs = DEFAULT_IMAGE_TOKEN *2 + "\n" + qs # TODO debug token * 2
 
             conv = conv_templates[args.conv_mode].copy()
             conv.append_message(conv.roles[0], qs)
@@ -289,10 +248,10 @@ def run_inference(args):
                 # import pdb;pdb.set_trace()
                 # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
                 if "mistral" not in cfg_pretrained._name_or_path.lower():
-                    output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=256, top_p=0.1,num_beams=1,use_cache=True, stopping_criteria=[stopping_criteria])
+                    output_ids = model.generate(inputs=input_ids, images=video * 2, attention_mask=attention_masks, modalities=["video"] * 2, do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1,num_beams=1,use_cache=True, stopping_criteria=[stopping_criteria])
                     # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
                 else:
-                    output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=256, top_p=0.1, num_beams=1, use_cache=True)
+                    output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1, num_beams=1, use_cache=True)
                     # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True)
         else:
             openai.api_key = args.api_key  # Your API key here
@@ -349,8 +308,8 @@ def run_inference(args):
         else:
             print(len(video[0::interval]))
         
-        # print(f"Question: {prompt}\n")
-        # print(f"Response: {outputs}\n")
+        print(f"Question: {prompt}\n")
+        print(f"Response: {outputs}\n")
 
         if "gpt4v" == args.model_path:
             if system_error == 'content_policy_violation':

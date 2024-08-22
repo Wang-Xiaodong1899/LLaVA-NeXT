@@ -1,18 +1,10 @@
-# DPO Authors: Rafael Rafailov, Archit Sharma, Eric Mitchell, Stefano Ermon, Christopher D. Manning, and Chelsea Finn 2023
-# Copyright 2023 The HuggingFace Team. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# CDPO
+# based on DPO
+# Add video conditional alignment preference loss
+
+
 import inspect
+from pickle import NONE
 import random
 import warnings
 from collections import defaultdict
@@ -64,9 +56,9 @@ if is_deepspeed_available():
 from transformers.integrations.deepspeed import is_deepspeed_zero3_enabled
 
 
-class DPOTrainer(Trainer):
+class CDPOTrainer(Trainer):
     r"""
-    Initialize DPOTrainer.
+    Initialize CDPOTrainer.
 
     Args:
         model (`transformers.PreTrainedModel`):
@@ -177,24 +169,26 @@ class DPOTrainer(Trainer):
         model_adapter_name: Optional[str] = None,
         ref_adapter_name: Optional[str] = None,
         reference_free: bool = False,
+        duplicate_chosen_for_slow: bool = False,
+        duplicate_chosen_for_fast: bool = False
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
             model_init_kwargs = {}
         elif not isinstance(model, str):
-            raise ValueError("You passed model_kwargs to the DPOTrainer. But your model is already instantiated.")
+            raise ValueError("You passed model_kwargs to the CDPOTrainer. But your model is already instantiated.")
 
         if ref_model_init_kwargs is None:
             ref_model_init_kwargs = {}
         elif not isinstance(ref_model, str):
-            raise ValueError("You passed ref_model_kwargs to the DPOTrainer. But your ref_model is already instantiated.")
+            raise ValueError("You passed ref_model_kwargs to the CDPOTrainer. But your ref_model is already instantiated.")
 
         if isinstance(model, str):
-            warnings.warn("You passed a model_id to the DPOTrainer. This will automatically create an " "`AutoModelForCausalLM` or a `PeftModel` (if you passed a `peft_config`) for you.")
+            warnings.warn("You passed a model_id to the CDPOTrainer. This will automatically create an " "`AutoModelForCausalLM` or a `PeftModel` (if you passed a `peft_config`) for you.")
             model = AutoModelForCausalLM.from_pretrained(model, **model_init_kwargs)
 
         if isinstance(ref_model, str):
-            warnings.warn("You passed a ref model_id to the DPOTrainer. This will automatically create an " "`AutoModelForCausalLM`")
+            warnings.warn("You passed a ref model_id to the CDPOTrainer. This will automatically create an " "`AutoModelForCausalLM`")
             ref_model = AutoModelForCausalLM.from_pretrained(ref_model, **ref_model_init_kwargs)
 
         # Initialize this variable to False. This helps tracking the case when `peft_module_casting_to_bf16`
@@ -215,6 +209,8 @@ class DPOTrainer(Trainer):
         self.model_adapter_name = model_adapter_name
         self.ref_adapter_name = ref_adapter_name
         self.reference_free = reference_free
+        self.duplicate_chosen_for_fast = duplicate_chosen_for_fast
+        self.duplicate_chosen_for_slow = duplicate_chosen_for_slow
 
         if ref_model:
             self.ref_model = ref_model
@@ -231,20 +227,20 @@ class DPOTrainer(Trainer):
             raise ValueError("tokenizer must be specified to tokenize a DPO dataset.")
         if max_length is None:
             warnings.warn(
-                "`max_length` is not set in the DPOTrainer's init" " it will default to `512` by default, but you should do it yourself in the future.",
+                "`max_length` is not set in the CDPOTrainer's init" " it will default to `512` by default, but you should do it yourself in the future.",
                 UserWarning,
             )
             max_length = 512
         if max_prompt_length is None:
             warnings.warn(
-                "`max_prompt_length` is not set in the DPOTrainer's init" " it will default to `128` by default, but you should do it yourself in the future.",
+                "`max_prompt_length` is not set in the CDPOTrainer's init" " it will default to `128` by default, but you should do it yourself in the future.",
                 UserWarning,
             )
             max_prompt_length = 128
 
         if max_target_length is None and self.is_encoder_decoder:
             warnings.warn(
-                "When using an encoder decoder architecture, you should set `max_target_length` in the DPOTrainer's init" " it will default to `128` by default, but you should do it yourself in the future.",
+                "When using an encoder decoder architecture, you should set `max_target_length` in the CDPOTrainer's init" " it will default to `128` by default, but you should do it yourself in the future.",
                 UserWarning,
             )
             max_target_length = 128
@@ -668,6 +664,8 @@ class DPOTrainer(Trainer):
         label_pad_token_id: int = -100,
         padding_value: int = 0,
         device: Optional[torch.device] = None,
+        duplicate_chosen_for_fast = False,
+        duplicate_chosen_for_slow = False
     ) -> Dict[str, torch.LongTensor]:
         """Concatenate the chosen and rejected inputs into a single tensor.
 
@@ -715,6 +713,47 @@ class DPOTrainer(Trainer):
                     ),
                     dim=0,
                 ).to(device=device)
+        
+        # HACK a naive to replicate the chosen answer
+        # [chosen, rejected, chosen]
+        if duplicate_chosen_for_slow:
+            for k in batch:
+                if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
+                    if "labels" in k or is_encoder_decoder:
+                        pad_value = label_pad_token_id
+                    elif k.endswith("_input_ids"):
+                        pad_value = padding_value
+                    elif k.endswith("_attention_mask"):
+                        pad_value = 0
+                    concatenated_key = k.replace("chosen", "concatenated")
+                    concatenated_batch[concatenated_key] = torch.cat(
+                        (
+                            concatenated_batch[concatenated_key],
+                            pad_to_length(batch[k], max_length, pad_value=pad_value),
+                        ),
+                        dim=0,
+                    ).to(device=device)
+
+        # HACK a naive to replicate the chosen answer
+        # [chosen, rejected, chosen, chosen]
+        if duplicate_chosen_for_fast:
+            for k in batch:
+                if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
+                    if "labels" in k or is_encoder_decoder:
+                        pad_value = label_pad_token_id
+                    elif k.endswith("_input_ids"):
+                        pad_value = padding_value
+                    elif k.endswith("_attention_mask"):
+                        pad_value = 0
+                    concatenated_key = k.replace("chosen", "concatenated")
+                    concatenated_batch[concatenated_key] = torch.cat(
+                        (
+                            concatenated_batch[concatenated_key],
+                            pad_to_length(batch[k], max_length, pad_value=pad_value),
+                        ),
+                        dim=0,
+                    ).to(device=device)
+
         if is_encoder_decoder:
             concatenated_batch["concatenated_input_ids"] = batch["prompt_input_ids"].repeat(2, 1).to(device=device)
             concatenated_batch["concatenated_attention_mask"] = batch["prompt_attention_mask"].repeat(2, 1).to(device=device)
@@ -723,9 +762,18 @@ class DPOTrainer(Trainer):
         #     batch['images'][0] * 2,
         #     batch['images'][1] * 2
         # ]
-        concatenated_batch["concatenated_images"] = batch["images"] * 2
-        concatenated_batch["image_sizes"] = batch["image_sizes"] * 2
-        concatenated_batch["modalities"] = batch["modalities"] * 2
+        if duplicate_chosen_for_slow and duplicate_chosen_for_fast:
+            concatenated_batch["concatenated_images"] = batch["images"] * 4
+            concatenated_batch["image_sizes"] = batch["image_sizes"] * 4
+            concatenated_batch["modalities"] = batch["modalities"] * 4
+        elif duplicate_chosen_for_slow or duplicate_chosen_for_fast:
+            concatenated_batch["concatenated_images"] = batch["images"] * 3
+            concatenated_batch["image_sizes"] = batch["image_sizes"] * 3
+            concatenated_batch["modalities"] = batch["modalities"] * 3
+        else:
+            concatenated_batch["concatenated_images"] = batch["images"] * 2
+            concatenated_batch["image_sizes"] = batch["image_sizes"] * 2
+            concatenated_batch["modalities"] = batch["modalities"] * 2
         return concatenated_batch
 
     def dpo_loss(
@@ -793,6 +841,48 @@ class DPOTrainer(Trainer):
 
         return losses, chosen_rewards, rejected_rewards
 
+    # XXX 
+    def condition_dpo_loss(
+        self,
+        policy_chosen_logps: torch.FloatTensor,
+        policy_rejected_logps: torch.FloatTensor,
+        reference_chosen_logps: torch.FloatTensor,
+        reference_rejected_logps: torch.FloatTensor,
+        policy_condition_logps: torch.FloatTensor,
+        reference_condition_logps: torch.FloatTensor,
+        policy_condition_1_logps: torch.FloatTensor,
+        reference_condition_1_logps: torch.FloatTensor,
+
+    ) -> Tuple[torch.FloatTensor, torch.FloatTensor, torch.FloatTensor]:
+        """Compute the DPO loss for a batch of policy and reference model log probabilities.
+
+        Args:
+            policy_chosen_logps: Log probabilities of the policy model for the chosen responses. Shape: (batch_size,)
+            policy_rejected_logps: Log probabilities of the policy model for the rejected responses. Shape: (batch_size,)
+            reference_chosen_logps: Log probabilities of the reference model for the chosen responses. Shape: (batch_size,)
+            reference_rejected_logps: Log probabilities of the reference model for the rejected responses. Shape: (batch_size,)
+
+        Returns:
+            A tuple of three tensors: (losses, chosen_rewards, rejected_rewards).
+            The losses tensor contains the DPO loss for each example in the batch.
+            The chosen_rewards and rejected_rewards tensors contain the rewards for the chosen and rejected responses, respectively.
+        """
+        loss_dpo, chosen_rewards, rejected_rewards = self.dpo_loss(policy_chosen_logps, policy_rejected_logps, reference_chosen_logps, reference_rejected_logps)
+        if policy_condition_logps is not None and reference_condition_logps is not None:
+            loss_cond, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_logps, reference_chosen_logps, reference_condition_logps)
+        else:
+            loss_cond = 0.
+        
+        if policy_condition_1_logps is not None and reference_condition_1_logps is not None:
+            loss_cond_1, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_1_logps, reference_chosen_logps, reference_condition_1_logps)
+        else:
+            loss_cond_1 = 0.
+        
+        losses = loss_dpo + loss_cond + loss_cond_1
+        
+        return losses, chosen_rewards, rejected_rewards
+
+
     @staticmethod
     def get_batch_logps(
         logits: torch.FloatTensor,
@@ -856,6 +946,8 @@ class DPOTrainer(Trainer):
             label_pad_token_id=self.label_pad_token_id,
             padding_value=self.padding_value,
             device=self.accelerator.device,
+            duplicate_chosen_for_slow=self.duplicate_chosen_for_slow,
+            duplicate_chosen_for_fast=self.duplicate_chosen_for_fast
         )
         len_chosen = batch["chosen_labels"].shape[0]
 
@@ -881,7 +973,18 @@ class DPOTrainer(Trainer):
 
         chosen_logps = all_logps[:len_chosen]
         rejected_logps = all_logps[len_chosen:]
-
+        
+        condition_logps = None
+        condition_1_logps = None
+        
+        # XXX third logps
+        if len(chosen_logps) != len(rejected_logps):
+            rejected_logps = all_logps[len_chosen: 2*len_chosen]
+            condition_logps = all_logps[2*len_chosen: ]
+            if len(condition_logps) != len(rejected_logps):
+                condition_logps = all_logps[2*len_chosen: 3*len_chosen]
+                condition_1_logps = all_logps[3*len_chosen: ]
+        
         # don't count image embeds logits
         # loss_mask = new_labels != -100
         # logits = [all_logits[i][loss_mask[i]] for i in range(loss_mask.shape[0])]
@@ -897,8 +1000,27 @@ class DPOTrainer(Trainer):
 
         chosen_labels = new_labels[:len_chosen]
         rejected_labels = new_labels[len_chosen:]
+        
+        condition_logits = None
+        condition_1_logits = None
+        condition_labels = None
+        condition_1_labels = None
+        
+        # XXX third logps
+        if len(chosen_logits) != len(rejected_logits):
+            rejected_logits = all_logits[len_chosen: 2*len_chosen]
+            condition_logits = all_logits[2*len_chosen: ]
+            if len(condition_logits) != len(rejected_logits):
+                condition_logits = all_logits[2*len_chosen: 3*len_chosen]
+                condition_1_logits = all_logits[3*len_chosen: ]
+            
+            rejected_labels = new_labels[len_chosen: 2*len_chosen]
+            condition_labels = new_labels[2*len_chosen: ]
+            if len(condition_labels) != len(rejected_labels):
+                condition_labels = new_labels[2*len_chosen: 3*len_chosen]
+                condition_1_labels = new_labels[3*len_chosen: ]
 
-        return (chosen_logps, rejected_logps, chosen_logits, rejected_logits, chosen_labels, rejected_labels)
+        return (chosen_logps, rejected_logps, chosen_logits, rejected_logits, chosen_labels, rejected_labels, condition_logps, condition_logits, condition_labels, condition_1_logps, condition_1_logits, condition_1_labels)
 
     def get_batch_loss_metrics(
         self,
@@ -919,6 +1041,12 @@ class DPOTrainer(Trainer):
             policy_rejected_logits,
             chosen_labels,
             rejected_labels,
+            policy_condition_logps,
+            policy_condition_logits,
+            condition_labels,
+            policy_condition_1_logps,
+            policy_condition_1_logits,
+            condition_1_labels
         ) = self.concatenated_forward(model, batch)
 
         # if reference_chosen_logps and reference_rejected_logps in batch use them, otherwise use the reference model
@@ -939,15 +1067,24 @@ class DPOTrainer(Trainer):
                     (
                         reference_chosen_logps,
                         reference_rejected_logps,
+                        _, _, _, _,
+                        reference_condition_logps,
+                        _, _,
+                        reference_condition_1_logps,
+                        _, _
                     ) = self.concatenated_forward(
                         self.ref_model, batch
-                    )[:2]
+                    )
 
-        unscaled_dpo_losses, chosen_rewards, rejected_rewards = self.dpo_loss(
+        unscaled_dpo_losses, chosen_rewards, rejected_rewards = self.condition_dpo_loss(
             policy_chosen_logps,
             policy_rejected_logps,
             reference_chosen_logps,
             reference_rejected_logps,
+            policy_condition_logps,
+            reference_condition_logps,
+            policy_condition_1_logps,
+            reference_condition_1_logps
         )
         unscaled_dpo_losses = unscaled_dpo_losses.mean()
         dpo_losses = unscaled_dpo_losses * self.dpo_alpha

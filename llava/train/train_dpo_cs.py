@@ -39,7 +39,7 @@ import tokenizers
 
 from llava.constants import IGNORE_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN, IMAGE_TOKEN_INDEX
 from torch.utils.data import Dataset
-from llava.train.llava_trainer import LLaVADPOTrainer
+from llava.train.llava_trainer import LLaVADPOTrainer, LLaVACDPOTrainer
 # from data_processing.utils import load_jsonl, load_json
 from llava import conversation as conversation_lib
 from llava.model import *
@@ -183,6 +183,8 @@ class TrainingArguments(transformers.TrainingArguments):
     gamma: float = field(default=1.0)
     generate_during_eval: bool = field(default=False)
     precompute_ref_log_probs: bool = field(default=False)
+    enable_video_fast: bool = field(default=False)
+    enable_video_slow: bool = field(default=False)
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):
@@ -1259,7 +1261,6 @@ class DPODataCollator(DPODataCollatorWithPadding):
         #     attention_mask=input_ids.ne(self.tokenizer.pad_token_id),
         # )
         padded_batch = {}
-        #NOTE define chosen_input_ids and rejected_input_ids
         for k in batch[0].keys():
             if k.endswith("_input_ids") or k.endswith("_attention_mask") or k.endswith("_labels"):
                 # if "prompt" in k:
@@ -1353,20 +1354,22 @@ class DPODataCollator(DPODataCollatorWithPadding):
             # import pdb;pdb.set_trace()
             
             # add augmentation
-            
-            aug_tranform = [
-                transforms.RandomResizedCrop(224, scale=(0.08, 1.)),
-                transforms.RandomApply([
-                    transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
-                ], p=0.8),
-                transforms.RandomGrayscale(p=0.2),
-                transforms.RandomApply([GaussianBlur([.1, 2.])], p=1.0),
-                transforms.RandomHorizontalFlip()
-            ]
+            # aug_tranform = [
+            #     transforms.RandomResizedCrop(224, scale=(0.08, 1.)),
+            #     transforms.RandomApply([
+            #         transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
+            #     ], p=0.8),
+            #     transforms.RandomGrayscale(p=0.2),
+            #     transforms.RandomApply([GaussianBlur([.1, 2.])], p=1.0),
+            #     transforms.RandomHorizontalFlip()
+            # ]
             
             state = torch.get_rng_state()
             # video = torch.stack([augmentation(v, aug_tranform, state) for v in video], dim=0)
-            # TODO image_process
+
+            # slow process
+            # reduce frames
+            # original [[N, 3, 224, 224]] tensor
 
             padded_batch["images"] = images
             # padded_batch["images"] =[padded_batch["modalities"], images]
@@ -1814,7 +1817,11 @@ def train(attn_implementation=None):
         pad_token_id=tokenizer.pad_token_id,
     )
 
-    trainer = LLaVADPOTrainer(
+    # NOTE pass new param to model.config
+    model.config.enable_video_slow = training_args.enable_video_slow
+    model.config.enable_video_fast = training_args.enable_video_fast
+
+    trainer = LLaVACDPOTrainer(
         model,
         ref_model,
         args=training_args,
@@ -1828,6 +1835,8 @@ def train(attn_implementation=None):
         max_length=training_args.model_max_length,
         generate_during_eval=False,  # training_args.generate_during_eval,
         precompute_ref_log_probs=training_args.precompute_ref_log_probs,
+        duplicate_chosen_for_slow=training_args.enable_video_slow,
+        duplicate_chosen_for_fast=training_args.enable_video_fast
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):

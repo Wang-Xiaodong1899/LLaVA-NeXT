@@ -22,6 +22,7 @@ VIDEO_PATH=$8
 JSONLFILE=$9
 START=${10}
 END=${11}
+FORCE_SAMPLE=${12:-False}
 
 if [ "$OVERWRITE" = False ]; then
     SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}_overwrite_${OVERWRITE}
@@ -35,7 +36,7 @@ python3 playground/demo/video_aug_gen_jsonl.py \
     --video_root ${VIDEO_PATH} \
     --output_dir ./work_dirs/video_aug/$SAVE_DIR \
     --add-aug None \
-    --output_name ori_${START}_${END} \
+    --output_name 3x3_tokens_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
@@ -46,6 +47,7 @@ python3 playground/demo/video_aug_gen_jsonl.py \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
+    --force_sample $FORCE_SAMPLE \
     # --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, the background scenes."
     # --prompt "Please provide a very short description of the video, focusing on the main subjects, their actions. Feel free to ignore details."
     # --prompt "please fill one or two words in the blank in the following sentence: A video of ___. Focus on the main subjects and actions, tell me the filled extremely short sentence."
@@ -54,4 +56,4 @@ python3 playground/demo/video_aug_gen_jsonl.py \
     
     
 # example
-# bash scripts/video/demo/video_aug_gen_jsonl.sh /mnt/storage/user/wangxiaodong/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True /mnt/storage/user/wangxiaodong/data/shareVideoGPTV/dpo_train_data xxx.jsonl
+# bash scripts/video/demo/video_aug_gen_jsonl.sh /mnt/storage/user/wangxiaodong/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 8 average no_token True /mnt/storage/user/wangxiaodong/data/shareVideoGPTV/dpo_train_data /mnt/storage/user/wangxiaodong/data/shareVideoGPTV/sft_dpo_17k.jsonl 0 5000 True

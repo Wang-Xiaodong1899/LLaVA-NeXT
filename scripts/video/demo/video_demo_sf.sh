@@ -29,7 +29,7 @@ else
     SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}
 fi
     
-python3 playground/demo/video_demo.py \
+python3 playground/demo/video_demo_sf.py \
     --model-path $CKPT \
     --video_path ${VIDEO_PATH} \
     --output_dir ./work_dirs/video_demo/$SAVE_DIR \
@@ -42,7 +42,7 @@ python3 playground/demo/video_demo.py \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
     --force_sample $FORCE_SAMPLE \
-    --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions."
+    --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, and the background scenes."
     # --prompt "What are the men playing on the beach?"
     # --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, the background scenes."
     # --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, the background scenes."

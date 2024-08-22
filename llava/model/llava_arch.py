@@ -160,14 +160,16 @@ class LlavaMetaForCausalLM(ABC):
     def get_vision_tower(self):
         return self.get_model().get_vision_tower()
 
-    def get_2dPool(self, image_feature):
+    def get_2dPool(self, image_feature, stride=None):
         height = width = self.get_vision_tower().num_patches_per_side
         num_frames, num_tokens, num_dim = image_feature.shape
         image_feature = image_feature.view(num_frames, height, width, -1)
         image_feature = image_feature.permute(0, 3, 1, 2).contiguous()
         # image_feature = nn.functional.max_pool2d(image_feature, self.config.mm_spatial_pool_stride)
         if self.config.mm_spatial_pool_mode == "average":
-            image_feature = nn.functional.avg_pool2d(image_feature, self.config.mm_spatial_pool_stride)
+            if stride is None:
+                stride = self.config.mm_spatial_pool_stride
+            image_feature = nn.functional.avg_pool2d(image_feature, stride)
         elif self.config.mm_spatial_pool_mode == "max":
             image_feature = nn.functional.max_pool2d(image_feature, self.config.mm_spatial_pool_stride)
         elif self.config.mm_spatial_pool_mode == "bilinear":
@@ -186,6 +188,31 @@ class LlavaMetaForCausalLM(ABC):
         # image_features = self.get_model().vision_resampler(image_features, images=images)
         image_features = self.get_model().mm_projector(image_features)
         return image_features
+    
+    # TODO
+    def exp_map0(x: torch.Tensor, curv: float | torch.Tensor = 1.0, eps: float = 1e-8) -> torch.Tensor:
+        """
+        Map points from the tangent space at the vertex of hyperboloid, on to the
+        hyperboloid. This mapping is done using the exponential map of Lorentz model.
+
+        Args:
+            x: Tensor of shape `(B, D)` giving batch of Euclidean vectors to project
+                onto the hyperboloid. These vectors are interpreted as velocity
+                vectors in the tangent space at the hyperboloid vertex.
+            curv: Positive scalar denoting negative hyperboloid curvature.
+            eps: Small float number to avoid division by zero.
+
+        Returns:
+            Tensor of same shape as `x`, giving space components of the mapped
+            vectors on the hyperboloid.
+        """
+
+        rc_xnorm = curv**0.5 * torch.norm(x, dim=-1, keepdim=True)
+
+        # Ensure numerical stability in sinh by clamping input.
+        sinh_input = torch.clamp(rc_xnorm, min=eps, max=math.asinh(2**15))
+        _output = torch.sinh(sinh_input) * x / torch.clamp(rc_xnorm, min=eps)
+        return _output
     
     def encode_multimodals(self, videos_or_images, video_idx_in_batch, split_sizes=None):
         videos_or_images_features = self.get_model().get_vision_tower()(videos_or_images)
@@ -220,7 +247,7 @@ class LlavaMetaForCausalLM(ABC):
         # rank_print(modalities)
         if vision_tower is None or images is None or input_ids.shape[1] == 1:
             return input_ids, position_ids, attention_mask, past_key_values, None, labels
-
+        # print(modalities)
         if isinstance(modalities, str):
             modalities = [modalities]
 
@@ -231,7 +258,7 @@ class LlavaMetaForCausalLM(ABC):
             video_idx_in_batch = []
             for _ in range(len(modalities)):
                 if modalities[_] == "video":
-                    video_idx_in_batch.append(_) # [0, 1]
+                    video_idx_in_batch.append(_) # [0] when inference, [0, 1] when dpo
 
             # print(video_idx_in_batch)
 
@@ -248,14 +275,43 @@ class LlavaMetaForCausalLM(ABC):
             encoded_image_features = self.encode_images(concat_images)
 
             # This is a list, each element is [num_images, patch * patch, dim]
-            # rank_print(f"encoded_image_features : {encoded_image_features.shape}") # [20, 576, 4096], 576=24*24
-            # rank_print(f'video_idx_in_batch: {video_idx_in_batch}')
+            rank_print(f"encoded_image_features : {encoded_image_features.shape}") # [20, 576, 4096], 576=24*24
+            rank_print(f'video_idx_in_batch: {video_idx_in_batch}')
             encoded_image_features = torch.split(encoded_image_features, split_sizes)
-            # rank_print(f"after encoded_image_features len : {len(encoded_image_features)}")
+            # rank_print(f"after encoded_image_features len : {len(encoded_image_features)}, item shape: {encoded_image_features[0].shape}")
             image_features = []
             for idx, image_feat in enumerate(encoded_image_features):
                 if idx in video_idx_in_batch:
-                    image_features.append(self.get_2dPool(image_feat))
+                    enable_video_slow = getattr(self.config, "enable_video_slow", False)
+                    enable_video_fast = getattr(self.config, "enable_video_fast", False)
+                    if enable_video_slow and enable_video_fast:
+                        if idx == 2:
+                            # HACK hard code: fast
+                            image_features.append(self.get_2dPool(image_feat, 6))
+                        elif idx == 3:
+                            # HACK hard code: slow
+                            frame_num = image_feat.shape[0]
+                            indices = torch.linspace(0, frame_num - 1, steps=2).long()
+                            image_feat = image_feat[indices]
+                            image_features.append(self.get_2dPool(image_feat))
+                        else:
+                            # idx in [0, 1]
+                            image_features.append(self.get_2dPool(image_feat))
+                    elif enable_video_slow or enable_video_fast:
+                        if idx == 2 and enable_video_slow:
+                            # HACK hard code: slow
+                            frame_num = image_feat.shape[0]
+                            indices = torch.linspace(0, frame_num - 1, steps=2).long()
+                            image_feat = image_feat[indices]
+                            image_features.append(self.get_2dPool(image_feat))
+                        elif idx == 2 and enable_video_fast:
+                            # HACK hard code: slow
+                            image_features.append(self.get_2dPool(image_feat, 6))
+                        else:
+                            # idx in [0, 1]
+                            image_features.append(self.get_2dPool(image_feat))
+                    else:
+                        image_features.append(self.get_2dPool(image_feat))
                 else:
                     image_features.append(image_feat)
             
@@ -409,7 +465,7 @@ class LlavaMetaForCausalLM(ABC):
         # rank_print("Inserting Images embedding")
         for batch_idx, cur_input_ids in enumerate(input_ids):
             num_images = (cur_input_ids == IMAGE_TOKEN_INDEX).sum()
-            # rank0_print(num_images)
+            # rank0_print(f'num_images: {num_images}')
             if num_images == 0:
                 cur_image_features = image_features[cur_image_idx]
                 cur_input_embeds_1 = self.get_model().embed_tokens(cur_input_ids)
@@ -433,10 +489,13 @@ class LlavaMetaForCausalLM(ABC):
             cur_new_labels = []
 
             # rank_print(f"before loop num_images : {num_images}")
+            ori_num_images = num_images
+            num_images = 1
             for i in range(num_images + 1):
                 cur_new_input_embeds.append(cur_input_embeds_no_im[i])
                 cur_new_labels.append(cur_labels_noim[i])
                 if i < num_images:
+                    # print('add once') will be add once 'cause there only one IMAGE_TOKEN
                     try:
                         cur_image_features = image_features[cur_image_idx]
                     except IndexError:

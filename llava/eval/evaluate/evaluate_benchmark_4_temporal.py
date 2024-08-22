@@ -26,9 +26,13 @@ def parse_args():
     return args
 
 from openai import OpenAI
+# client = OpenAI(
+#     base_url="https://openrouter.ai/api/v1",
+#     api_key='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',
+# )
 client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key='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',
+    base_url="https://api.chatanywhere.tech/v1",
+    api_key='sk-88uyXsAdEyDN5ESbWVWTtG6Do6vj9y2biMqtMsIsf6pqDvvY'
 )
 
 def annotate(prediction_set, caption_files, output_dir):

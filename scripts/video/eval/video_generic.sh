@@ -42,7 +42,7 @@ python3 playground/demo/video_general.py \
     --answers-file results/answer-video-generic-${SAVE_NAME}.jsonl
 
 # example
-# bash scripts/video/demo/video_generic.sh /mnt/storage/user/wangxiaodong/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B-DPO
+# bash scripts/video/eval/video_generic.sh /mnt/storage/user/wangxiaodong/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B-DPO
 
 # python llava/eval/evaluate/evaluate_benchmark_1_correctness.py \
 # --pred_path results/answer-video-generic-${SAVE_NAME}.jsonl \
