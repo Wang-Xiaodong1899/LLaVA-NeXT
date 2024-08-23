@@ -30,8 +30,8 @@ def parse_args():
 
 from openai import OpenAI
 client = OpenAI(
-    base_url="https://api.chatanywhere.tech/v1",
-    api_key='sk-88uyXsAdEyDN5ESbWVWTtG6Do6vj9y2biMqtMsIsf6pqDvvY'
+    base_url="https://api.ai-gaochao.cn/v1/",
+    api_key='sk-UYqwq36Z0hmfyaWJ69F675A344D645D79c9dB863Ae870eAd'
 )
 # client = OpenAI(
 #     base_url="https://openrouter.ai/api/v1",

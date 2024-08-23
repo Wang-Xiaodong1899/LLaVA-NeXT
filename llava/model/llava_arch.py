@@ -284,19 +284,33 @@ class LlavaMetaForCausalLM(ABC):
                 if idx in video_idx_in_batch:
                     enable_video_slow = getattr(self.config, "enable_video_slow", False)
                     enable_video_fast = getattr(self.config, "enable_video_fast", False)
+                    accumu_slow_fast = getattr(self.config, "accumu_slow_fast", False)
                     if enable_video_slow and enable_video_fast:
-                        if idx == 2:
-                            # HACK hard code: fast
-                            image_features.append(self.get_2dPool(image_feat, 6))
-                        elif idx == 3:
-                            # HACK hard code: slow
-                            frame_num = image_feat.shape[0]
-                            indices = torch.linspace(0, frame_num - 1, steps=2).long()
-                            image_feat = image_feat[indices]
-                            image_features.append(self.get_2dPool(image_feat))
+                        if accumu_slow_fast:
+                            # XXX [0, 1, 2]
+                            if idx == 2:
+                                if torch.rand(1).item() < 0.5:
+                                    image_features.append(self.get_2dPool(image_feat, 6))
+                                else:
+                                    frame_num = image_feat.shape[0]
+                                    indices = torch.linspace(0, frame_num - 1, steps=2).long()
+                                    image_feat = image_feat[indices]
+                                    image_features.append(self.get_2dPool(image_feat))
+                            else:
+                                image_features.append(self.get_2dPool(image_feat))
                         else:
-                            # idx in [0, 1]
-                            image_features.append(self.get_2dPool(image_feat))
+                            if idx == 2:
+                                # HACK hard code: fast
+                                image_features.append(self.get_2dPool(image_feat, 6))
+                            elif idx == 3:
+                                # HACK hard code: slow
+                                frame_num = image_feat.shape[0]
+                                indices = torch.linspace(0, frame_num - 1, steps=2).long()
+                                image_feat = image_feat[indices]
+                                image_features.append(self.get_2dPool(image_feat))
+                            else:
+                                # idx in [0, 1]
+                                image_features.append(self.get_2dPool(image_feat))
                     elif enable_video_slow or enable_video_fast:
                         if idx == 2 and enable_video_slow:
                             # HACK hard code: slow

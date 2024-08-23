@@ -31,8 +31,8 @@ from openai import OpenAI
 #     api_key='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',
 # )
 client = OpenAI(
-    base_url="https://api.chatanywhere.tech/v1",
-    api_key='sk-88uyXsAdEyDN5ESbWVWTtG6Do6vj9y2biMqtMsIsf6pqDvvY'
+    base_url="https://api.ai-gaochao.cn/v1/",
+    api_key='sk-UYqwq36Z0hmfyaWJ69F675A344D645D79c9dB863Ae870eAd'
 )
 
 def annotate(prediction_set, caption_files, output_dir):
@@ -140,7 +140,7 @@ def main():
         prediction_set[id] = qa_set
 
     # Set the OpenAI API key.
-    openai.api_key = args.api_key
+    # openai.api_key = args.api_key
     num_tasks = args.num_tasks
 
     # While loop to ensure that all captions are processed.

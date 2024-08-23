@@ -170,7 +170,8 @@ class CDPOTrainer(Trainer):
         ref_adapter_name: Optional[str] = None,
         reference_free: bool = False,
         duplicate_chosen_for_slow: bool = False,
-        duplicate_chosen_for_fast: bool = False
+        duplicate_chosen_for_fast: bool = False,
+        accumu_slow_fast: bool = False
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -211,6 +212,7 @@ class CDPOTrainer(Trainer):
         self.reference_free = reference_free
         self.duplicate_chosen_for_fast = duplicate_chosen_for_fast
         self.duplicate_chosen_for_slow = duplicate_chosen_for_slow
+        self.accumu_slow_fast = accumu_slow_fast
 
         if ref_model:
             self.ref_model = ref_model
@@ -665,7 +667,8 @@ class CDPOTrainer(Trainer):
         padding_value: int = 0,
         device: Optional[torch.device] = None,
         duplicate_chosen_for_fast = False,
-        duplicate_chosen_for_slow = False
+        duplicate_chosen_for_slow = False,
+        accumu_slow_fast = False,
     ) -> Dict[str, torch.LongTensor]:
         """Concatenate the chosen and rejected inputs into a single tensor.
 
@@ -736,7 +739,8 @@ class CDPOTrainer(Trainer):
 
         # HACK a naive to replicate the chosen answer
         # [chosen, rejected, chosen, chosen]
-        if duplicate_chosen_for_fast:
+        # accumu_slow_fast default is true
+        if duplicate_chosen_for_fast and not accumu_slow_fast:
             for k in batch:
                 if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
                     if "labels" in k or is_encoder_decoder:
@@ -763,9 +767,14 @@ class CDPOTrainer(Trainer):
         #     batch['images'][1] * 2
         # ]
         if duplicate_chosen_for_slow and duplicate_chosen_for_fast:
-            concatenated_batch["concatenated_images"] = batch["images"] * 4
-            concatenated_batch["image_sizes"] = batch["image_sizes"] * 4
-            concatenated_batch["modalities"] = batch["modalities"] * 4
+            if accumu_slow_fast:
+                concatenated_batch["concatenated_images"] = batch["images"] * 3
+                concatenated_batch["image_sizes"] = batch["image_sizes"] * 3
+                concatenated_batch["modalities"] = batch["modalities"] * 3
+            else:
+                concatenated_batch["concatenated_images"] = batch["images"] * 4
+                concatenated_batch["image_sizes"] = batch["image_sizes"] * 4
+                concatenated_batch["modalities"] = batch["modalities"] * 4
         elif duplicate_chosen_for_slow or duplicate_chosen_for_fast:
             concatenated_batch["concatenated_images"] = batch["images"] * 3
             concatenated_batch["image_sizes"] = batch["image_sizes"] * 3
@@ -947,7 +956,8 @@ class CDPOTrainer(Trainer):
             padding_value=self.padding_value,
             device=self.accelerator.device,
             duplicate_chosen_for_slow=self.duplicate_chosen_for_slow,
-            duplicate_chosen_for_fast=self.duplicate_chosen_for_fast
+            duplicate_chosen_for_fast=self.duplicate_chosen_for_fast,
+            accumu_slow_fast=self.accumu_slow_fast
         )
         len_chosen = batch["chosen_labels"].shape[0]
 
