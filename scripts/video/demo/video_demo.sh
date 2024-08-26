@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/mnt/storage/user/wangxiaodong/LLaVA-NeXT/"
+ROOT_DIR="/root/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -51,7 +51,7 @@ python3 playground/demo/video_demo.py \
     # --prompt "What term describes a general concept that can represent this video? \n Answer in one or two words."
 
 # example
-# bash scripts/video/demo/video_demo.sh /mnt/storage/user/wangxiaodong/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True playground/demo/xU25MMA2N4aVtYay.mp4
+# bash scripts/video/demo/video_demo.sh /root/autodl-tmp/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True playground/demo/xU25MMA2N4aVtYay.mp4 True
 
 # video case What are the men playing on the beach? 
 # TODO test whether to affect the DPO model following ability

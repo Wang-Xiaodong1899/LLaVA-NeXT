@@ -14,6 +14,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import sys
+sys.path.append('/root/LLaVA-NeXT')
+
 import os
 import copy
 import deepspeed
@@ -36,6 +39,8 @@ import torchvision.transforms as transforms
 
 import transformers
 import tokenizers
+
+
 
 from llava.constants import IGNORE_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN, IMAGE_TOKEN_INDEX
 from torch.utils.data import Dataset
@@ -1816,7 +1821,11 @@ def train(attn_implementation=None):
         pad_token_id=tokenizer.pad_token_id,
     )
 
-    trainer = LLaVADPOTrainer(
+    # NOTE pass new param to model.config
+    model.config.enable_video_slow = training_args.enable_video_slow
+    model.config.enable_video_fast = training_args.enable_video_fast
+
+    trainer = LLaVACDPOTrainer(
         model,
         ref_model,
         args=training_args,

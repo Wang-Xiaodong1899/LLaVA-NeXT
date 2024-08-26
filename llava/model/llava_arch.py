@@ -314,8 +314,9 @@ class LlavaMetaForCausalLM(ABC):
                     elif enable_video_slow or enable_video_fast:
                         if idx == 2 and enable_video_slow:
                             # HACK hard code: slow
+                            # HACK defaut fast key frames = 4
                             frame_num = image_feat.shape[0]
-                            indices = torch.linspace(0, frame_num - 1, steps=2).long()
+                            indices = torch.linspace(0, frame_num - 1, steps=4).long()
                             image_feat = image_feat[indices]
                             image_features.append(self.get_2dPool(image_feat))
                         elif idx == 2 and enable_video_fast:
