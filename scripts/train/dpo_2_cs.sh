@@ -12,7 +12,7 @@ lr=${1:-"5e-7"}
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next
-export WANDB_NAME=llava_dpo_17k_condition_slow
+export WANDB_NAME=llava_dpo_17k_condition_slow_dpo
 
 # gpu_ids=0
 gpu_ids=0,1,2,3,4,5,6,7
@@ -20,18 +20,18 @@ export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/mnt/storage/user/wangxiaodong/LLaVA-NeXT/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/root/autodl-tmp/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/mnt/storage/user/wangxiaodong/data/shareVideoGPTV/sft_dpo_17k.jsonl
+data_path=/root/autodl-tmp/data/shareVideoGPTV/sft_dpo_17k.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
 port=19001
 
-VISION_MODEL_VERSION="/mnt/storage/user/wangxiaodong/.cache/huggingface/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1"
+VISION_MODEL_VERSION="/root/autodl-tmp/cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
@@ -44,13 +44,13 @@ PROMPT_VERSION="vicuna_v1"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_cs.py \
     --deepspeed scripts/zero3.json \
-    --model_name_or_path /mnt/storage/user/wangxiaodong/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B \
+    --model_name_or_path /vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --enable_video_slow True \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /mnt/storage/user/wangxiaodong/data/shareVideoGPTV/dpo_train_data \
+    --video_folder /root/autodl-tmp/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
@@ -72,12 +72,12 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --output_dir $output_dir \
     --num_train_epochs 3 \
     --per_device_train_batch_size 1 \
-    --per_device_eval_batch_size 4 \
+    --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 1000 \
-    --save_total_limit 3 \
+    --save_total_limit 1 \
     --learning_rate $lr \
     --weight_decay 0. \
     --warmup_ratio 0.1 \

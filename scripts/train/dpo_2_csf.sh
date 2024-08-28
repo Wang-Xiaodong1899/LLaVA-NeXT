@@ -15,7 +15,7 @@ export WANDB_PROJECT=llava-next
 export WANDB_NAME=llava_dpo_17k_condition_fast
 
 # gpu_ids=0
-gpu_ids=0
+gpu_ids=0,1
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"

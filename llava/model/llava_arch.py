@@ -288,7 +288,8 @@ class LlavaMetaForCausalLM(ABC):
                     if enable_video_slow and enable_video_fast:
                         if accumu_slow_fast:
                             # XXX [0, 1, 2]
-                            if idx == 2:
+                            bsz = len(encoded_image_features) // 3
+                            if idx in video_idx_in_batch[-bsz:]:
                                 if torch.rand(1).item() < 0.5:
                                     image_features.append(self.get_2dPool(image_feat, 6))
                                 else:
@@ -299,10 +300,11 @@ class LlavaMetaForCausalLM(ABC):
                             else:
                                 image_features.append(self.get_2dPool(image_feat))
                         else:
-                            if idx == 2:
+                            bsz = len(encoded_image_features) // 4
+                            if idx in video_idx_in_batch[-2*bsz: -bsz]:
                                 # HACK hard code: fast
                                 image_features.append(self.get_2dPool(image_feat, 6))
-                            elif idx == 3:
+                            elif idx in video_idx_in_batch[-bsz:]:
                                 # HACK hard code: slow
                                 frame_num = image_feat.shape[0]
                                 indices = torch.linspace(0, frame_num - 1, steps=2).long()
@@ -312,14 +314,16 @@ class LlavaMetaForCausalLM(ABC):
                                 # idx in [0, 1]
                                 image_features.append(self.get_2dPool(image_feat))
                     elif enable_video_slow or enable_video_fast:
-                        if idx == 2 and enable_video_slow:
+                        bsz = len(encoded_image_features) // 3
+                        # print(f'idx: {video_idx_in_batch[-bsz:]}')
+                        if idx in video_idx_in_batch[-bsz:] and enable_video_slow:
                             # HACK hard code: slow
                             # HACK defaut fast key frames = 4
                             frame_num = image_feat.shape[0]
-                            indices = torch.linspace(0, frame_num - 1, steps=4).long()
+                            indices = torch.linspace(0, frame_num - 1, steps=2).long()
                             image_feat = image_feat[indices]
                             image_features.append(self.get_2dPool(image_feat))
-                        elif idx == 2 and enable_video_fast:
+                        elif idx in video_idx_in_batch[-bsz:] and enable_video_fast:
                             # HACK hard code: slow
                             image_features.append(self.get_2dPool(image_feat, 6))
                         else:
