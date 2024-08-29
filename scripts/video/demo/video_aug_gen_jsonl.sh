@@ -56,4 +56,4 @@ python3 playground/demo/video_aug_gen_jsonl.py \
     
     
 # example
-# bash scripts/video/demo/video_aug_gen_jsonl.sh /volsparse2/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 8 average no_token True /volsparse2/wxd/data/shareVideoGPTV/dpo_train_data /volsparse2/wxd/data/shareVideoGPTV/sft_dpo_17k.jsonl 0 5000 True
+# bash scripts/video/demo/video_aug_gen_jsonl.sh /volsparse2/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 8 average no_token True /workspace/wxd/data/shareVideoGPTV/dpo_train_data /workspace/wxd/data/shareVideoGPTV/sft_dpo_17k.jsonl 0 5000 True

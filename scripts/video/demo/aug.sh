@@ -48,4 +48,4 @@ python3 playground/demo/video_aug_demo.py \
     
     
 # example
-# bash scripts/video/demo/annotate.sh /volsparse2/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True /volsparse2/wxd/data/shareVideoGPTV/dpo_train_data
+# bash scripts/video/demo/annotate.sh /volsparse2/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True /workspace/wxd/data/shareVideoGPTV/dpo_train_data
