@@ -76,7 +76,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 2000 \
+    --save_steps 1000 \
     --save_total_limit 1 \
     --learning_rate $lr \
     --weight_decay 0. \
