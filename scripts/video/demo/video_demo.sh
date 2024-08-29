@@ -19,7 +19,7 @@ POOL_MODE=$5
 NEWLINE_POSITION=$6
 OVERWRITE=$7
 VIDEO_PATH=$8
-FORCE_SAMPLE=${9:-False}
+FORCE_SAMPLE=${9:-True}
 
 
 if [ "$OVERWRITE" = False ]; then
@@ -42,8 +42,7 @@ python3 playground/demo/video_demo.py \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
     --force_sample $FORCE_SAMPLE \
-    --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions."
-    # --prompt "What are the men playing on the beach?"
+    --prompt "What are the men playing on the beach?"
     # --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, the background scenes."
     # --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, the background scenes."
     # --prompt "Please provide a very short description of the video, focusing on the main subjects, their actions. Feel free to ignore details."

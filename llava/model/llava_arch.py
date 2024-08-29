@@ -275,8 +275,8 @@ class LlavaMetaForCausalLM(ABC):
             encoded_image_features = self.encode_images(concat_images)
 
             # This is a list, each element is [num_images, patch * patch, dim]
-            rank_print(f"encoded_image_features : {encoded_image_features.shape}") # [20, 576, 4096], 576=24*24
-            rank_print(f'video_idx_in_batch: {video_idx_in_batch}')
+            # rank_print(f"encoded_image_features : {encoded_image_features.shape}") # [20, 576, 4096], 576=24*24
+            # rank_print(f'video_idx_in_batch: {video_idx_in_batch}')
             encoded_image_features = torch.split(encoded_image_features, split_sizes)
             # rank_print(f"after encoded_image_features len : {len(encoded_image_features)}, item shape: {encoded_image_features[0].shape}")
             image_features = []
