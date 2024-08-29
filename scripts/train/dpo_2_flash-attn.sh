@@ -81,7 +81,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --warmup_ratio 0.1 \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
-    --tf32 False \
+    --tf32 True \
     --model_max_length 4096 \
     --gradient_checkpointing True \
     --dataloader_num_workers 16 \
