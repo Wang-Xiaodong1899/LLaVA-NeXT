@@ -20,7 +20,7 @@ export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/volsparse2/wxd/models/LLaVA-NeXT/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/volsparse2/wxd/projects/LLaVA-NeXT/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
@@ -44,7 +44,7 @@ PROMPT_VERSION="llava_llama_3"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo.py \
     --deepspeed scripts/zero3.json \
-    --model_name_or_path /volsparse2/wxd/models/LLaVA-NeXT/llama3-llava-next-8b \
+    --model_name_or_path /volsparse2/wxd/projects/LLaVA-NeXT/llama3-llava-next-8b \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \

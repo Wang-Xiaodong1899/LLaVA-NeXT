@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/volsparse2/wxd/models/LLaVA-NeXT/"
+ROOT_DIR="/volsparse2/wxd/projects/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -38,7 +38,7 @@ python3 playground/demo/video_general.py \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
-    --question-file /volsparse2/wxd/models/LLaVA-NeXT/llava/eval/questions/video_qa/generic_qa.json \
+    --question-file /volsparse2/wxd/projects/LLaVA-NeXT/llava/eval/questions/video_qa/generic_qa.json \
     --answers-file results/answer-video-generic-${SAVE_NAME}.jsonl
 
 # example
