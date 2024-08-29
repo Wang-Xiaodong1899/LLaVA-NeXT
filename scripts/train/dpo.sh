@@ -5,7 +5,7 @@ export NCCL_IB_GID_INDEX=3
 export NCCL_SOCKET_IFNAME=eth0
 export NCCL_DEBUG=INFO
 
-VISION_MODEL_VERSION="/mnt/storage/user/wangxiaodong/.cache/huggingface/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1"
+VISION_MODEL_VERSION="/root/.cache/huggingface/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
@@ -17,10 +17,10 @@ PROMPT_VERSION="llava_llama_3"
 ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
     llava/train/train_dpo.py \
     --deepspeed scripts/zero3.json \
-    --model_name_or_path /mnt/storage/user/wangxiaodong/LLaVA-NeXT/llama3-llava-next-8b \
+    --model_name_or_path /volsparse2/wxd/LLaVA-NeXT/llama3-llava-next-8b \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
-    --data_path="/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_5171.jsonl" \
+    --data_path="/volsparse2/wxd/data/Hound-DPO/sft_dpo_5171.jsonl" \
     --image_folder xxx \
     --video_folder /mnt/storage/user/wangxiaodong/RLAIF-V/data_process/dataset/frames \
     --mm_tunable_parts="mm_vision_tower,mm_mlp_adapter,mm_language_model" \

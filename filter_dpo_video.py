@@ -3,8 +3,8 @@ import os
 from tqdm import tqdm
 
 def filter_id():
-    jsonl_file_path = '/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_17k.jsonl'
-    json_file_path = '/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_17k_id.json'
+    jsonl_file_path = '/volsparse2/wxd/data/Hound-DPO/sft_dpo_17k.jsonl'
+    json_file_path = '/volsparse2/wxd/data/Hound-DPO/sft_dpo_17k_id.json'
 
     ids = []
 
@@ -26,11 +26,11 @@ def filter_id():
 def filter_directory():
 
     # 输入的 JSON 文件路径
-    json_file_path = '/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_17k_id.json'  # 存储 ID 的文件
+    json_file_path = '/volsparse2/wxd/data/Hound-DPO/sft_dpo_17k_id.json'  # 存储 ID 的文件
     # 需要检查的目录路径
-    directory_path = '/mnt/storage/user/wangxiaodong/data/Hound-DPO/train_300k'  # 替换为你的目录路径
+    directory_path = '/volsparse2/wxd/data/Hound-DPO/train_300k'  # 替换为你的目录路径
     # 输出的 JSON 文件路径
-    filtered_json_file_path = '/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_17k_filtered_ids.json'
+    filtered_json_file_path = '/volsparse2/wxd/data/Hound-DPO/sft_dpo_17k_filtered_ids.json'
 
     # 读取 JSON 文件中的 IDs
     with open(json_file_path, 'r') as json_file:
@@ -57,12 +57,12 @@ def filter_directory():
 
 
 def filter_item_by_id():
-    jsonl_file_path = '/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_17k.jsonl'
-    new_jsonl_file_path = '/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_17k_ours.json'
+    jsonl_file_path = '/volsparse2/wxd/data/Hound-DPO/sft_dpo_17k.jsonl'
+    new_jsonl_file_path = '/volsparse2/wxd/data/Hound-DPO/sft_dpo_17k_ours.json'
 
     ids = []
     
-    data_root = '/mnt/storage/user/wangxiaodong/data/Hound-DPO/dpo_train_data'
+    data_root = '/volsparse2/wxd/data/Hound-DPO/dpo_train_data'
     
     folder_ids = []
     folders = os.listdir(data_root)

@@ -65,7 +65,7 @@ deepspeed --master_port 26000 \
     --version $PROMPT_VERSION \
     --data_path ./playground/data/$DATA_NAME.json \
     --image_folder /mnt/bn/vl-research/workspace/boli01/data/playground/data \
-    --vision_tower /mnt/storage/user/wangxiaodong/.cache/huggingface/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1 \
+    --vision_tower /root/.cache/huggingface/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1 \
     --pretrain_mm_mlp_adapter /mnt/bn/vl-research/workspace/project/2023/LLaVA/checkpoints/ds_llava-Mistral-7B-Instruct-v0.2-clip_large_336px-mlp2x_gelu-pretrain_blip558k_plain/mm_projector.bin \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
