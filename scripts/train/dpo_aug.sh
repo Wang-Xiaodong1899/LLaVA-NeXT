@@ -20,11 +20,11 @@ export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/volsparse2/wxd/LLaVA-NeXT/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/volsparse2/wxd/models/LLaVA-NeXT/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/volsparse2/wxd/LLaVA-NeXT/work_dirs/video_aug/LLaVA-NeXT-Video-7B_vicuna_v1_frames_32_stride_2/aug_preference_0_5000.jsonl
+data_path=/volsparse2/wxd/models/LLaVA-NeXT/work_dirs/video_aug/LLaVA-NeXT-Video-7B_vicuna_v1_frames_32_stride_2/aug_preference_0_5000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.

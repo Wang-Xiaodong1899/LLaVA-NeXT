@@ -8,7 +8,7 @@ import requests
 import copy
 import torch
 
-pretrained = "/volsparse2/wxd/LLaVA-NeXT/llama3-llava-next-8b"
+pretrained = "/volsparse2/wxd/models/LLaVA-NeXT/llama3-llava-next-8b"
 model_name = "llava_llama3"
 device = "cuda"
 device_map = "auto"
