@@ -5,7 +5,7 @@ import fire
 
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig, BitsAndBytesConfig
 
-def test_model(model_path = "/mnt/storage/user/wangxiaodong/LLaVA-NeXT/LLaVA-NeXT-Video-7B-DPO"):
+def test_model(model_path = "/root/LLaVA-NeXT/LLaVA-NeXT-Video-7B-DPO"):
     tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
     cfg_pretrained = AutoConfig.from_pretrained(model_path)
     

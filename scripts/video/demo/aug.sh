@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/mnt/storage/user/wangxiaodong/LLaVA-NeXT/"
+ROOT_DIR="/root/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -48,4 +48,4 @@ python3 playground/demo/video_aug_demo.py \
     
     
 # example
-# bash scripts/video/demo/annotate.sh /mnt/storage/user/wangxiaodong/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True /mnt/storage/user/wangxiaodong/data/shareVideoGPTV/dpo_train_data
+# bash scripts/video/demo/annotate.sh /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True /mnt/storage/user/wangxiaodong/data/shareVideoGPTV/dpo_train_data

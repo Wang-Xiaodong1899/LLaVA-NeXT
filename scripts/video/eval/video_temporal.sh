@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/mnt/storage/user/wangxiaodong/LLaVA-NeXT/"
+ROOT_DIR="/root/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -41,7 +41,7 @@ python3 playground/demo/video_general.py \
     --answers-file results/answer-video-temporal-${SAVE_NAME}.jsonl
 
 # example
-# bash scripts/video/demo/video_temporal.sh /mnt/storage/user/wangxiaodong/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B-DPO
+# bash scripts/video/demo/video_temporal.sh /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B-DPO
 
 # python llava/eval/evaluate/evaluate_benchmark_4_temporal.py \
 # --pred_path results/answer-video-temporal.jsonl \

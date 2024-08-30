@@ -42,9 +42,7 @@ python3 playground/demo/video_demo.py \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
     --force_sample $FORCE_SAMPLE \
-    --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions."
-    # --prompt "What are the men playing on the beach?"
-    # --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, the background scenes."
+    --prompt "What are the men playing on the beach?"
     # --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, the background scenes."
     # --prompt "Please provide a very short description of the video, focusing on the main subjects, their actions. Feel free to ignore details."
     # --prompt "please fill one or two words in the blank in the following sentence: A video of ___, (e.g., A video of something, A video of doing something, or A video of someone doing something). Focus on the main subjects and actions, tell me the filled extremely short sentence."
@@ -55,4 +53,4 @@ python3 playground/demo/video_demo.py \
 
 # video case What are the men playing on the beach? 
 # TODO test whether to affect the DPO model following ability
-# bash scripts/video/demo/video_demo.sh /mnt/storage/user/wangxiaodong/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True playground/demo/v_oR8o_PuKS28.mp4
+# bash scripts/video/demo/video_demo.sh /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True playground/demo/v_oR8o_PuKS28.mp4

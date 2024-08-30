@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/mnt/storage/user/wangxiaodong/LLaVA-NeXT/"
+ROOT_DIR="/root/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -41,7 +41,7 @@ python3 playground/demo/video_consistency.py \
     --answers-file results/answer-video-consistency-${SAVE_NAME}.jsonl
 
 # example
-# bash scripts/video/eval/video_consistency.sh /mnt/storage/user/wangxiaodong/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B
+# bash scripts/video/eval/video_consistency.sh /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B
 # python llava/eval/evaluate/evaluate_benchmark_5_consistency.py \
 # --pred_path results/answer-video-temporal.jsonl \
 # --output_dir results/temporal \

@@ -383,8 +383,8 @@ conv_llava_llama_2 = Conversation(
 #     offset=0,
 #     sep="<|eot_id|>",
 #     sep_style=SeparatorStyle.LLAMA_3,
-#     tokenizer_id="/mnt/storage/user/wangxiaodong/LLaVA-NeXT/Meta-Llama-3-8B-Instruct",
-#     tokenizer=AutoTokenizer.from_pretrained("/mnt/storage/user/wangxiaodong/LLaVA-NeXT/Meta-Llama-3-8B-Instruct"),
+#     tokenizer_id="/root/LLaVA-NeXT/Meta-Llama-3-8B-Instruct",
+#     tokenizer=AutoTokenizer.from_pretrained("/root/LLaVA-NeXT/Meta-Llama-3-8B-Instruct"),
 #     stop_token_ids=[128009],
 # )
 

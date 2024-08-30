@@ -1,6 +1,9 @@
 import argparse
 import torch
 
+import sys
+sys.path.append("/root/LLaVA-NeXT/")
+
 from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 from llava.constants import MAX_IMAGE_LENGTH
 from llava.conversation import conv_templates, SeparatorStyle
@@ -130,8 +133,8 @@ def parse_args():
     parser.add_argument("--api_key", type=str, help="OpenAI API key")
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
-    parser.add_argument("--video-folder", type=str, default="/mnt/storage/user/wangxiaodong/data/Test_Videos")
-    parser.add_argument("--question-file", type=str, default="/mnt/storage/user/wangxiaodong/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
+    parser.add_argument("--video-folder", type=str, default="/root/autodl-tmp/data/Test_Videos")
+    parser.add_argument("--question-file", type=str, default="/root/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
     parser.add_argument("--answers-file", type=str, default="results/answer-video-temporal.jsonl")
     
     return parser.parse_args()
