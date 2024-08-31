@@ -43,6 +43,7 @@ PROMPT_VERSION="vicuna_v1"
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_cs.py \
+    --enable_video_slow True \
     --deepspeed scripts/zero3.json \
     --model_name_or_path /volsparse2/wxd/models/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
