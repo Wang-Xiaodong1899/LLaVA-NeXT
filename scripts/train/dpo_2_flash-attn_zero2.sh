@@ -11,8 +11,8 @@ lr=${1:-"5e-7"}
 
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next
-export WANDB_NAME=llava_dpo_17k_flash_attn
+export WANDB_PROJECT=llava-next-4A100
+export WANDB_NAME=llava_dpo_17k_flash_attn_zero2
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
