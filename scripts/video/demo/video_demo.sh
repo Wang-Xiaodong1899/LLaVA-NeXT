@@ -37,6 +37,8 @@ python3 playground/demo/video_demo.py \
     --chunk-idx $(($IDX - 1)) \
     --overwrite ${OVERWRITE} \
     --mm_spatial_pool_stride ${POOL_STRIDE:-4} \
+    --enable_video_slow False \
+    --enable_video_fast False \
     --for_get_frames_num $FRAMES \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \

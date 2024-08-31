@@ -136,6 +136,9 @@ def parse_args():
     parser.add_argument("--video-folder", type=str, default="/root/autodl-tmp/data/Test_Videos")
     parser.add_argument("--question-file", type=str, default="/root/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
     parser.add_argument("--answers-file", type=str, default="results/answer-video-temporal.jsonl")
+
+    parser.add_argument("--enable_video_slow", type=lambda x: (str(x).lower() == 'true'), default=False)
+    parser.add_argument("--enable_video_fast", type=lambda x: (str(x).lower() == 'true'), default=False)
     
     return parser.parse_args()
 
@@ -156,6 +159,8 @@ def run_inference(args):
             overwrite_config["mm_spatial_pool_mode"] = args.mm_spatial_pool_mode
             overwrite_config["mm_spatial_pool_stride"] = args.mm_spatial_pool_stride
             overwrite_config["mm_newline_position"] = args.mm_newline_position
+            overwrite_config["enable_video_slow"] = args.enable_video_slow
+            overwrite_config["enable_video_fast"] = args.enable_video_fast
 
             cfg_pretrained = AutoConfig.from_pretrained(args.model_path)
 

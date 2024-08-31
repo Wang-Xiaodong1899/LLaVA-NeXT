@@ -292,6 +292,8 @@ class LlavaMetaForCausalLM(ABC):
                     enable_video_slow_num = getattr(self.config, "enable_video_slow_num", 2)
                     enable_video_fast_num = getattr(self.config, "enable_video_fast_num", 6)
 
+                    # rank_print(f"{enable_video_fast}, {enable_video_slow}")
+
                     if enable_video_slow and enable_video_fast:
                         if accumu_slow_fast:
                             # XXX [0, 1, 2]
@@ -341,6 +343,7 @@ class LlavaMetaForCausalLM(ABC):
                             rank_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
                     else:
                         image_features.append(self.get_2dPool(image_feat))
+                        rank_print(f'video feat shape: {image_features[-1].shape}')
                 else:
                     image_features.append(image_feat)
             
