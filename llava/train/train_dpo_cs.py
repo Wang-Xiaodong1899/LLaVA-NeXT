@@ -185,6 +185,8 @@ class TrainingArguments(transformers.TrainingArguments):
     precompute_ref_log_probs: bool = field(default=False)
     enable_video_fast: bool = field(default=False)
     enable_video_slow: bool = field(default=False)
+    enable_video_fast_num: int = field(default=6)
+    enable_video_slow_num: int = field(default=2)
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):
@@ -1820,6 +1822,9 @@ def train(attn_implementation=None):
     # NOTE pass new param to model.config
     model.config.enable_video_slow = training_args.enable_video_slow
     model.config.enable_video_fast = training_args.enable_video_fast
+
+    model.config.enable_video_slow_num = training_args.enable_video_slow_num
+    model.config.enable_video_fast_num = training_args.enable_video_fast_num
 
     trainer = LLaVACDPOTrainer(
         model,
