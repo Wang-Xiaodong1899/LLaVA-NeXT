@@ -44,8 +44,8 @@ python3 playground/demo/video_demo.py \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
     --force_sample $FORCE_SAMPLE \
-    --prompt "What are the men playing on the beach?"
-    # --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, the background scenes."
+    --prompt "Please provide a detailed description of the video, focusing on the main subjects, their actions, the background scenes."
+    # --prompt "What are the men playing on the beach?"
     # --prompt "Please provide a very short description of the video, focusing on the main subjects, their actions. Feel free to ignore details."
     # --prompt "please fill one or two words in the blank in the following sentence: A video of ___, (e.g., A video of something, A video of doing something, or A video of someone doing something). Focus on the main subjects and actions, tell me the filled extremely short sentence."
     # --prompt "What term describes a general concept that can represent this video? \n Answer in one or two words."
