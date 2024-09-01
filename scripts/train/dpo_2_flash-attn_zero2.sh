@@ -12,7 +12,7 @@ lr=${1:-"5e-7"}
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-4A100
-export WANDB_NAME=llava_dpo_17k_flash_attn_zero2
+export WANDB_NAME=llava_dpo_17k_flash_attn_zero2_bs8
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -69,7 +69,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 1 \
+    --per_device_train_batch_size 2 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
