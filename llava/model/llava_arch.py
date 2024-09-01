@@ -279,8 +279,8 @@ class LlavaMetaForCausalLM(ABC):
             encoded_image_features = torch.split(encoded_image_features, split_sizes)
             # rank_print(f"after encoded_image_features len : {len(encoded_image_features)}, item shape: {encoded_image_features[0].shape}")
             image_features = []
-            rank_print(f"len(encoded_image_features) : {len(encoded_image_features)}")
-            rank_print(f'video_idx_in_batch: {video_idx_in_batch}')
+            # rank_print(f"len(encoded_image_features) : {len(encoded_image_features)}")
+            # rank_print(f'video_idx_in_batch: {video_idx_in_batch}')
             for idx, image_feat in enumerate(encoded_image_features):
                 
                 if idx in video_idx_in_batch:
@@ -332,18 +332,18 @@ class LlavaMetaForCausalLM(ABC):
                             indices = torch.linspace(0, frame_num - 1, steps=enable_video_slow_num).long()
                             image_feat = image_feat[indices]
                             image_features.append(self.get_2dPool(image_feat))
-                            rank_print(f'idx {idx} jump in SLOW, video feat shape: {image_features[-1].shape}')
+                            # rank_print(f'idx {idx} jump in SLOW, video feat shape: {image_features[-1].shape}')
                         elif idx in video_idx_in_batch[-bsz:] and enable_video_fast:
                             # HACK hard code: slow
-                            rank_print(f'idx {idx} jump in FAST, video feat shape: {image_features[-1].shape}')
+                            # rank_print(f'idx {idx} jump in FAST, video feat shape: {image_features[-1].shape}')
                             image_features.append(self.get_2dPool(image_feat, enable_video_fast_num))
                         else:
                             # idx in [0, 1]
                             image_features.append(self.get_2dPool(image_feat))
-                            rank_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
+                            # rank_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
                     else:
                         image_features.append(self.get_2dPool(image_feat))
-                        rank_print(f'video feat shape: {image_features[-1].shape}')
+                        # rank_print(f'video feat shape: {image_features[-1].shape}')
                 else:
                     image_features.append(image_feat)
             
