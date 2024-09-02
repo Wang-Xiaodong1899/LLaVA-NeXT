@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/root/LLaVA-NeXT/"
+ROOT_DIR="/home/wxd/projects/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -55,4 +55,4 @@ python3 playground/demo/video_demo.py \
 
 # video case What are the men playing on the beach? 
 # TODO test whether to affect the DPO model following ability
-# bash scripts/video/demo/video_demo.sh /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True playground/demo/v_oR8o_PuKS28.mp4
+# bash scripts/video/demo/video_demo.sh /home/wxd/projects/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True playground/demo/v_oR8o_PuKS28.mp4

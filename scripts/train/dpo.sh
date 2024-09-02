@@ -17,7 +17,7 @@ PROMPT_VERSION="llava_llama_3"
 ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
     llava/train/train_dpo.py \
     --deepspeed scripts/zero3.json \
-    --model_name_or_path /root/LLaVA-NeXT/llama3-llava-next-8b \
+    --model_name_or_path /home/wxd/projects/LLaVA-NeXT/llama3-llava-next-8b \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path="/mnt/storage/user/wangxiaodong/data/Hound-DPO/sft_dpo_5171.jsonl" \

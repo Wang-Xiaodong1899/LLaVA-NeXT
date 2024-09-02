@@ -1,3 +1,3 @@
-bash scripts/video/demo/video_consistency.sh /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B
+bash scripts/video/demo/video_consistency.sh /home/wxd/projects/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B
 
-bash scripts/video/demo/video_consistency.sh /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B-DPO
+bash scripts/video/demo/video_consistency.sh /home/wxd/projects/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B-DPO

@@ -8,7 +8,7 @@ import requests
 import copy
 import torch
 
-pretrained = "/root/LLaVA-NeXT/llama3-llava-next-8b"
+pretrained = "/home/wxd/projects/LLaVA-NeXT/llama3-llava-next-8b"
 model_name = "llava_llama3"
 device = "cuda"
 device_map = "auto"

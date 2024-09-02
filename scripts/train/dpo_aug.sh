@@ -20,11 +20,11 @@ export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/root/LLaVA-NeXT/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/home/wxd/projects/LLaVA-NeXT/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/root/LLaVA-NeXT/work_dirs/video_aug/LLaVA-NeXT-Video-7B_vicuna_v1_frames_32_stride_2/aug_preference_0_5000.jsonl
+data_path=/home/wxd/projects/LLaVA-NeXT/work_dirs/video_aug/LLaVA-NeXT-Video-7B_vicuna_v1_frames_32_stride_2/aug_preference_0_5000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -44,7 +44,7 @@ PROMPT_VERSION="vicuna_v1"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo.py \
     --deepspeed scripts/zero3.json \
-    --model_name_or_path /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B \
+    --model_name_or_path /home/wxd/projects/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \

@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/root/LLaVA-NeXT/"
+ROOT_DIR="/home/wxd/projects/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -38,11 +38,11 @@ python3 playground/demo/video_general.py \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
-    --question-file /root/LLaVA-NeXT/llava/eval/questions/video_qa/generic_qa.json \
+    --question-file /home/wxd/projects/LLaVA-NeXT/llava/eval/questions/video_qa/generic_qa.json \
     --answers-file results/answer-video-generic-${SAVE_NAME}.jsonl
 
 # example
-# bash scripts/video/eval/video_generic.sh /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B-DPO
+# bash scripts/video/eval/video_generic.sh /home/wxd/projects/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True LLaVA-NeXT-Video-7B-DPO
 
 # python llava/eval/evaluate/evaluate_benchmark_1_correctness.py \
 # --pred_path results/answer-video-generic-${SAVE_NAME}.jsonl \
