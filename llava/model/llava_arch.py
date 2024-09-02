@@ -301,11 +301,13 @@ class LlavaMetaForCausalLM(ABC):
                             if idx in video_idx_in_batch[-bsz:]:
                                 if torch.rand(1).item() < 0.5:
                                     image_features.append(self.get_2dPool(image_feat, enable_video_fast_num))
+                                    rank0_print(f'idx {idx} jump in FAST, video feat shape: {image_features[-1].shape}')
                                 else:
                                     frame_num = image_feat.shape[0]
                                     indices = torch.linspace(0, frame_num - 1, steps=enable_video_slow_num).long()
                                     image_feat = image_feat[indices]
                                     image_features.append(self.get_2dPool(image_feat))
+                                    rank0_print(f'idx {idx} jump in SLOW, video feat shape: {image_features[-1].shape}')
                             else:
                                 image_features.append(self.get_2dPool(image_feat))
                         else:

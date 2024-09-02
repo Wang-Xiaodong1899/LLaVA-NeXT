@@ -171,7 +171,7 @@ class CDPOTrainer(Trainer):
         reference_free: bool = False,
         duplicate_chosen_for_slow: bool = False,
         duplicate_chosen_for_fast: bool = False,
-        accumu_slow_fast: bool = False
+        accumu_slow_fast: bool = True
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -668,7 +668,7 @@ class CDPOTrainer(Trainer):
         device: Optional[torch.device] = None,
         duplicate_chosen_for_fast = False,
         duplicate_chosen_for_slow = False,
-        accumu_slow_fast = False,
+        accumu_slow_fast = True,
     ) -> Dict[str, torch.LongTensor]:
         """Concatenate the chosen and rejected inputs into a single tensor.
 
