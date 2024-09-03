@@ -25,15 +25,23 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-from openai import OpenAI
+# from openai import OpenAI
+# # client = OpenAI(
+# #     base_url="https://openrouter.ai/api/v1",
+# #     api_key='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',
+# # )
+# # client = OpenAI(
+# #     base_url="https://api.ai-gaochao.cn/v1/",
+# #     api_key='sk-UYqwq36Z0hmfyaWJ69F675A344D645D79c9dB863Ae870eAd'
+# # )
 # client = OpenAI(
-#     base_url="https://openrouter.ai/api/v1",
-#     api_key='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',
+#     base_url="https://api.chatanywhere.tech/v1/",
+#     api_key='sk-88uyXsAdEyDN5ESbWVWTtG6Do6vj9y2biMqtMsIsf6pqDvvY'
 # )
-client = OpenAI(
-    base_url="https://api.ai-gaochao.cn/v1/",
-    api_key='sk-UYqwq36Z0hmfyaWJ69F675A344D645D79c9dB863Ae870eAd'
-)
+import openai
+
+openai.base_url = "https://api.ai-gaochao.cn/v1/"
+openai.api_key = "sk-UYqwq36Z0hmfyaWJ69F675A344D645D79c9dB863Ae870eAd"
 
 def annotate(prediction_set, caption_files, output_dir):
     """
@@ -48,8 +56,8 @@ def annotate(prediction_set, caption_files, output_dir):
         pred = qa_set['pred']
         try:
             # Compute the temporal understanding score
-            completion = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+            completion = openai.chat.completions.create(
+                model="gpt-3.5-turbo-0613",
                 messages=[
                     {
                         "role": "system",
@@ -76,6 +84,7 @@ def annotate(prediction_set, caption_files, output_dir):
                     }
                 ]
             )
+            print(completion.model)
             # Convert response to a Python dictionary.
             response_message = completion.choices[0].message.content
             response_dict = ast.literal_eval(response_message)
