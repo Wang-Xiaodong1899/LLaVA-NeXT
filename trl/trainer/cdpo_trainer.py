@@ -171,7 +171,8 @@ class CDPOTrainer(Trainer):
         reference_free: bool = False,
         duplicate_chosen_for_slow: bool = False,
         duplicate_chosen_for_fast: bool = False,
-        accumu_slow_fast: bool = True
+        accumu_slow_fast: bool = True,
+        dpo_weight: float = 1.0,
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -294,6 +295,7 @@ class CDPOTrainer(Trainer):
         self.gamma = gamma
         self.label_smoothing = label_smoothing
         self.loss_type = loss_type
+        self.dpo_weight = dpo_weight
 
         self._stored_metrics = defaultdict(lambda: defaultdict(list))
 
@@ -861,6 +863,7 @@ class CDPOTrainer(Trainer):
         reference_condition_logps: torch.FloatTensor,
         policy_condition_1_logps: torch.FloatTensor,
         reference_condition_1_logps: torch.FloatTensor,
+        dpo_weight = 1.0
 
     ) -> Tuple[torch.FloatTensor, torch.FloatTensor, torch.FloatTensor]:
         """Compute the DPO loss for a batch of policy and reference model log probabilities.
@@ -887,7 +890,7 @@ class CDPOTrainer(Trainer):
         else:
             loss_cond_1 = 0.
         
-        losses = loss_dpo + loss_cond + loss_cond_1
+        losses = loss_dpo * dpo_weight + loss_cond + loss_cond_1
         
         return losses, chosen_rewards, rejected_rewards
 
@@ -1094,7 +1097,8 @@ class CDPOTrainer(Trainer):
             policy_condition_logps,
             reference_condition_logps,
             policy_condition_1_logps,
-            reference_condition_1_logps
+            reference_condition_1_logps,
+            dpo_weight=self.dpo_weight
         )
         unscaled_dpo_losses = unscaled_dpo_losses.mean()
         dpo_losses = unscaled_dpo_losses * self.dpo_alpha

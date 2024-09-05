@@ -192,6 +192,8 @@ class TrainingArguments(transformers.TrainingArguments):
     enable_video_slow_num: int = field(default=2)
     accumu_slow_fast: bool = field(default=True)
 
+    dpo_weight: float = field(default=1.0)
+
 
 def maybe_zero_3(param, ignore_status=False, name=None):
     from deepspeed import zero
@@ -1849,6 +1851,7 @@ def train(attn_implementation=None):
         duplicate_chosen_for_slow=training_args.enable_video_slow,
         duplicate_chosen_for_fast=training_args.enable_video_fast,
         accumu_slow_fast=training_args.accumu_slow_fast,
+        dpo_weight=training_args.dpo_weight,
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
