@@ -11,11 +11,11 @@ lr=${1:-"5e-7"}
 
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next-4090-bs8
-export WANDB_NAME=llava_dpo_17k_condition_fast_flash-attn_8_4090_debug
+export WANDB_PROJECT=llava-next-fast
+export WANDB_NAME=llava_dpo_17k_condition_fast_f32_n8_debug
 
 # gpu_ids=0
-gpu_ids=0,1,2,3,4,5,6,7
+gpu_ids=0
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
@@ -31,7 +31,7 @@ data_path=/root/autodl-tmp/data/shareVideoGPTV/sft_dpo_17k.jsonl
 
 port=19001
 
-VISION_MODEL_VERSION="/root/autodl-tmp/cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1"
+VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
@@ -46,13 +46,17 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --deepspeed scripts/zero3_offload.json \
     --model_name_or_path /vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
+    --mm_tunable_parts "mm_mlp_adapter" \
     --enable_video_fast True \
+    --enable_video_fast_frame 32 \
+    --enable_video_fast_num 8 \
+    --normal_video_frame 16 \
+    --frames_upbound 32 \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /root/autodl-tmp/data/shareVideoGPTV/dpo_train_data \
-    --freeze_mm_mlp_adapter True \
-    --frames_upbound 16 \
+    --freeze_mm_mlp_adapter False \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
@@ -66,7 +70,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_aspect_ratio anyres \
     --image_grid_pinpoints "[(336, 672), (672, 336), (672, 672), (1008, 336), (336, 1008)]" \
     --mm_patch_merge_type spatial_unpad \
-    --fp16 True \
+    --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 3 \
@@ -82,7 +86,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --warmup_ratio 0.1 \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
-    --tf32 False \
+    --tf32 True \
     --model_max_length 4096 \
     --gradient_checkpointing True \
     --dataloader_num_workers 16 \

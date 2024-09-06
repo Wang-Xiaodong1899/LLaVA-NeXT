@@ -516,6 +516,7 @@ class LlavaMetaForCausalLM(ABC):
         new_labels = []
         cur_image_idx = 0
         # rank_print("Inserting Images embedding")
+        # bs=1, repeat -> 2, len(input_ids)=2
         for batch_idx, cur_input_ids in enumerate(input_ids):
             num_images = (cur_input_ids == IMAGE_TOKEN_INDEX).sum()
             # rank0_print(f'num_images: {num_images}')
@@ -541,9 +542,9 @@ class LlavaMetaForCausalLM(ABC):
             cur_new_input_embeds = []
             cur_new_labels = []
 
-            # rank_print(f"before loop num_images : {num_images}")
+            # rank0_print(f"before loop num_images : {num_images}")
             ori_num_images = num_images
-            num_images = 1
+            # num_images = 1 XXX xiaodong hard code
             for i in range(num_images + 1):
                 cur_new_input_embeds.append(cur_input_embeds_no_im[i])
                 cur_new_labels.append(cur_labels_noim[i])

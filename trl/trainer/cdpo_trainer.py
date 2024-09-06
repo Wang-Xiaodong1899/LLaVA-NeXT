@@ -718,10 +718,63 @@ class CDPOTrainer(Trainer):
                     ),
                     dim=0,
                 ).to(device=device)
-        
+        # import pdb; pdb.set_trace()
         # HACK a naive to replicate the chosen answer
         # [chosen, rejected, chosen]
-        if duplicate_chosen_for_slow:
+        if duplicate_chosen_for_slow and duplicate_chosen_for_fast:
+            if accumu_slow_fast: # 4-> 3
+                for k in batch:
+                    if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
+                        if "labels" in k or is_encoder_decoder:
+                            pad_value = label_pad_token_id
+                        elif k.endswith("_input_ids"):
+                            pad_value = padding_value
+                        elif k.endswith("_attention_mask"):
+                            pad_value = 0
+                        concatenated_key = k.replace("chosen", "concatenated")
+                        concatenated_batch[concatenated_key] = torch.cat(
+                            (
+                                concatenated_batch[concatenated_key],
+                                pad_to_length(batch[k], max_length, pad_value=pad_value),
+                            ),
+                            dim=0,
+                        ).to(device=device)
+            else: # 4
+                for k in batch:
+                    if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
+                        if "labels" in k or is_encoder_decoder:
+                            pad_value = label_pad_token_id
+                        elif k.endswith("_input_ids"):
+                            pad_value = padding_value
+                        elif k.endswith("_attention_mask"):
+                            pad_value = 0
+                        concatenated_key = k.replace("chosen", "concatenated")
+                        concatenated_batch[concatenated_key] = torch.cat(
+                            (
+                                concatenated_batch[concatenated_key],
+                                pad_to_length(batch[k], max_length, pad_value=pad_value),
+                            ),
+                            dim=0,
+                        ).to(device=device)
+                
+                # repeat
+                for k in batch:
+                    if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
+                        if "labels" in k or is_encoder_decoder:
+                            pad_value = label_pad_token_id
+                        elif k.endswith("_input_ids"):
+                            pad_value = padding_value
+                        elif k.endswith("_attention_mask"):
+                            pad_value = 0
+                        concatenated_key = k.replace("chosen", "concatenated")
+                        concatenated_batch[concatenated_key] = torch.cat(
+                            (
+                                concatenated_batch[concatenated_key],
+                                pad_to_length(batch[k], max_length, pad_value=pad_value),
+                            ),
+                            dim=0,
+                        ).to(device=device)
+        elif duplicate_chosen_for_slow or duplicate_chosen_for_fast:
             for k in batch:
                 if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
                     if "labels" in k or is_encoder_decoder:
@@ -738,27 +791,9 @@ class CDPOTrainer(Trainer):
                         ),
                         dim=0,
                     ).to(device=device)
-
         # HACK a naive to replicate the chosen answer
         # [chosen, rejected, chosen, chosen]
         # accumu_slow_fast default is true
-        if duplicate_chosen_for_fast and not accumu_slow_fast:
-            for k in batch:
-                if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
-                    if "labels" in k or is_encoder_decoder:
-                        pad_value = label_pad_token_id
-                    elif k.endswith("_input_ids"):
-                        pad_value = padding_value
-                    elif k.endswith("_attention_mask"):
-                        pad_value = 0
-                    concatenated_key = k.replace("chosen", "concatenated")
-                    concatenated_batch[concatenated_key] = torch.cat(
-                        (
-                            concatenated_batch[concatenated_key],
-                            pad_to_length(batch[k], max_length, pad_value=pad_value),
-                        ),
-                        dim=0,
-                    ).to(device=device)
 
         if is_encoder_decoder:
             concatenated_batch["concatenated_input_ids"] = batch["prompt_input_ids"].repeat(2, 1).to(device=device)
