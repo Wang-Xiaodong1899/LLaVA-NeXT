@@ -8,30 +8,30 @@ export NCCL_P2P_DISABLE=1
 export NCCL_IB_DISABLE=1
 
 lr=${1:-"5e-7"}
-
+ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next
-export WANDB_NAME=llava_dpo_17k_flash-attn_8_3090
+export WANDB_PROJECT=llava-next-4-A100-1
+export WANDB_NAME=llava_dpo_17k_flash-attn
 
 # gpu_ids=0
-gpu_ids=0,1,2,3,4,5,6,7
+gpu_ids=0,1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/root/autodl-fs/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=${ROOT}/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/root/autodl-tmp/data/shareVideoGPTV/sft_dpo_17k.jsonl
+data_path=${ROOT}/data/shareVideoGPTV/sft_dpo_17k.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
 port=19001
 
-VISION_MODEL_VERSION="/root/autodl-tmp/cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1"
+VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
@@ -43,13 +43,13 @@ PROMPT_VERSION="vicuna_v1"
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo.py \
-    --deepspeed scripts/zero3_offload.json \
-    --model_name_or_path /vicuna/LLaVA-NeXT-Video-7B \
+    --deepspeed scripts/zero2.json \
+    --model_name_or_path ${ROOT}/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /root/autodl-tmp/data/shareVideoGPTV/dpo_train_data \
+    --video_folder ${ROOT}/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
@@ -69,12 +69,12 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 3 \
-    --per_device_train_batch_size 1 \
+    --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 1 \
-    --gradient_accumulation_steps 1 \
+    --gradient_accumulation_steps 2 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1000 \
+    --save_steps 1500 \
     --save_total_limit 3 \
     --learning_rate $lr \
     --weight_decay 0. \

@@ -8,14 +8,14 @@ export NCCL_P2P_DISABLE=1
 export NCCL_IB_DISABLE=1
 
 lr=${1:-"5e-7"}
-
+ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next
-export WANDB_NAME=llava_dpo_17k_condition_fast_flash-attn_8_3090
+export WANDB_PROJECT=llava-next-4-A100
+export WANDB_NAME=llava_dpo_17k_condition_fast_flash
 
 # gpu_ids=0
-gpu_ids=0,1,2,3,4,5,6,7
+gpu_ids=0,1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"

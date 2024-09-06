@@ -15,9 +15,11 @@
 #    limitations under the License.
 
 import sys
-sys.path.append('/root/LLaVA-NeXT')
-
 import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+
 import copy
 import deepspeed
 from dataclasses import dataclass, field
