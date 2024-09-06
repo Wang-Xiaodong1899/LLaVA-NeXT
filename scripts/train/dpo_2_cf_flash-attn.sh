@@ -31,7 +31,7 @@ data_path=/root/autodl-tmp/data/shareVideoGPTV/sft_dpo_17k.jsonl
 
 port=19001
 
-VISION_MODEL_VERSION="/root/autodl-tmp/cache/hub/models--openai--clip-vit-large-patch14-336/snapshots/ce19dc912ca5cd21c8a653c79e251e808ccabcd1"
+VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
