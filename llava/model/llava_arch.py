@@ -351,14 +351,14 @@ class LlavaMetaForCausalLM(ABC):
                             indices = torch.linspace(0, frame_num - 1, steps=enable_video_fast_frame).long()
                             image_feat = image_feat[indices]
                             image_features.append(self.get_2dPool(image_feat, enable_video_fast_num))
-                            rank_print(f'idx {idx} jump in FAST, video feat shape: {image_features[-1].shape}')
+                            rank0_print(f'idx {idx} jump in FAST, video feat shape: {image_features[-1].shape}')
                         else:
                             # idx in [0, 1]
                             frame_num = image_feat.shape[0]
                             indices = torch.linspace(0, frame_num - 1, steps=normal_video_frame).long()
                             image_feat = image_feat[indices]
                             image_features.append(self.get_2dPool(image_feat))
-                            rank_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
+                            rank0_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
                     else:
                         frame_num = image_feat.shape[0]
                         indices = torch.linspace(0, frame_num - 1, steps=normal_video_frame).long()

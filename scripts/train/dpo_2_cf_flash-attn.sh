@@ -12,7 +12,7 @@ lr=${1:-"5e-7"}
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next
-export WANDB_NAME=llava_dpo_17k_condition_fast_flash-attn_8_3090
+export WANDB_NAME=llava_dpo_17k_condition_fast-fix-f16-n8
 
 # gpu_ids=0
 gpu_ids=0,1,2,3,4,5,6,7
@@ -47,6 +47,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path /vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --enable_video_fast True \
+    --enable_video_fast_num 8 \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
