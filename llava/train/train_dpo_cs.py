@@ -194,6 +194,9 @@ class TrainingArguments(transformers.TrainingArguments):
 
     dpo_weight: float = field(default=1.0)
 
+    normal_video_frames: int = field(default=16)
+    enable_video_fast_frame: int = field(default=32)
+
 
 def maybe_zero_3(param, ignore_status=False, name=None):
     from deepspeed import zero
@@ -1833,6 +1836,9 @@ def train(attn_implementation=None):
     model.config.enable_video_fast_num = training_args.enable_video_fast_num
 
     model.config.accumu_slow_fast = training_args.accumu_slow_fast
+
+    model.config.normal_video_frames = training_args.normal_video_frames
+    model.config.enable_video_fast_frame = training_args.enable_video_fast_frame
 
     trainer = LLaVACDPOTrainer(
         model,

@@ -292,6 +292,10 @@ class LlavaMetaForCausalLM(ABC):
                     enable_video_slow_num = getattr(self.config, "enable_video_slow_num", 2)
                     enable_video_fast_num = getattr(self.config, "enable_video_fast_num", 6)
 
+                    # frame num
+                    normal_video_frame = getattr(self.config, "normal_video_frames", 16)
+                    enable_video_fast_frame = getattr(self.config, "enable_video_fast_frame", 16) # compatible for previous training
+
                     # rank_print(f"{enable_video_fast}, {enable_video_slow}")
 
                     if enable_video_slow and enable_video_fast:
@@ -309,6 +313,9 @@ class LlavaMetaForCausalLM(ABC):
                                     image_features.append(self.get_2dPool(image_feat))
                                     rank0_print(f'idx {idx} jump in SLOW, video feat shape: {image_features[-1].shape}')
                             else:
+                                frame_num = image_feat.shape[0]
+                                indices = torch.linspace(0, frame_num - 1, steps=normal_video_frame).long()
+                                image_feat = image_feat[indices]
                                 image_features.append(self.get_2dPool(image_feat))
                         else:
                             bsz = len(encoded_image_features) // 4
@@ -323,6 +330,9 @@ class LlavaMetaForCausalLM(ABC):
                                 image_features.append(self.get_2dPool(image_feat))
                             else:
                                 # idx in [0, 1]
+                                frame_num = image_feat.shape[0]
+                                indices = torch.linspace(0, frame_num - 1, steps=normal_video_frame).long()
+                                image_feat = image_feat[indices]
                                 image_features.append(self.get_2dPool(image_feat))
                     elif enable_video_slow or enable_video_fast:
                         bsz = len(encoded_image_features) // 3
@@ -337,13 +347,22 @@ class LlavaMetaForCausalLM(ABC):
                             # rank_print(f'idx {idx} jump in SLOW, video feat shape: {image_features[-1].shape}')
                         elif idx in video_idx_in_batch[-bsz:] and enable_video_fast:
                             # HACK hard code: slow
-                            # rank_print(f'idx {idx} jump in FAST, video feat shape: {image_features[-1].shape}')
+                            frame_num = image_feat.shape[0]
+                            indices = torch.linspace(0, frame_num - 1, steps=enable_video_fast_frame).long()
+                            image_feat = image_feat[indices]
                             image_features.append(self.get_2dPool(image_feat, enable_video_fast_num))
+                            rank_print(f'idx {idx} jump in FAST, video feat shape: {image_features[-1].shape}')
                         else:
                             # idx in [0, 1]
+                            frame_num = image_feat.shape[0]
+                            indices = torch.linspace(0, frame_num - 1, steps=normal_video_frame).long()
+                            image_feat = image_feat[indices]
                             image_features.append(self.get_2dPool(image_feat))
-                            # rank_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
+                            rank_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
                     else:
+                        frame_num = image_feat.shape[0]
+                        indices = torch.linspace(0, frame_num - 1, steps=normal_video_frame).long()
+                        image_feat = image_feat[indices]
                         image_features.append(self.get_2dPool(image_feat))
                         # rank_print(f'video feat shape: {image_features[-1].shape}')
                 else:
