@@ -334,15 +334,15 @@ class LlavaMetaForCausalLM(ABC):
                             indices = torch.linspace(0, frame_num - 1, steps=enable_video_slow_num).long()
                             image_feat = image_feat[indices]
                             image_features.append(self.get_2dPool(image_feat))
-                            # rank_print(f'idx {idx} jump in SLOW, video feat shape: {image_features[-1].shape}')
+                            rank0_print(f'idx {idx} jump in SLOW, video feat shape: {image_features[-1].shape}')
                         elif idx in video_idx_in_batch[-bsz:] and enable_video_fast:
                             # HACK hard code: slow
-                            # rank_print(f'idx {idx} jump in FAST, video feat shape: {image_features[-1].shape}')
                             image_features.append(self.get_2dPool(image_feat, enable_video_fast_num))
+                            rank0_print(f'idx {idx} jump in FAST, video feat shape: {image_features[-1].shape}')
                         else:
                             # idx in [0, 1]
                             image_features.append(self.get_2dPool(image_feat))
-                            # rank_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
+                            rank0_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
                     else:
                         image_features.append(self.get_2dPool(image_feat))
                         # rank_print(f'video feat shape: {image_features[-1].shape}')
@@ -524,7 +524,7 @@ class LlavaMetaForCausalLM(ABC):
 
             # rank_print(f"before loop num_images : {num_images}")
             ori_num_images = num_images
-            num_images = 1
+            # num_images = 1
             for i in range(num_images + 1):
                 cur_new_input_embeds.append(cur_input_embeds_no_im[i])
                 cur_new_labels.append(cur_labels_noim[i])
@@ -536,7 +536,7 @@ class LlavaMetaForCausalLM(ABC):
                         cur_image_features = image_features[cur_image_idx - 1]
                     cur_image_idx += 1
                     cur_new_input_embeds.append(cur_image_features)
-                    # rank0_print(f'cur_image_features shape: {cur_image_features.shape}')
+                    rank0_print(f'cur_image_features shape: {cur_image_features.shape}')
                     cur_new_labels.append(torch.full((cur_image_features.shape[0],), IGNORE_INDEX, device=cur_labels.device, dtype=cur_labels.dtype))
 
             cur_new_input_embeds = [x.to(self.device) for x in cur_new_input_embeds]

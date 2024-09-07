@@ -192,7 +192,7 @@ class TrainingArguments(transformers.TrainingArguments):
     enable_video_slow: bool = field(default=False)
     enable_video_fast_num: int = field(default=6)
     enable_video_slow_num: int = field(default=2)
-    accumu_slow_fast: bool = field(default=True)
+    accumu_slow_fast: bool = field(default=False)
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):

@@ -171,7 +171,8 @@ class CDPOTrainer(Trainer):
         reference_free: bool = False,
         duplicate_chosen_for_slow: bool = False,
         duplicate_chosen_for_fast: bool = False,
-        accumu_slow_fast: bool = True
+        accumu_slow_fast: bool = True,
+        dpo_weight: float = 1.0,
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -294,6 +295,7 @@ class CDPOTrainer(Trainer):
         self.gamma = gamma
         self.label_smoothing = label_smoothing
         self.loss_type = loss_type
+        self.dpo_weight = dpo_weight
 
         self._stored_metrics = defaultdict(lambda: defaultdict(list))
 
@@ -716,10 +718,63 @@ class CDPOTrainer(Trainer):
                     ),
                     dim=0,
                 ).to(device=device)
-        
+        # import pdb; pdb.set_trace()
         # HACK a naive to replicate the chosen answer
         # [chosen, rejected, chosen]
-        if duplicate_chosen_for_slow:
+        if duplicate_chosen_for_slow and duplicate_chosen_for_fast:
+            if accumu_slow_fast: # 4-> 3
+                for k in batch:
+                    if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
+                        if "labels" in k or is_encoder_decoder:
+                            pad_value = label_pad_token_id
+                        elif k.endswith("_input_ids"):
+                            pad_value = padding_value
+                        elif k.endswith("_attention_mask"):
+                            pad_value = 0
+                        concatenated_key = k.replace("chosen", "concatenated")
+                        concatenated_batch[concatenated_key] = torch.cat(
+                            (
+                                concatenated_batch[concatenated_key],
+                                pad_to_length(batch[k], max_length, pad_value=pad_value),
+                            ),
+                            dim=0,
+                        ).to(device=device)
+            else: # 4
+                for k in batch:
+                    if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
+                        if "labels" in k or is_encoder_decoder:
+                            pad_value = label_pad_token_id
+                        elif k.endswith("_input_ids"):
+                            pad_value = padding_value
+                        elif k.endswith("_attention_mask"):
+                            pad_value = 0
+                        concatenated_key = k.replace("chosen", "concatenated")
+                        concatenated_batch[concatenated_key] = torch.cat(
+                            (
+                                concatenated_batch[concatenated_key],
+                                pad_to_length(batch[k], max_length, pad_value=pad_value),
+                            ),
+                            dim=0,
+                        ).to(device=device)
+                
+                # repeat
+                for k in batch:
+                    if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
+                        if "labels" in k or is_encoder_decoder:
+                            pad_value = label_pad_token_id
+                        elif k.endswith("_input_ids"):
+                            pad_value = padding_value
+                        elif k.endswith("_attention_mask"):
+                            pad_value = 0
+                        concatenated_key = k.replace("chosen", "concatenated")
+                        concatenated_batch[concatenated_key] = torch.cat(
+                            (
+                                concatenated_batch[concatenated_key],
+                                pad_to_length(batch[k], max_length, pad_value=pad_value),
+                            ),
+                            dim=0,
+                        ).to(device=device)
+        elif duplicate_chosen_for_slow or duplicate_chosen_for_fast:
             for k in batch:
                 if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
                     if "labels" in k or is_encoder_decoder:
@@ -736,27 +791,9 @@ class CDPOTrainer(Trainer):
                         ),
                         dim=0,
                     ).to(device=device)
-
         # HACK a naive to replicate the chosen answer
         # [chosen, rejected, chosen, chosen]
         # accumu_slow_fast default is true
-        if duplicate_chosen_for_fast and not accumu_slow_fast:
-            for k in batch:
-                if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
-                    if "labels" in k or is_encoder_decoder:
-                        pad_value = label_pad_token_id
-                    elif k.endswith("_input_ids"):
-                        pad_value = padding_value
-                    elif k.endswith("_attention_mask"):
-                        pad_value = 0
-                    concatenated_key = k.replace("chosen", "concatenated")
-                    concatenated_batch[concatenated_key] = torch.cat(
-                        (
-                            concatenated_batch[concatenated_key],
-                            pad_to_length(batch[k], max_length, pad_value=pad_value),
-                        ),
-                        dim=0,
-                    ).to(device=device)
 
         if is_encoder_decoder:
             concatenated_batch["concatenated_input_ids"] = batch["prompt_input_ids"].repeat(2, 1).to(device=device)
@@ -861,6 +898,7 @@ class CDPOTrainer(Trainer):
         reference_condition_logps: torch.FloatTensor,
         policy_condition_1_logps: torch.FloatTensor,
         reference_condition_1_logps: torch.FloatTensor,
+        dpo_weight = 1.0
 
     ) -> Tuple[torch.FloatTensor, torch.FloatTensor, torch.FloatTensor]:
         """Compute the DPO loss for a batch of policy and reference model log probabilities.
@@ -887,7 +925,7 @@ class CDPOTrainer(Trainer):
         else:
             loss_cond_1 = 0.
         
-        losses = loss_dpo + loss_cond + loss_cond_1
+        losses = loss_dpo * dpo_weight + loss_cond + loss_cond_1
         
         return losses, chosen_rewards, rejected_rewards
 
@@ -1094,7 +1132,8 @@ class CDPOTrainer(Trainer):
             policy_condition_logps,
             reference_condition_logps,
             policy_condition_1_logps,
-            reference_condition_1_logps
+            reference_condition_1_logps,
+            dpo_weight=self.dpo_weight
         )
         unscaled_dpo_losses = unscaled_dpo_losses.mean()
         dpo_losses = unscaled_dpo_losses * self.dpo_alpha
@@ -1122,6 +1161,7 @@ class CDPOTrainer(Trainer):
         rejected_rewards = all_gather_tensor(rejected_rewards)
         reward_accuracies = all_gather_tensor(reward_accuracies)
         policy_chosen_logps = all_gather_tensor(policy_chosen_logps)
+        policy_condition_logps = all_gather_tensor(policy_condition_logps)
         policy_rejected_logps = all_gather_tensor(policy_rejected_logps)
         reference_chosen_logps = all_gather_tensor(reference_chosen_logps)
         reference_rejected_logps = all_gather_tensor(reference_rejected_logps)
@@ -1137,6 +1177,7 @@ class CDPOTrainer(Trainer):
         # policy logps
         metrics[f"{prefix}logps/rejected"] = policy_rejected_logps.detach().mean().cpu()
         metrics[f"{prefix}logps/chosen"] = policy_chosen_logps.detach().mean().cpu()
+        metrics[f"{prefix}logps/condition"] = policy_condition_logps.detach().mean().cpu()
         # policy logits (exclude image tokens)
         # metrics[f"{prefix}logits/rejected"] =policy_rejected_logits
         # metrics[f"{prefix}logits/chosen"] = policy_chosen_logits
