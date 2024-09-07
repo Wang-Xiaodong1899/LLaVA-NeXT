@@ -1177,7 +1177,8 @@ class CDPOTrainer(Trainer):
         rejected_rewards = all_gather_tensor(rejected_rewards)
         reward_accuracies = all_gather_tensor(reward_accuracies)
         policy_chosen_logps = all_gather_tensor(policy_chosen_logps)
-        policy_condition_logps = all_gather_tensor(policy_condition_logps)
+        if policy_condition_logps is not None:
+            policy_condition_logps = all_gather_tensor(policy_condition_logps)
         policy_rejected_logps = all_gather_tensor(policy_rejected_logps)
         reference_chosen_logps = all_gather_tensor(reference_chosen_logps)
         reference_rejected_logps = all_gather_tensor(reference_rejected_logps)
@@ -1196,7 +1197,8 @@ class CDPOTrainer(Trainer):
         # policy logps
         metrics[f"{prefix}logps/rejected"] = policy_rejected_logps.detach().mean().cpu()
         metrics[f"{prefix}logps/chosen"] = policy_chosen_logps.detach().mean().cpu()
-        metrics[f"{prefix}logps/condition"] = policy_condition_logps.detach().mean().cpu()
+        if policy_condition_logps is not None:
+            metrics[f"{prefix}logps/condition"] = policy_condition_logps.detach().mean().cpu()
         # policy logits (exclude image tokens)
         # metrics[f"{prefix}logits/rejected"] =policy_rejected_logits
         # metrics[f"{prefix}logits/chosen"] = policy_chosen_logits
