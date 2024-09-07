@@ -929,12 +929,12 @@ class CDPOTrainer(Trainer):
         if policy_condition_logps is not None and reference_condition_logps is not None:
             loss_cond, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_logps, reference_chosen_logps, reference_condition_logps)
         else:
-            loss_cond = 0.
+            loss_cond = torch.tensor([0.])
         
         if policy_condition_1_logps is not None and reference_condition_1_logps is not None:
             loss_cond_1, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_1_logps, reference_chosen_logps, reference_condition_1_logps)
         else:
-            loss_cond_1 = 0.
+            loss_cond_1 = torch.tensor([0.])
         
         losses = loss_dpo * dpo_weight + loss_cond + loss_cond_1
         
