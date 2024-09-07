@@ -4,7 +4,7 @@
 
 #### 1. **Clone this repository and navigate to the LLaVA folder:**
 ```bash
-git clone -b ding https://github.com/Wang-Xiaodong1899/LLaVA-NeXT.git
+git clone -b jfA100 https://github.com/Wang-Xiaodong1899/LLaVA-NeXT.git
 cd LLaVA-NeXT
 ```
 
