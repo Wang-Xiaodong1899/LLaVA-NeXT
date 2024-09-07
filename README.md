@@ -32,8 +32,11 @@ unzip dpo_train_data.zip
 ```
 mkdir -p vicuna && cd vicuna
 
+# if no git-lfs, install it by
+# apt-get install git-lfs
+
 git lfs install
-git clone https://huggingface.co/lmms-lab/LLaVA-NeXT-Video-7B
+git clone https://hf-mirror.com/lmms-lab/LLaVA-NeXT-Video-7B
 ```
 
 ### Start train
