@@ -1006,8 +1006,8 @@ class CDPOTrainer(Trainer):
             device=self.accelerator.device,
             duplicate_chosen_for_slow=self.duplicate_chosen_for_slow,
             duplicate_chosen_for_fast=self.duplicate_chosen_for_fast,
-            accumu_slow_fast=self.accumu_slow_fast
-            ignore_rejected=self.ignore_rejected
+            accumu_slow_fast=self.accumu_slow_fast,
+            ignore_rejected=self.ignore_rejected,
         )
         len_chosen = batch["chosen_labels"].shape[0]
 
