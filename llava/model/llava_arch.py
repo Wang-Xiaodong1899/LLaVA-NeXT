@@ -288,6 +288,9 @@ class LlavaMetaForCausalLM(ABC):
                     enable_video_fast = getattr(self.config, "enable_video_fast", False)
                     accumu_slow_fast = getattr(self.config, "accumu_slow_fast", False)
 
+                    # XXX ignore rejected
+                    ignore_rejected = getattr(self.config, "ignore_rejected", False)
+
                     # stride
                     enable_video_slow_num = getattr(self.config, "enable_video_slow_num", 2)
                     enable_video_fast_num = getattr(self.config, "enable_video_fast_num", 6)
@@ -295,6 +298,7 @@ class LlavaMetaForCausalLM(ABC):
                     # rank_print(f"{enable_video_fast}, {enable_video_slow}")
 
                     if enable_video_slow and enable_video_fast:
+                    # TODO ignore_rejected
                         if accumu_slow_fast:
                             # XXX [0, 1, 2]
                             bsz = len(encoded_image_features) // 3
@@ -326,6 +330,8 @@ class LlavaMetaForCausalLM(ABC):
                                 image_features.append(self.get_2dPool(image_feat))
                     elif enable_video_slow or enable_video_fast:
                         bsz = len(encoded_image_features) // 3
+                        if ignore_rejected:
+                            bsz = len(encoded_image_features) // 2
                         # print(f'idx: {video_idx_in_batch[-bsz:]}')
                         if idx in video_idx_in_batch[-bsz:] and enable_video_slow:
                             # HACK hard code: slow

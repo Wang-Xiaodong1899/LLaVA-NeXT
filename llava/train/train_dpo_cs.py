@@ -193,6 +193,7 @@ class TrainingArguments(transformers.TrainingArguments):
     enable_video_fast_num: int = field(default=6)
     enable_video_slow_num: int = field(default=2)
     accumu_slow_fast: bool = field(default=False)
+    ignore_rejected: bool = field(default=False)
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):
@@ -1834,6 +1835,8 @@ def train(attn_implementation=None):
 
     model.config.accumu_slow_fast = training_args.accumu_slow_fast
 
+    model.config.ignore_rejected = training_args.ignore_rejected
+
     trainer = LLaVACDPOTrainer(
         model,
         ref_model,
@@ -1851,6 +1854,7 @@ def train(attn_implementation=None):
         duplicate_chosen_for_slow=training_args.enable_video_slow,
         duplicate_chosen_for_fast=training_args.enable_video_fast,
         accumu_slow_fast=training_args.accumu_slow_fast,
+        ignore_rejected=training_args.ignore_rejected,
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):

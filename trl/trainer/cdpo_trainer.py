@@ -171,8 +171,9 @@ class CDPOTrainer(Trainer):
         reference_free: bool = False,
         duplicate_chosen_for_slow: bool = False,
         duplicate_chosen_for_fast: bool = False,
-        accumu_slow_fast: bool = True,
+        accumu_slow_fast: bool = False,
         dpo_weight: float = 1.0,
+        ignore_rejected: bool = False,
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -214,6 +215,7 @@ class CDPOTrainer(Trainer):
         self.duplicate_chosen_for_fast = duplicate_chosen_for_fast
         self.duplicate_chosen_for_slow = duplicate_chosen_for_slow
         self.accumu_slow_fast = accumu_slow_fast
+        self.ignore_rejected = ignore_rejected
 
         if ref_model:
             self.ref_model = ref_model
@@ -670,7 +672,8 @@ class CDPOTrainer(Trainer):
         device: Optional[torch.device] = None,
         duplicate_chosen_for_fast = False,
         duplicate_chosen_for_slow = False,
-        accumu_slow_fast = True,
+        accumu_slow_fast = False,
+        ignore_rejected = False,
     ) -> Dict[str, torch.LongTensor]:
         """Concatenate the chosen and rejected inputs into a single tensor.
 
@@ -702,26 +705,28 @@ class CDPOTrainer(Trainer):
                     pad_value = 0
                 concatenated_key = k.replace("chosen", "concatenated")
                 concatenated_batch[concatenated_key] = pad_to_length(batch[k], max_length, pad_value=pad_value)
-        for k in batch:
-            if k.startswith("rejected") and isinstance(batch[k], torch.Tensor):
-                if "labels" in k or is_encoder_decoder:
-                    pad_value = label_pad_token_id
-                elif k.endswith("_input_ids"):
-                    pad_value = padding_value
-                elif k.endswith("_attention_mask"):
-                    pad_value = 0
-                concatenated_key = k.replace("rejected", "concatenated")
-                concatenated_batch[concatenated_key] = torch.cat(
-                    (
-                        concatenated_batch[concatenated_key],
-                        pad_to_length(batch[k], max_length, pad_value=pad_value),
-                    ),
-                    dim=0,
-                ).to(device=device)
+        if not ignore_rejected:
+            for k in batch:
+                if k.startswith("rejected") and isinstance(batch[k], torch.Tensor):
+                    if "labels" in k or is_encoder_decoder:
+                        pad_value = label_pad_token_id
+                    elif k.endswith("_input_ids"):
+                        pad_value = padding_value
+                    elif k.endswith("_attention_mask"):
+                        pad_value = 0
+                    concatenated_key = k.replace("rejected", "concatenated")
+                    concatenated_batch[concatenated_key] = torch.cat(
+                        (
+                            concatenated_batch[concatenated_key],
+                            pad_to_length(batch[k], max_length, pad_value=pad_value),
+                        ),
+                        dim=0,
+                    ).to(device=device)
         # import pdb; pdb.set_trace()
         # HACK a naive to replicate the chosen answer
         # [chosen, rejected, chosen]
         if duplicate_chosen_for_slow and duplicate_chosen_for_fast:
+        # TODO ignore_rejected
             if accumu_slow_fast: # 4-> 3
                 for k in batch:
                     if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
@@ -804,6 +809,7 @@ class CDPOTrainer(Trainer):
         #     batch['images'][1] * 2
         # ]
         if duplicate_chosen_for_slow and duplicate_chosen_for_fast:
+        # TODO ignore_rejected
             if accumu_slow_fast:
                 concatenated_batch["concatenated_images"] = batch["images"] * 3
                 concatenated_batch["image_sizes"] = batch["image_sizes"] * 3
@@ -813,9 +819,14 @@ class CDPOTrainer(Trainer):
                 concatenated_batch["image_sizes"] = batch["image_sizes"] * 4
                 concatenated_batch["modalities"] = batch["modalities"] * 4
         elif duplicate_chosen_for_slow or duplicate_chosen_for_fast:
-            concatenated_batch["concatenated_images"] = batch["images"] * 3
-            concatenated_batch["image_sizes"] = batch["image_sizes"] * 3
-            concatenated_batch["modalities"] = batch["modalities"] * 3
+            if ignore_rejected:
+                concatenated_batch["concatenated_images"] = batch["images"] * 2
+                concatenated_batch["image_sizes"] = batch["image_sizes"] * 2
+                concatenated_batch["modalities"] = batch["modalities"] * 2
+            else:
+                concatenated_batch["concatenated_images"] = batch["images"] * 3
+                concatenated_batch["image_sizes"] = batch["image_sizes"] * 3
+                concatenated_batch["modalities"] = batch["modalities"] * 3
         else:
             concatenated_batch["concatenated_images"] = batch["images"] * 2
             concatenated_batch["image_sizes"] = batch["image_sizes"] * 2
@@ -996,6 +1007,7 @@ class CDPOTrainer(Trainer):
             duplicate_chosen_for_slow=self.duplicate_chosen_for_slow,
             duplicate_chosen_for_fast=self.duplicate_chosen_for_fast,
             accumu_slow_fast=self.accumu_slow_fast
+            ignore_rejected=self.ignore_rejected
         )
         len_chosen = batch["chosen_labels"].shape[0]
 
