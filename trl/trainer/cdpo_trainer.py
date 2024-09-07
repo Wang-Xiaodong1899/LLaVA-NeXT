@@ -927,7 +927,7 @@ class CDPOTrainer(Trainer):
         
         losses = loss_dpo * dpo_weight + loss_cond + loss_cond_1
         
-        return losses, chosen_rewards, rejected_rewards
+        return losses, chosen_rewards, rejected_rewards, loss_cond, loss_cond_1
 
 
     @staticmethod
@@ -1124,7 +1124,7 @@ class CDPOTrainer(Trainer):
                         self.ref_model, batch
                     )
 
-        unscaled_dpo_losses, chosen_rewards, rejected_rewards = self.condition_dpo_loss(
+        unscaled_dpo_losses, chosen_rewards, rejected_rewards, loss_cond, loss_cond_1 = self.condition_dpo_loss(
             policy_chosen_logps,
             policy_rejected_logps,
             reference_chosen_logps,
@@ -1137,6 +1137,10 @@ class CDPOTrainer(Trainer):
         )
         unscaled_dpo_losses = unscaled_dpo_losses.mean()
         dpo_losses = unscaled_dpo_losses * self.dpo_alpha
+
+        # loss cond
+        loss_cond = loss_cond.mean()
+
         unscaled_sft_loss = self.get_sft_loss(policy_chosen_logits, chosen_labels)
         sft_loss = unscaled_sft_loss * self.gamma
 
@@ -1170,6 +1174,9 @@ class CDPOTrainer(Trainer):
         metrics[f"{prefix}losses/dpo"] = unscaled_dpo_losses.cpu()
         metrics[f"{prefix}losses/sft"] = unscaled_sft_loss.cpu()
         metrics[f"{prefix}losses/total"] = losses.cpu()
+
+        metrics[f"{prefix}losses/cond"] = loss_cond.cpu()
+
         metrics[f"{prefix}rewards/chosen"] = chosen_rewards.mean().cpu()
         metrics[f"{prefix}rewards/rejected"] = rejected_rewards.mean().cpu()
         metrics[f"{prefix}rewards/accuracies"] = reward_accuracies.mean().cpu()
