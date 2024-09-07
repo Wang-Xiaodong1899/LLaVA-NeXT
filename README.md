@@ -41,6 +41,9 @@ git clone https://hf-mirror.com/lmms-lab/LLaVA-NeXT-Video-7B
 
 ### Start train
 ```
+# install flash-attention 2
+pip install flash-attn --no-build-isolation
+
 # cd LLaVA-NeXT
 mkdir -p ckpt
 
