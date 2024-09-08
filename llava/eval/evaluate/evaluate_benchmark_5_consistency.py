@@ -178,6 +178,8 @@ def main():
                 # Break the loop when there are no incomplete files
                 if len(incomplete_files) == 0:
                     break
+                if len(incomplete_files) == 1:
+                    break
                 if len(incomplete_files) <= num_tasks:
                     num_tasks = 1
 
