@@ -345,8 +345,12 @@ class LlavaMetaForCausalLM(ABC):
                             rank0_print(f'idx {idx} jump in SLOW, video feat shape: {image_features[-1].shape}')
                         elif idx in video_idx_in_batch[-bsz:] and enable_video_fast:
                             # HACK hard code: slow
-                            image_features.append(self.get_2dPool(image_feat, enable_video_fast_num))
-                            rank0_print(f'idx {idx} jump in FAST, video feat shape: {image_features[-1].shape}')
+                            # image_features.append(self.get_2dPool(image_feat, enable_video_fast_num))
+                            image_feat = self.get_2dPool(image_feat, enable_video_fast_num)
+                            # HACK（fast verify) few spatial token -> bilinear -> normal spatial token
+                            image_feature = nn.functional.interpolate(image_feature, size=[enable_video_fast_num, enable_video_fast_num], mode='bilinear')
+                            image_features.append(image_feature)
+                            rank0_print(f'idx {idx} jump in FAST, up to video feat shape: {image_features[-1].shape}')
                         else:
                             # idx in [0, 1]
                             image_features.append(self.get_2dPool(image_feat))
