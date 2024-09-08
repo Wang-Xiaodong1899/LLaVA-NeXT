@@ -1,13 +1,13 @@
 import openai
 
-openai.base_url = "https://api.ai-gaochao.cn/v1/"
-openai.api_key = "sk-UYqwq36Z0hmfyaWJ69F675A344D645D79c9dB863Ae870eAd"
+# openai.base_url = "https://api.ai-gaochao.cn/v1/"
+# openai.api_key = "sk-UYqwq36Z0hmfyaWJ69F675A344D645D79c9dB863Ae870eAd"
 
 # openai.base_url = "https://api.chatanywhere.tech/v1/"
 # openai.api_key = "sk-88uyXsAdEyDN5ESbWVWTtG6Do6vj9y2biMqtMsIsf6pqDvvY"
 
-# openai.base_url = "https://openrouter.ai/api/v1"
-# openai.api_key = "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"
+openai.base_url = "https://openrouter.ai/api/v1"
+openai.api_key = "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"
 
 # HTTPS_PROXY=http://fvgroup:48423590@10.54.0.93:3128 
 
