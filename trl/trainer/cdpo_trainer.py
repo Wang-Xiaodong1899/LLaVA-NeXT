@@ -1049,9 +1049,13 @@ class CDPOTrainer(Trainer):
         # XXX third logps
         if len(chosen_logps) != len(rejected_logps):
             rejected_logps = all_logps[len_chosen: 2*len_chosen]
-            condition_logps = all_logps[2*len_chosen: ]
+            condition_logps_real = all_logps[2*len_chosen: ]
+            # condition_logps = condition_logps_real
             ### HACK chosen_logps -> condition_logps
             condition_logps = chosen_logps / len_loss_mask[:len_chosen]
+
+            ### HACK minus weak video token condition_logps
+            condition_logps = condition_logps - (condition_logps_real / len_loss_mask[2*len_chosen: ])
             if len(condition_logps) != len(rejected_logps):
                 condition_logps = all_logps[2*len_chosen: 3*len_chosen]
                 condition_1_logps = all_logps[3*len_chosen: ]
