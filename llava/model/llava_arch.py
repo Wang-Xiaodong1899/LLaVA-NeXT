@@ -288,6 +288,8 @@ class LlavaMetaForCausalLM(ABC):
                     enable_video_fast = getattr(self.config, "enable_video_fast", False)
                     accumu_slow_fast = getattr(self.config, "accumu_slow_fast", False)
 
+                    enable_video_shuffle = getattr(self.config, "enable_video_shuffle", False)
+
                     # XXX ignore rejected
                     ignore_rejected = getattr(self.config, "ignore_rejected", False)
 
@@ -345,6 +347,19 @@ class LlavaMetaForCausalLM(ABC):
                             # HACK hard code: slow
                             image_features.append(self.get_2dPool(image_feat, enable_video_fast_num))
                             rank0_print(f'idx {idx} jump in FAST, video feat shape: {image_features[-1].shape}')
+                        else:
+                            # idx in [0, 1]
+                            image_features.append(self.get_2dPool(image_feat))
+                            rank0_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
+                    elif enable_video_shuffle:
+                        bsz = len(encoded_image_features) // 3
+                        if ignore_rejected:
+                            bsz = len(encoded_image_features) // 2
+                        if idx in video_idx_in_batch[-bsz:]:
+                            indices = torch.randperm(image_feat.shape[0])
+                            image_feat = image_feat[indices]
+                            image_features.append(self.get_2dPool(image_feat))
+                            rank0_print(f'idx {idx} jump in RANDOM, video indices: {indices}')
                         else:
                             # idx in [0, 1]
                             image_features.append(self.get_2dPool(image_feat))

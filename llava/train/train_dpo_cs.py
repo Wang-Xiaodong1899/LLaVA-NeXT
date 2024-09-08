@@ -194,6 +194,7 @@ class TrainingArguments(transformers.TrainingArguments):
     enable_video_slow_num: int = field(default=2)
     accumu_slow_fast: bool = field(default=False)
     ignore_rejected: bool = field(default=False)
+    enable_video_shuffle: bool = field(default=False)
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):
@@ -1832,6 +1833,7 @@ def train(attn_implementation=None):
 
     model.config.enable_video_slow_num = training_args.enable_video_slow_num
     model.config.enable_video_fast_num = training_args.enable_video_fast_num
+    model.config.enable_video_shuffle = training_args.enable_video_shuffle
 
     model.config.accumu_slow_fast = training_args.accumu_slow_fast
 
@@ -1855,6 +1857,7 @@ def train(attn_implementation=None):
         duplicate_chosen_for_fast=training_args.enable_video_fast,
         accumu_slow_fast=training_args.accumu_slow_fast,
         ignore_rejected=training_args.ignore_rejected,
+        enable_video_shuffle=training_args.enable_video_shuffle
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
