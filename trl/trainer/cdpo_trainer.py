@@ -929,8 +929,13 @@ class CDPOTrainer(Trainer):
             The chosen_rewards and rejected_rewards tensors contain the rewards for the chosen and rejected responses, respectively.
         """
         loss_dpo, chosen_rewards, rejected_rewards = self.dpo_loss(policy_chosen_logps, policy_rejected_logps, reference_chosen_logps, reference_rejected_logps)
+        import pdb; pdb.set_trace()
         if policy_condition_logps is not None and reference_condition_logps is not None:
-            loss_cond, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_logps, reference_chosen_logps, reference_condition_logps)
+            # XXX conditional dpo loss
+            # loss_cond, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_logps, reference_chosen_logps, reference_condition_logps)
+            # XXX nll loss for conditional visual input
+            nll_alpha = 1.0
+            loss_cond = nll_alpha * policy_condition_logps.mean()
         else:
             loss_cond = torch.tensor([0.]).to(loss_dpo.device)
         
@@ -980,7 +985,7 @@ class CDPOTrainer(Trainer):
         if average_log_prob:
             return (per_token_logps * loss_mask).sum(-1) / loss_mask.sum(-1)
         else:
-            return (per_token_logps * loss_mask).sum(-1)
+            return (per_token_logps * loss_mask).sum(-1), loss_mask.sum(-1)
 
     def get_sft_loss(self, logits, labels):
         # Shift so that tokens < n predict n
@@ -1027,7 +1032,7 @@ class CDPOTrainer(Trainer):
             dpo_forward=True,
         )
         all_logits = all_logits.to(torch.float32)
-        all_logps = self.get_batch_logps(
+        all_logps, len_loss_mask  = self.get_batch_logps(
             all_logits,
             new_labels,
             average_log_prob=self.loss_type == "ipo",
@@ -1045,6 +1050,8 @@ class CDPOTrainer(Trainer):
         if len(chosen_logps) != len(rejected_logps):
             rejected_logps = all_logps[len_chosen: 2*len_chosen]
             condition_logps = all_logps[2*len_chosen: ]
+            ### HACK chosen_logps -> condition_logps
+            condition_logps = chosen_logps / len_loss_mask[:len_chosen]
             if len(condition_logps) != len(rejected_logps):
                 condition_logps = all_logps[2*len_chosen: 3*len_chosen]
                 condition_1_logps = all_logps[3*len_chosen: ]
