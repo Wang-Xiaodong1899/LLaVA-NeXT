@@ -353,7 +353,9 @@ class LlavaMetaForCausalLM(ABC):
                             height, width = 24 // enable_video_fast_num, 24 // enable_video_fast_num
                             image_feat = image_feat.view(num_frames, height, width, -1)
                             image_feat = image_feat.permute(0, 3, 1, 2).contiguous()
-                            image_feat = nn.functional.interpolate(image_feat, size=[enable_video_fast_num, enable_video_fast_num], mode='bilinear')
+                            image_feat = nn.functional.interpolate(image_feat, size=[12, 12], mode='bilinear')
+                            image_feat = image_feat.permute(0, 2, 3, 1)
+                            image_feat = image_feat.view(num_frames, -1, num_dim)
                             image_features.append(image_feat)
                             rank0_print(f'idx {idx} jump in FAST, up to video feat shape: {image_features[-1].shape}')
                         else:
