@@ -929,13 +929,13 @@ class CDPOTrainer(Trainer):
             The chosen_rewards and rejected_rewards tensors contain the rewards for the chosen and rejected responses, respectively.
         """
         loss_dpo, chosen_rewards, rejected_rewards = self.dpo_loss(policy_chosen_logps, policy_rejected_logps, reference_chosen_logps, reference_rejected_logps)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         if policy_condition_logps is not None and reference_condition_logps is not None:
             # XXX conditional dpo loss
             # loss_cond, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_logps, reference_chosen_logps, reference_condition_logps)
             # XXX nll loss for conditional visual input
             nll_alpha = 1.0
-            loss_cond = nll_alpha * policy_condition_logps.mean()
+            loss_cond = -nll_alpha * policy_condition_logps
         else:
             loss_cond = torch.tensor([0.]).to(loss_dpo.device)
         
