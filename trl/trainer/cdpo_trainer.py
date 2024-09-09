@@ -1063,6 +1063,9 @@ class CDPOTrainer(Trainer):
             ### HACK chosen_logps -> condition_logps
             condition_logps = chosen_logps / len_loss_mask[:len_chosen]
 
+            import pdb; pdb.set_trace()
+            # TODO add regurization loss for condition logps
+
             ### HACK minus weak video token condition_logps
             # condition_logps = condition_logps - (condition_logps_real / len_loss_mask[2*len_chosen: ])
             if len(condition_logps) != len(rejected_logps):
