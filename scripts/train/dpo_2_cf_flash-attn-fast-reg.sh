@@ -46,6 +46,8 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --deepspeed scripts/zero2.json \
     --model_name_or_path ${ROOT}/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
+    --enable_video_fast True \
+    --enable_video_fast_num 8 \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --nll_alpha 1.0 \
     --data_path=$data_path \
