@@ -197,6 +197,7 @@ class TrainingArguments(transformers.TrainingArguments):
     enable_video_shuffle: bool = field(default=False)
     nll_alpha: float = field(default=0.)
     dpo_weight: float = field(default=1.0)
+    cond_alpha: float = field(default=0.)
 
 def maybe_zero_3(param, ignore_status=False, name=None):
     from deepspeed import zero
@@ -1863,6 +1864,7 @@ def train(attn_implementation=None):
         enable_video_shuffle=training_args.enable_video_shuffle,
         dpo_weight=training_args.dpo_weight,
         nll_alpha=training_args.nll_alpha,
+        cond_alpha=training_args.cond_alpha
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):

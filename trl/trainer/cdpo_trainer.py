@@ -176,6 +176,7 @@ class CDPOTrainer(Trainer):
         ignore_rejected: bool = False,
         enable_video_shuffle: bool = False,
         nll_alpha: float = 0.,
+        cond_alpha: float = 0.0,
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -302,6 +303,7 @@ class CDPOTrainer(Trainer):
         self.loss_type = loss_type
         self.dpo_weight = dpo_weight
         self.nll_alpha = nll_alpha
+        self.cond_alpha = cond_alpha
 
         self._stored_metrics = defaultdict(lambda: defaultdict(list))
 
@@ -1211,7 +1213,7 @@ class CDPOTrainer(Trainer):
         sft_loss = unscaled_sft_loss * self.gamma
 
         # print(sft_loss.shape, dpo_losses.shape)
-        losses = dpo_losses + sft_loss + loss_cond + loss_reg
+        losses = dpo_losses + sft_loss + self.cond_alpha * ( loss_cond + loss_reg )
         # losses = sft_loss # sft only
         # losses = dpo_losses # dpo only
         reward_accuracies = (chosen_rewards > rejected_rewards).float()
