@@ -916,7 +916,7 @@ class CDPOTrainer(Trainer):
         reference_condition_1_logps: torch.FloatTensor,
         dpo_weight = 1.0,
         nll_alpha = 0.,
-
+        ignore_rejected = False,
     ) -> Tuple[torch.FloatTensor, torch.FloatTensor, torch.FloatTensor]:
         """Compute the DPO loss for a batch of policy and reference model log probabilities.
 
@@ -932,17 +932,22 @@ class CDPOTrainer(Trainer):
             The chosen_rewards and rejected_rewards tensors contain the rewards for the chosen and rejected responses, respectively.
         """
         loss_dpo, chosen_rewards, rejected_rewards = self.dpo_loss(policy_chosen_logps, policy_rejected_logps, reference_chosen_logps, reference_rejected_logps)
-        # import pdb; pdb.set_trace()
-        if policy_condition_logps is not None and reference_condition_logps is not None:
-            # XXX conditional dpo loss
-            loss_cond, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_logps, reference_chosen_logps, reference_condition_logps)
-            
-            # XXX nll loss for conditional visual input
-            # loss_cond = -nll_alpha * policy_condition_logps
-            # if nll_alpha == 0:
-            #     loss_cond = torch.tensor([0.]).to(loss_dpo.device)
-        else:
+
+        if ignore_rejected:
+            loss_reg = -nll_alpha * policy_condition_logps
             loss_cond = torch.tensor([0.]).to(loss_dpo.device)
+        else:
+            # import pdb; pdb.set_trace()
+            if policy_condition_logps is not None and reference_condition_logps is not None:
+                # XXX conditional dpo loss
+                loss_cond, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_logps, reference_chosen_logps, reference_condition_logps)
+                
+                # XXX nll loss for conditional visual input
+                # loss_cond = -nll_alpha * policy_condition_logps
+                # if nll_alpha == 0:
+                #     loss_cond = torch.tensor([0.]).to(loss_dpo.device)
+            else:
+                loss_cond = torch.tensor([0.]).to(loss_dpo.device)
         
         # HACK regularization for condition logps
         if policy_condition_1_logps is not None:
@@ -1059,6 +1064,10 @@ class CDPOTrainer(Trainer):
         
         condition_logps = None
         condition_1_logps = None
+
+        ### HACK if no-rej, condition->rej, add reg to rej_logps
+        if ignore_rejected:
+            condition_logps = rejected_logps / len_loss_mask[len_chosen: ]
 
         # XXX always has chosen nll loss logps, rather than None
         # condition_logps = chosen_logps / len_loss_mask[:len_chosen]
@@ -1185,6 +1194,7 @@ class CDPOTrainer(Trainer):
             reference_condition_1_logps,
             dpo_weight=self.dpo_weight,
             nll_alpha=self.nll_alpha,
+            ignore_rejected=self.ignore_rejected,
         )
         unscaled_dpo_losses = unscaled_dpo_losses.mean()
         dpo_losses = unscaled_dpo_losses * self.dpo_alpha
