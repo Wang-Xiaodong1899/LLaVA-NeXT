@@ -948,7 +948,7 @@ class CDPOTrainer(Trainer):
         if policy_condition_1_logps is not None:
             loss_reg = -nll_alpha * policy_condition_1_logps
         
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         
         if policy_condition_1_logps is not None and reference_condition_1_logps is not None:
             loss_cond_1 = torch.tensor([0.]).to(loss_dpo.device)
