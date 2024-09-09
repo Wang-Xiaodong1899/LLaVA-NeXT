@@ -20,7 +20,7 @@ export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=${ROOT}/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/workspace/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
