@@ -1046,6 +1046,10 @@ class CDPOTrainer(Trainer):
         
         condition_logps = None
         condition_1_logps = None
+
+        # XXX always has chosen nll loss logps, rather than None
+        condition_logps = chosen_logps / len_loss_mask[:len_chosen]
+        # NOTE it will be replaced if open fast or slow button
         
         # XXX third logps
         if len(chosen_logps) != len(rejected_logps):
