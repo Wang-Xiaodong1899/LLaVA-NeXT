@@ -1073,7 +1073,7 @@ class CDPOTrainer(Trainer):
             ### HACK chosen_logps -> condition_logps
             # condition_logps = chosen_logps / len_loss_mask[:len_chosen] # such as ([-1.2, -0.5])
 
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             # TODO add regurization loss for condition logps
             condition_1_logps = condition_logps / len_loss_mask[2*len_chosen: ]
 
@@ -1189,7 +1189,7 @@ class CDPOTrainer(Trainer):
         unscaled_dpo_losses = unscaled_dpo_losses.mean()
         dpo_losses = unscaled_dpo_losses * self.dpo_alpha
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         # loss cond
         loss_cond = loss_cond.mean()

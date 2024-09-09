@@ -50,6 +50,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --enable_video_fast_num 8 \
     --mm_tunable_parts "mm_mlp_adapter" \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
+    --nll_alpha 1.0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder ${ROOT}/data/shareVideoGPTV/dpo_train_data \
