@@ -1066,7 +1066,7 @@ class CDPOTrainer(Trainer):
         condition_1_logps = None
 
         ### HACK if no-rej, condition->rej, add reg to rej_logps
-        if ignore_rejected:
+        if self.ignore_rejected:
             condition_logps = rejected_logps / len_loss_mask[len_chosen: ]
 
         # XXX always has chosen nll loss logps, rather than None
