@@ -944,7 +944,8 @@ class CDPOTrainer(Trainer):
         else:
             loss_cond_1 = torch.tensor([0.]).to(loss_dpo.device)
         
-        losses = loss_dpo * dpo_weight + loss_cond + loss_cond_1
+        # losses = loss_dpo * dpo_weight + loss_cond + loss_cond_1
+        losses = loss_dpo
         
         return losses, chosen_rewards, rejected_rewards, loss_cond, loss_cond_1
 
@@ -1055,7 +1056,7 @@ class CDPOTrainer(Trainer):
             condition_logps = chosen_logps / len_loss_mask[:len_chosen]
 
             ### HACK minus weak video token condition_logps
-            condition_logps = condition_logps - (condition_logps_real / len_loss_mask[2*len_chosen: ])
+            # condition_logps = condition_logps - (condition_logps_real / len_loss_mask[2*len_chosen: ])
             if len(condition_logps) != len(rejected_logps):
                 condition_logps = all_logps[2*len_chosen: 3*len_chosen]
                 condition_1_logps = all_logps[3*len_chosen: ]
@@ -1172,7 +1173,7 @@ class CDPOTrainer(Trainer):
         sft_loss = unscaled_sft_loss * self.gamma
 
         # print(sft_loss.shape, dpo_losses.shape)
-        losses = dpo_losses + sft_loss
+        losses = dpo_losses + sft_loss + loss_cond
         # losses = sft_loss # sft only
         # losses = dpo_losses # dpo only
         reward_accuracies = (chosen_rewards > rejected_rewards).float()
