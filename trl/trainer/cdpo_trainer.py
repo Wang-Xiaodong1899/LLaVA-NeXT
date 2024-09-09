@@ -935,23 +935,32 @@ class CDPOTrainer(Trainer):
         # import pdb; pdb.set_trace()
         if policy_condition_logps is not None and reference_condition_logps is not None:
             # XXX conditional dpo loss
-            # loss_cond, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_logps, reference_chosen_logps, reference_condition_logps)
+            loss_cond, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_logps, reference_chosen_logps, reference_condition_logps)
+            
             # XXX nll loss for conditional visual input
-            loss_cond = -nll_alpha * policy_condition_logps
-            if nll_alpha == 0:
-                loss_cond = torch.tensor([0.]).to(loss_dpo.device)
+            # loss_cond = -nll_alpha * policy_condition_logps
+            # if nll_alpha == 0:
+            #     loss_cond = torch.tensor([0.]).to(loss_dpo.device)
         else:
             loss_cond = torch.tensor([0.]).to(loss_dpo.device)
         
+        # HACK regularization for condition logps
+        if policy_condition_1_logps is not None:
+            loss_reg = -nll_alpha * policy_condition_1_logps
+        
+        import pdb; pdb.set_trace()
+        
         if policy_condition_1_logps is not None and reference_condition_1_logps is not None:
-            loss_cond_1, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_1_logps, reference_chosen_logps, reference_condition_1_logps)
+            loss_cond_1 = torch.tensor([0.]).to(loss_dpo.device)
+            ### HACK ignore second condition
+            # loss_cond_1, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_1_logps, reference_chosen_logps, reference_condition_1_logps)
         else:
             loss_cond_1 = torch.tensor([0.]).to(loss_dpo.device)
         
         # losses = loss_dpo * dpo_weight + loss_cond + loss_cond_1
         losses = loss_dpo
         
-        return losses, chosen_rewards, rejected_rewards, loss_cond, loss_cond_1
+        return losses, chosen_rewards, rejected_rewards, loss_cond, loss_cond_1, loss_reg
 
 
     @staticmethod
@@ -1052,19 +1061,21 @@ class CDPOTrainer(Trainer):
         condition_1_logps = None
 
         # XXX always has chosen nll loss logps, rather than None
-        condition_logps = chosen_logps / len_loss_mask[:len_chosen]
+        # condition_logps = chosen_logps / len_loss_mask[:len_chosen]
         # NOTE it will be replaced if open fast or slow button
         
         # XXX third logps
         if len(chosen_logps) != len(rejected_logps):
             rejected_logps = all_logps[len_chosen: 2*len_chosen]
             condition_logps_real = all_logps[2*len_chosen: ]
-            # condition_logps = condition_logps_real
+            condition_logps = condition_logps_real
+
             ### HACK chosen_logps -> condition_logps
-            condition_logps = chosen_logps / len_loss_mask[:len_chosen]
+            # condition_logps = chosen_logps / len_loss_mask[:len_chosen] # such as ([-1.2, -0.5])
 
             import pdb; pdb.set_trace()
             # TODO add regurization loss for condition logps
+            condition_1_logps = condition_logps / len_loss_mask[2*len_chosen: ]
 
             ### HACK minus weak video token condition_logps
             # condition_logps = condition_logps - (condition_logps_real / len_loss_mask[2*len_chosen: ])
@@ -1163,7 +1174,7 @@ class CDPOTrainer(Trainer):
                         self.ref_model, batch
                     )
 
-        unscaled_dpo_losses, chosen_rewards, rejected_rewards, loss_cond, loss_cond_1 = self.condition_dpo_loss(
+        unscaled_dpo_losses, chosen_rewards, rejected_rewards, loss_cond, loss_cond_1, loss_reg = self.condition_dpo_loss(
             policy_chosen_logps,
             policy_rejected_logps,
             reference_chosen_logps,
@@ -1178,14 +1189,19 @@ class CDPOTrainer(Trainer):
         unscaled_dpo_losses = unscaled_dpo_losses.mean()
         dpo_losses = unscaled_dpo_losses * self.dpo_alpha
 
+        import pdb; pdb.set_trace()
+
         # loss cond
         loss_cond = loss_cond.mean()
+
+        # loss regularization
+        loss_reg = loss_reg.mean()
 
         unscaled_sft_loss = self.get_sft_loss(policy_chosen_logits, chosen_labels)
         sft_loss = unscaled_sft_loss * self.gamma
 
         # print(sft_loss.shape, dpo_losses.shape)
-        losses = dpo_losses + sft_loss + loss_cond
+        losses = dpo_losses + sft_loss + loss_cond + loss_reg
         # losses = sft_loss # sft only
         # losses = dpo_losses # dpo only
         reward_accuracies = (chosen_rewards > rejected_rewards).float()
@@ -1217,6 +1233,7 @@ class CDPOTrainer(Trainer):
         metrics[f"{prefix}losses/total"] = losses.cpu()
 
         metrics[f"{prefix}losses/cond"] = loss_cond.cpu()
+        metrics[f"{prefix}losses/reg"] = loss_reg.cpu()
 
         metrics[f"{prefix}rewards/chosen"] = chosen_rewards.mean().cpu()
         metrics[f"{prefix}rewards/rejected"] = rejected_rewards.mean().cpu()
