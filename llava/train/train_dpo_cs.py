@@ -195,7 +195,8 @@ class TrainingArguments(transformers.TrainingArguments):
     accumu_slow_fast: bool = field(default=False)
     ignore_rejected: bool = field(default=False)
     enable_video_shuffle: bool = field(default=False)
-
+    nll_alpha: float = field(default=0.)
+    dpo_weight: float = field(default=1.0)
 
 def maybe_zero_3(param, ignore_status=False, name=None):
     from deepspeed import zero
