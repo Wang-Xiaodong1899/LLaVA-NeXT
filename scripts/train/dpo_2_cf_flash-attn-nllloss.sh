@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_dpo_17k_nll-loss-chosen-default
+export WANDB_NAME=llava_dpo_17k_nll-loss-chosen-nll-alpha-0.5
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -47,6 +47,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path ${ROOT}/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
+    --nll_alpha 0.5 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder ${ROOT}/data/shareVideoGPTV/dpo_train_data \

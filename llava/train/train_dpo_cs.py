@@ -1838,6 +1838,8 @@ def train(attn_implementation=None):
     model.config.accumu_slow_fast = training_args.accumu_slow_fast
 
     model.config.ignore_rejected = training_args.ignore_rejected
+    model.config.dpo_weight = training_args.dpo_weight
+    model.config.nll_alpha = training_args.nll_alpha
 
     trainer = LLaVACDPOTrainer(
         model,
@@ -1857,7 +1859,9 @@ def train(attn_implementation=None):
         duplicate_chosen_for_fast=training_args.enable_video_fast,
         accumu_slow_fast=training_args.accumu_slow_fast,
         ignore_rejected=training_args.ignore_rejected,
-        enable_video_shuffle=training_args.enable_video_shuffle
+        enable_video_shuffle=training_args.enable_video_shuffle,
+        dpo_weight=training_args.dpo_weight,
+        nll_alpha=training_args.nll_alpha,
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):

@@ -175,6 +175,7 @@ class CDPOTrainer(Trainer):
         dpo_weight: float = 1.0,
         ignore_rejected: bool = False,
         enable_video_shuffle: bool = False,
+        nll_alpha: float = 0.,
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -300,6 +301,7 @@ class CDPOTrainer(Trainer):
         self.label_smoothing = label_smoothing
         self.loss_type = loss_type
         self.dpo_weight = dpo_weight
+        self.nll_alpha = nll_alpha
 
         self._stored_metrics = defaultdict(lambda: defaultdict(list))
 
@@ -912,7 +914,8 @@ class CDPOTrainer(Trainer):
         reference_condition_logps: torch.FloatTensor,
         policy_condition_1_logps: torch.FloatTensor,
         reference_condition_1_logps: torch.FloatTensor,
-        dpo_weight = 1.0
+        dpo_weight = 1.0,
+        nll_alpha = 0.,
 
     ) -> Tuple[torch.FloatTensor, torch.FloatTensor, torch.FloatTensor]:
         """Compute the DPO loss for a batch of policy and reference model log probabilities.
@@ -934,8 +937,9 @@ class CDPOTrainer(Trainer):
             # XXX conditional dpo loss
             # loss_cond, _, _ = self.dpo_loss(policy_chosen_logps, policy_condition_logps, reference_chosen_logps, reference_condition_logps)
             # XXX nll loss for conditional visual input
-            nll_alpha = 1.0
             loss_cond = -nll_alpha * policy_condition_logps
+            if nll_alpha == 0:
+                loss_cond = torch.tensor([0.]).to(loss_dpo.device)
         else:
             loss_cond = torch.tensor([0.]).to(loss_dpo.device)
         
@@ -1165,7 +1169,8 @@ class CDPOTrainer(Trainer):
             reference_condition_logps,
             policy_condition_1_logps,
             reference_condition_1_logps,
-            dpo_weight=self.dpo_weight
+            dpo_weight=self.dpo_weight,
+            nll_alpha=self.nll_alpha,
         )
         unscaled_dpo_losses = unscaled_dpo_losses.mean()
         dpo_losses = unscaled_dpo_losses * self.dpo_alpha
