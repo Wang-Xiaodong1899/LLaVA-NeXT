@@ -54,3 +54,21 @@ wandb login
 bash scripts/train/dpo_2_flash-attn.sh 5e-7 ./
 
 ```
+
+### **Evaluation (only need 1 GPU)**
+```
+conda activate llava
+pip install jsonlines
+
+# cd LLaVA-NeXT
+cd data
+wget https://hf-mirror.com/datasets/lmms-lab/VideoChatGPT/resolve/main/videos.zip
+unzip videos.zip
+
+# temporal and consistency eval
+# cd LLaVA-NeXT
+bash scripts/video/eval/temp_consi.sh ./ ./ckpt/llava-next-8-H100-1/llava_dpo_17k_flash-attn dpo_17k 16
+
+# It may cost 2 hours, after that, you will see two txt file: _temp.txt and _consi.txt
+
+```
