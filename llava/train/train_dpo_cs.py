@@ -198,6 +198,7 @@ class TrainingArguments(transformers.TrainingArguments):
     nll_alpha: float = field(default=0.)
     dpo_weight: float = field(default=1.0)
     cond_alpha: float = field(default=0.)
+    enable_video_fast_upsampler: int = field(default=True)
 
 def maybe_zero_3(param, ignore_status=False, name=None):
     from deepspeed import zero
@@ -1842,6 +1843,8 @@ def train(attn_implementation=None):
     model.config.ignore_rejected = training_args.ignore_rejected
     model.config.dpo_weight = training_args.dpo_weight
     model.config.nll_alpha = training_args.nll_alpha
+
+    model.config.enable_video_fast_upsampler = training_args.enable_video_fast_upsampler
 
     trainer = LLaVACDPOTrainer(
         model,

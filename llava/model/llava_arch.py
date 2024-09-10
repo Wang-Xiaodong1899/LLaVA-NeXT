@@ -297,6 +297,8 @@ class LlavaMetaForCausalLM(ABC):
                     enable_video_slow_num = getattr(self.config, "enable_video_slow_num", 2)
                     enable_video_fast_num = getattr(self.config, "enable_video_fast_num", 6)
 
+                    enable_video_fast_upsampler = getattr(self.config, "enable_video_fast_upsampler", True)
+
                     # rank_print(f"{enable_video_fast}, {enable_video_slow}")
 
                     if enable_video_slow and enable_video_fast:
@@ -348,14 +350,15 @@ class LlavaMetaForCausalLM(ABC):
                             # image_features.append(self.get_2dPool(image_feat, enable_video_fast_num))
 
                             image_feat = self.get_2dPool(image_feat, enable_video_fast_num)
-                            # HACK（fast verify) few spatial token -> bilinear -> normal spatial token
-                            num_frames, num_tokens, num_dim = image_feat.shape
-                            height, width = 24 // enable_video_fast_num, 24 // enable_video_fast_num
-                            image_feat = image_feat.view(num_frames, height, width, -1)
-                            image_feat = image_feat.permute(0, 3, 1, 2).contiguous()
-                            image_feat = nn.functional.interpolate(image_feat, size=[12, 12], mode='bilinear')
-                            image_feat = image_feat.permute(0, 2, 3, 1)
-                            image_feat = image_feat.view(num_frames, -1, num_dim)
+                            if enable_video_fast_upsampler:
+                                # HACK（fast verify) few spatial token -> bilinear -> normal spatial token
+                                num_frames, num_tokens, num_dim = image_feat.shape
+                                height, width = 24 // enable_video_fast_num, 24 // enable_video_fast_num
+                                image_feat = image_feat.view(num_frames, height, width, -1)
+                                image_feat = image_feat.permute(0, 3, 1, 2).contiguous()
+                                image_feat = nn.functional.interpolate(image_feat, size=[12, 12], mode='bilinear')
+                                image_feat = image_feat.permute(0, 2, 3, 1)
+                                image_feat = image_feat.view(num_frames, -1, num_dim)
                             image_features.append(image_feat)
                             rank0_print(f'idx {idx} jump in FAST, up to video feat shape: {image_features[-1].shape}')
                         else:
