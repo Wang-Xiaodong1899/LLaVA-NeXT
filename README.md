@@ -72,7 +72,9 @@ unzip videos.zip
 
 # temporal and consistency eval
 # cd LLaVA-NeXT
-bash scripts/video/eval/temp_consi.sh ./ ./ckpt/llava-next-8-H100-1/llava_dpo_17k_flash-attn dpo_17k 16
+# bash scripts/video/eval/temp_consi.sh ./ ./ckpt/llava-next-8-H100-1/llava_dpo_17k_flash-attn dpo_17k 16
+
+bash scripts/video/eval/temp_consi.sh ./ ./ckpt/llava-next-8-H100-1/llava_dpo_17k_nll-loss-chosen-fast-reg-no-rej fast-reg-no-rej 16
 
 # It may cost 2 hours, after that, you will see two txt file: _temp.txt and _consi.txt
 
