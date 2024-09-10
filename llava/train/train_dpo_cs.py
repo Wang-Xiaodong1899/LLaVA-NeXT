@@ -198,7 +198,7 @@ class TrainingArguments(transformers.TrainingArguments):
     nll_alpha: float = field(default=0.)
     dpo_weight: float = field(default=1.0)
     cond_alpha: float = field(default=0.)
-    enable_video_fast_upsampler: int = field(default=True)
+    enable_video_fast_upsampler: bool = field(default=True)
 
 def maybe_zero_3(param, ignore_status=False, name=None):
     from deepspeed import zero
