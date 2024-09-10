@@ -198,6 +198,7 @@ class TrainingArguments(transformers.TrainingArguments):
     nll_alpha: float = field(default=0.)
     dpo_weight: float = field(default=1.0)
     cond_alpha: float = field(default=0.)
+    base_alpha: float = field(default=0.)
     enable_video_fast_upsampler: bool = field(default=True)
 
 def maybe_zero_3(param, ignore_status=False, name=None):
@@ -1867,7 +1868,8 @@ def train(attn_implementation=None):
         enable_video_shuffle=training_args.enable_video_shuffle,
         dpo_weight=training_args.dpo_weight,
         nll_alpha=training_args.nll_alpha,
-        cond_alpha=training_args.cond_alpha
+        cond_alpha=training_args.cond_alpha,
+        base_alpha=training_args.base_alpha
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):

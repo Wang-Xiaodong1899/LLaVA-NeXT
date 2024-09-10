@@ -177,6 +177,7 @@ class CDPOTrainer(Trainer):
         enable_video_shuffle: bool = False,
         nll_alpha: float = 0.,
         cond_alpha: float = 0.0,
+        base_alpha: float = 0.0,
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -304,6 +305,7 @@ class CDPOTrainer(Trainer):
         self.dpo_weight = dpo_weight
         self.nll_alpha = nll_alpha
         self.cond_alpha = cond_alpha
+        self.base_alpha = base_alpha
 
         self._stored_metrics = defaultdict(lambda: defaultdict(list))
 
@@ -1063,6 +1065,9 @@ class CDPOTrainer(Trainer):
 
         chosen_logps = all_logps[:len_chosen]
         rejected_logps = all_logps[len_chosen:]
+
+        # add norm chosen_logps
+        chosen_norm_logps = chosen_logps / len_loss_mask[:len_chosen]
         
         condition_logps = None
         condition_1_logps = None
@@ -1129,7 +1134,7 @@ class CDPOTrainer(Trainer):
                 condition_labels = new_labels[2*len_chosen: 3*len_chosen]
                 condition_1_labels = new_labels[3*len_chosen: ]
 
-        return (chosen_logps, rejected_logps, chosen_logits, rejected_logits, chosen_labels, rejected_labels, condition_logps, condition_logits, condition_labels, condition_1_logps, condition_1_logits, condition_1_labels)
+        return (chosen_logps, rejected_logps, chosen_logits, rejected_logits, chosen_labels, rejected_labels, condition_logps, condition_logits, condition_labels, condition_1_logps, condition_1_logits, condition_1_labels, chosen_norm_logps)
 
     def get_batch_loss_metrics(
         self,
@@ -1155,7 +1160,8 @@ class CDPOTrainer(Trainer):
             condition_labels,
             policy_condition_1_logps,
             policy_condition_1_logits,
-            condition_1_labels
+            condition_1_labels,
+            policy_chosen_norm_logps
         ) = self.concatenated_forward(model, batch)
 
         # if reference_chosen_logps and reference_rejected_logps in batch use them, otherwise use the reference model
@@ -1180,7 +1186,8 @@ class CDPOTrainer(Trainer):
                         reference_condition_logps,
                         _, _,
                         reference_condition_1_logps,
-                        _, _
+                        _, _,
+                        _
                     ) = self.concatenated_forward(
                         self.ref_model, batch
                     )
@@ -1202,6 +1209,12 @@ class CDPOTrainer(Trainer):
         dpo_losses = unscaled_dpo_losses * self.dpo_alpha
 
         # import pdb; pdb.set_trace()
+        # add loss_base to enhance winner answer prior
+        if self.base_alpha > 0:
+            loss_base = -self.base_alpha * policy_chosen_norm_logps
+            loss_base = loss_base.mean()
+        else:
+            loss_base = torch.tensor([0.]).to(unscaled_dpo_losses.device)
 
         # loss cond
         loss_cond = loss_cond.mean()
@@ -1213,7 +1226,7 @@ class CDPOTrainer(Trainer):
         sft_loss = unscaled_sft_loss * self.gamma
 
         # print(sft_loss.shape, dpo_losses.shape)
-        losses = dpo_losses + sft_loss + self.cond_alpha * ( loss_cond + loss_reg )
+        losses = dpo_losses + sft_loss + self.cond_alpha * ( loss_cond + loss_reg ) + loss_base
         # losses = sft_loss # sft only
         # losses = dpo_losses # dpo only
         reward_accuracies = (chosen_rewards > rejected_rewards).float()
@@ -1246,6 +1259,7 @@ class CDPOTrainer(Trainer):
 
         metrics[f"{prefix}losses/cond"] = loss_cond.cpu()
         metrics[f"{prefix}losses/reg"] = loss_reg.cpu()
+        metrics[f"{prefix}losses/base"] = loss_base.cpu()
 
         metrics[f"{prefix}rewards/chosen"] = chosen_rewards.mean().cpu()
         metrics[f"{prefix}rewards/rejected"] = rejected_rewards.mean().cpu()
