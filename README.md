@@ -4,7 +4,7 @@
 
 #### 1. **Clone this repository and navigate to the LLaVA folder:**
 ```bash
-git clone -b jfA100 https://github.com/Wang-Xiaodong1899/LLaVA-NeXT.git
+git clone -b ding https://github.com/Wang-Xiaodong1899/LLaVA-NeXT.git
 cd LLaVA-NeXT
 ```
 
@@ -54,6 +54,8 @@ wandb login
 # bash scripts/train/dpo_2_flash-attn.sh 5e-7 ./
 
 # (9.10 training)
+# sync code
+git reset --hard origin/ding
 bash scripts/train/dpo_2_cf_flash-attn-fast-reg-no-rej.sh 5e-7 ./
 
 ```
