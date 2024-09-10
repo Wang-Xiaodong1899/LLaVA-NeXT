@@ -51,6 +51,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --ignore_rejected True \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --nll_alpha 1.0 \
+    --cond_alpha 1.0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder ${ROOT}/data/shareVideoGPTV/dpo_train_data \
