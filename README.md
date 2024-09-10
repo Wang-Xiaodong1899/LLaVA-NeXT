@@ -56,8 +56,8 @@ wandb login
 # (9.10 training)
 # sync code
 git reset --hard origin/ding
-bash scripts/train/dpo_2_cf_flash-attn-fast-reg-no-rej.sh 5e-7 ./
-
+# bash scripts/train/dpo_2_cf_flash-attn-fast-reg-no-rej.sh 5e-7 ./
+bash scripts/train/dpo_2_cs_flash-attn-slow-reg-no-rej.sh 5e-7 ./
 ```
 
 ### **Evaluation (only need 1 GPU)**
@@ -74,7 +74,10 @@ unzip videos.zip
 # cd LLaVA-NeXT
 # bash scripts/video/eval/temp_consi.sh ./ ./ckpt/llava-next-8-H100-1/llava_dpo_17k_flash-attn dpo_17k 16
 
-bash scripts/video/eval/temp_consi.sh ./ ./ckpt/llava-next-8-H100-1/llava_dpo_17k_nll-loss-chosen-fast-reg-no-rej fast-reg-no-rej 16
+# bash scripts/video/eval/temp_consi.sh ./ ./ckpt/llava-next-8-H100-1/llava_dpo_17k_nll-loss-chosen-fast-reg-no-rej fast-reg-no-rej 16
+
+
+bash scripts/video/eval/temp_consi.sh ./ ./ckpt/llava-next-8-H100-1/llava_dpo_17k_nll-loss-chosen-slow-reg-no-rej slow-reg-no-rej 16
 
 # It may cost 2 hours, after that, you will see two txt file: _temp.txt and _consi.txt
 
