@@ -11,7 +11,7 @@ lr=${1:-"5e-7"}
 ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next-jf-4A100
+export WANDB_PROJECT=llava-next-4-A100-1
 export WANDB_NAME=llava_dpo_17k_nll-loss-chosen-fast-reg-no-rej
 
 # gpu_ids=0
@@ -20,7 +20,7 @@ export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/volsparse1/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=${ROOT}/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
@@ -78,7 +78,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 2 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 500 \
+    --save_steps 3000 \
     --save_total_limit 3 \
     --learning_rate $lr \
     --weight_decay 0. \

@@ -51,7 +51,10 @@ mkdir -p ckpt
 wandb login
 # b811e4deec2c0629b9b213aa594f46f8135c13df
 
-bash scripts/train/dpo_2_flash-attn.sh 5e-7 ./
+# bash scripts/train/dpo_2_flash-attn.sh 5e-7 ./
+
+# (9.10 training)
+bash scripts/train/dpo_2_cf_flash-attn-fast-reg-no-rej.sh 5e-7 ./
 
 ```
 
