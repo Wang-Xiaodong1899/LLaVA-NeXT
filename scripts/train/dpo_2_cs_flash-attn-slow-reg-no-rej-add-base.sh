@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_dpo_17k_nll-loss-chosen-slow-reg-no-rej-add-base
+export WANDB_NAME=llava_dpo_17k_nll-loss-chosen-slow-reg-no-rej-add-base1
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -51,7 +51,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --ignore_rejected True \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --nll_alpha 1.0 \
-    --cond_alpha 0.1 \
+    --cond_alpha 1.0 \
     --base_alpha 1.0 \
     --data_path=$data_path \
     --image_folder xxx \
