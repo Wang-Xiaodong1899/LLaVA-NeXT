@@ -1,5 +1,5 @@
 import safetensors
-from safetensors.torch import save_model
+from safetensors.torch import save_file
 import torch
 
 
@@ -17,6 +17,6 @@ mm_projector_tensors = {key: tensors_15.get_tensor(key) for key in tensors_15.ke
 combined_tensors = {key: tensors_14.get_tensor(key) for key in tensors_14.keys()}
 combined_tensors.update(mm_projector_tensors)
 
-save_model(combined_tensors, output_file)
+save_file(combined_tensors, output_file)
 
 print(f"Successfully merged 'mm_projector' tensors into {output_file}")
