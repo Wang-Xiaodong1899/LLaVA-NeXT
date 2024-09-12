@@ -69,6 +69,8 @@ def parse_args():
     parser.add_argument("--api_key", type=str, help="OpenAI API key")
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
+    parser.add_argument("--pretrain_mm_mlp_adapter", type=str, default=None) 
+    
 
     # add condition args
     parser.add_argument("--enable_video_slow", type=lambda x: (str(x).lower() == 'true'), default=False)
@@ -150,6 +152,7 @@ def run_inference(args):
             overwrite_config["mm_newline_position"] = args.mm_newline_position
             overwrite_config["enable_video_slow"] = args.enable_video_slow
             overwrite_config["enable_video_fast"] = args.enable_video_fast
+            overwrite_config["pretrain_mm_mlp_adapter"] = args.pretrain_mm_mlp_adapter
 
             cfg_pretrained = AutoConfig.from_pretrained(args.model_path)
 
