@@ -56,3 +56,6 @@ python3 playground/demo/video_demo.py \
 # video case What are the men playing on the beach? 
 # TODO test whether to affect the DPO model following ability
 # bash scripts/video/demo/video_demo.sh /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True playground/demo/v_oR8o_PuKS28.mp4
+
+# 34B
+# bash scripts/video/demo/video_demo.sh /volsparse1/wxd/models/LLaVA-NeXT-Video-34B-DPO/ mistral_direct 16 2 average no_token True playground/demo/v_oR8o_PuKS28.mp4

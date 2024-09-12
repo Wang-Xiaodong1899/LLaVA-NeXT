@@ -1,22 +1,13 @@
-import safetensors
-from safetensors.torch import save_file
 import torch
+from safetensors.torch import load_file
 
 
-input_file_mm = "/volsparse1/wxd/models/LLaVA-NeXT-Video-34B/model-00015-of-00015.safetensors"
-input_file_dpo = "/volsparse1/wxd/models/LLaVA-NeXT-Video-34B-DPO/model-00015-of-00015.safetensors"
-output_file = "/volsparse1/wxd/models/LLaVA-NeXT-Video-34B/model-00015-of-00015.safetensors"
+file_path = "/volsparse1/wxd/models/LLaVA-NeXT-Video-34B/model-00015-of-00015.safetensors"
+weights = load_file(file_path)
 
-tensors_15 = safetensors.safe_open(input_file_mm, framework="pt", device="cpu")
-tensors_14 = safetensors.safe_open(input_file_dpo, framework="pt", device="cpu")
+mm_projector_weights = {k: v for k, v in weights.items() if 'mm_projector' in k}
 
 
-mm_projector_tensors = {key: tensors_15.get_tensor(key) for key in tensors_15.keys() if "mm_projector" in key}
+torch.save(mm_projector_weights, "mm_projector_weights.pt")
 
-
-combined_tensors = {key: tensors_14.get_tensor(key) for key in tensors_14.keys()}
-combined_tensors.update(mm_projector_tensors)
-
-save_file(combined_tensors, output_file)
-
-print(f"Successfully merged 'mm_projector' tensors into {output_file}")
+print("Saved mm_projector_weights.pt")
