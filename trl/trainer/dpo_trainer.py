@@ -63,6 +63,37 @@ if is_deepspeed_available():
 
 from transformers.integrations.deepspeed import is_deepspeed_zero3_enabled
 
+def write_logp_to_preference_parquet(origin_data, cache_file, logps=None, overwrite_logps=False):
+    # out_data = []
+
+    # for index in range(len(logps)):
+    #     line = origin_data[index]
+    #     logp_data = {}
+    #     logp_data['logps']=logps[index]
+
+    #     new_line = copy.deepcopy(line)
+
+    #     if 'logps' in new_line.keys():
+    #         assert overwrite_logps, 'Found existing logp data, pass overwrite_logps=True to force overwritting'
+    #         new_line['logps'] = json.dumps(logp_data)
+
+    #     else:
+    #         assert (('question' in list(new_line.keys()))
+    #                 and ('chosen' in list(new_line.keys()))
+    #                 and ('rejected' in list(new_line.keys()))), \
+    #             f'Undefined data structure, expecting [Q, Win, Rej] in keys, got {new_line.keys()}'
+    #         new_line['logps'] = json.dumps(logp_data)
+
+    #     out_data.append(new_line)
+
+    if torch.distributed.get_rank() == 0:
+        step = 5000
+        for idx, start in enumerate(range(0, len(origin_data), step)):
+            temp_data = out_data[start: min(start+step, len(out_data))]
+            df = pd.DataFrame(temp_data)
+            df.to_parquet(os.path.join(cache_file, f'7B-DPO-logp_{idx:03}-{len(temp_data)}.parquet'))
+
+    torch.distributed.barrier()
 
 class DPOTrainer(Trainer):
     r"""
@@ -401,6 +432,10 @@ class DPOTrainer(Trainer):
             self.train_dataset = self.train_dataset.add_column(name="reference_rejected_logps", column=all_reference_rejected_logps)
 
             self._precomputed_train_ref_log_probs = True
+
+            write_logp_to_preference_parquet(self.train_dataset, './')
+
+            import pdb; pdb.set_trace()
 
         return super().get_train_dataloader()
 
