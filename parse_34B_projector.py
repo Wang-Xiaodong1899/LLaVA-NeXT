@@ -8,6 +8,6 @@ weights = load_file(file_path)
 mm_projector_weights = {k: v for k, v in weights.items() if 'mm_projector' in k}
 
 
-torch.save(mm_projector_weights, "mm_projector_weights.pt")
+torch.save(mm_projector_weights, "/volsparse1/wxd/models/LLaVA-NeXT-Video-34B/mm_projector_weights.pt")
 
 print("Saved mm_projector_weights.pt")
