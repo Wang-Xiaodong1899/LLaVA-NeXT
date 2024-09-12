@@ -244,6 +244,8 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
                         for k, v in overwrite_config.items():
                             setattr(llava_cfg, k, v)
                     model = LlavaLlamaForCausalLM.from_pretrained(model_path, low_cpu_mem_usage=True, attn_implementation=attn_implementation, config=llava_cfg, **kwargs)
+
+                    import pdb; pdb.set_trace()
                 except:
                     raise ValueError(f"Model {model_name} not supported")
 
