@@ -244,15 +244,19 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
                         for k, v in overwrite_config.items():
                             setattr(llava_cfg, k, v)
                     model = LlavaLlamaForCausalLM.from_pretrained(model_path, low_cpu_mem_usage=True, attn_implementation=attn_implementation, config=llava_cfg, **kwargs)
-                    if model.config.pretrain_mm_mlp_adapter is not None:
-                        mm_projector_weights = torch.load(model.config.pretrain_mm_mlp_adapter, map_location="cpu")
+                    
+                    rank0_print(f"model_name: {model_name.lower()}")
+                    if "34b-dpo" in model_name.lower():
+                        
+                        # NOTE just for 34B-DPO
+                        if model.config.pretrain_mm_mlp_adapter is not None:
+                            mm_projector_weights = torch.load(model.config.pretrain_mm_mlp_adapter, map_location="cpu")
 
-                        def get_w(weights, keyword):
-                            return {k.split(keyword + ".")[1]: v for k, v in weights.items() if keyword in k}
+                            def get_w(weights, keyword):
+                                return {k.split(keyword + ".")[1]: v for k, v in weights.items() if keyword in k}
 
-                        incompatible_keys = model.model.mm_projector.load_state_dict(get_w(mm_projector_weights, "mm_projector"), strict=False)
-                        rank0_print(f"Loaded mm projector weights from {model.config.pretrain_mm_mlp_adapter}. Incompatible keys: {incompatible_keys}")
-                        import pdb; pdb.set_trace()
+                            incompatible_keys = model.model.mm_projector.load_state_dict(get_w(mm_projector_weights, "mm_projector"), strict=False)
+                            rank0_print(f"Loaded mm projector weights from {model.config.pretrain_mm_mlp_adapter}. Incompatible keys: {incompatible_keys}")
                 except:
                     raise ValueError(f"Model {model_name} not supported")
 
