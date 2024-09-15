@@ -12,10 +12,10 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_dpo_17k_nll-loss-chosen-slow2-reg1-no-rej-add-base5
+export WANDB_NAME=llava_dpo_17k_flash-attn
 
 # gpu_ids=0
-gpu_ids=0,1,2,3
+gpu_ids=3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
@@ -29,7 +29,7 @@ data_path=${ROOT}/data/shareVideoGPTV/sft_dpo_17k.jsonl
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
-port=19001
+port=19004
 
 VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
@@ -37,26 +37,21 @@ VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 ############### Pretrain ################
 
 # Stage 2
-PROMPT_VERSION="vicuna_v1"
+PROMPT_VERSION="mistral_direct"
 
 #torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
-    llava/train/train_dpo_cs.py \
+    llava/train/train_dpo.py \
     --deepspeed scripts/zero2.json \
-    --model_name_or_path ${ROOT}/vicuna/LLaVA-NeXT-Video-7B \
+    --model_name_or_path /volsparse1/wxd/models/vicuna/LLaVA-NeXT-Video-34B-DPO \
     --version $PROMPT_VERSION \
-    --enable_video_slow True \
-    --enable_video_slow_num 4 \
-    --ignore_rejected True \
-    --dpo_alpha 2.0 --beta 0.1 --gamma 0 \
-    --nll_alpha 1.0 \
-    --cond_alpha 1.0 \
-    --base_alpha 5.0 \
+    --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder ${ROOT}/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
+    --mm_tunable_parts="mm_mlp_adapter" \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
@@ -75,12 +70,12 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 3 \
-    --per_device_train_batch_size 2 \
+    --per_device_train_batch_size 1 \
     --per_device_eval_batch_size 1 \
-    --gradient_accumulation_steps 2 \
+    --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 500 \
+    --save_steps 1000 \
     --save_total_limit 3 \
     --learning_rate $lr \
     --weight_decay 0. \
@@ -98,4 +93,6 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --dataloader_drop_last True \
     --attn_implementation flash_attention_2 \
     --image_split_resolution 224 \
-    --image_crop_resolution 224
+    --image_crop_resolution 224 \
+    --precompute_ref_log_probs True \
+    --pretrain_mm_mlp_adapter /volsparse1/wxd/models/vicuna/LLaVA-NeXT-Video-34B/mm_projector_weights.pt \

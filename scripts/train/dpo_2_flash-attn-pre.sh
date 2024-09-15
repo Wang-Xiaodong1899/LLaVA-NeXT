@@ -15,7 +15,7 @@ export WANDB_PROJECT=llava-next-jf-4A100
 export WANDB_NAME=llava_dpo_17k_flash-attn
 
 # gpu_ids=0
-gpu_ids=0,1,2,3
+gpu_ids=0
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
@@ -51,6 +51,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_folder xxx \
     --video_folder ${ROOT}/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
+    --mm_tunable_parts="mm_mlp_adapter" \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
@@ -69,7 +70,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 3 \
-    --per_device_train_batch_size 4 \
+    --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
@@ -93,4 +94,4 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --attn_implementation flash_attention_2 \
     --image_split_resolution 224 \
     --image_crop_resolution 224 \
-    --precompute_ref_log_probs True
+    # --precompute_ref_log_probs True

@@ -85,15 +85,328 @@ def write_logp_to_preference_parquet(origin_data, cache_file, logps=None, overwr
     #         new_line['logps'] = json.dumps(logp_data)
 
     #     out_data.append(new_line)
-
+    # import pdb; pdb.set_trace()
     if torch.distributed.get_rank() == 0:
         step = 5000
+        # test
         for idx, start in enumerate(range(0, len(origin_data), step)):
-            temp_data = out_data[start: min(start+step, len(out_data))]
+            temp_data = origin_data[start: min(start+step, len(origin_data))]
             df = pd.DataFrame(temp_data)
             df.to_parquet(os.path.join(cache_file, f'7B-DPO-logp_{idx:03}-{len(temp_data)}.parquet'))
 
     torch.distributed.barrier()
+
+from torch.utils.data import Subset
+# class CustomSubset(Subset):
+#     def __init__(self, dataset, indices):
+#         super().__init__(dataset, indices)
+
+#     def add_column(self, name, column):
+#         if hasattr(self.dataset, 'add_column'):
+#             self.dataset.add_column(name, column)
+#         else:
+#             raise AttributeError(f"The underlying dataset does not support 'add_column'")
+
+import transformers
+class DPODataset(Dataset):
+    """Dataset for DPODataset fine-tuning."""
+
+    def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, data_args):
+        super(DPODataset, self).__init__()
+        # Handle multiple JSON files specified in the data_path
+        self.list_data_dict = []
+
+        if "{" in data_path and "}" in data_path:
+            base_path, file_pattern = re.match(r"^(.*)\{(.*)\}\.json$", data_path).groups()
+            file_names = file_pattern.split(",")
+            rank0_print(f"Loading {file_names} from {base_path}")
+            data_args.dataset_paths = []
+            for file_name in file_names:
+                data_args.dataset_paths.append(f"{base_path}{file_name}.json")
+                full_path = f"{base_path}{file_name}.json"
+                rank0_print(f"Loading {full_path}")
+                cur_data_dict = load_data(full_path)
+                rank0_print(f"Loaded {len(cur_data_dict)} samples from {full_path}")
+                self.list_data_dict.extend(cur_data_dict)
+        elif data_path.endswith(".yaml"):
+            with open(data_path, "r") as file:
+                yaml_data = yaml.safe_load(file)
+                datasets = yaml_data.get("datasets")
+                # file should be in the format of:
+                # datasets:
+                #   - json_path: xxxx1.json
+                #     sampling_strategy: first:1000
+                #   - json_path: xxxx2.json
+                #     sampling_strategy: end:3000
+                #   - json_path: xxxx3.json
+                #     sampling_strategy: random:999
+                data_args.dataset_paths = [dataset.get("json_path") for dataset in datasets]
+                for dataset in datasets:
+                    json_path = dataset.get("json_path")
+                    sampling_strategy = dataset.get("sampling_strategy", "all")
+                    sampling_number = None
+
+                    rank0_print(f"Loading {json_path} with {sampling_strategy} sampling strategy")
+                    cur_data_dict = load_data(json_path)
+
+                    if ":" in sampling_strategy:
+                        sampling_strategy, sampling_number = sampling_strategy.split(":")
+                        if "%" in sampling_number:
+                            sampling_number = math.ceil(int(sampling_number.split("%")[0]) * len(cur_data_dict) / 100)
+                        else:
+                            sampling_number = int(sampling_number)
+
+                    # Apply the sampling strategy
+                    if sampling_strategy == "first" and sampling_number is not None:
+                        cur_data_dict = cur_data_dict[:sampling_number]
+                    elif sampling_strategy == "end" and sampling_number is not None:
+                        cur_data_dict = cur_data_dict[-sampling_number:]
+                    elif sampling_strategy == "random" and sampling_number is not None:
+                        random.shuffle(cur_data_dict)
+                        cur_data_dict = cur_data_dict[:sampling_number]
+
+                    rank0_print(f"Loaded {len(cur_data_dict)} samples from {json_path}")
+                    self.list_data_dict.extend(cur_data_dict)
+        else:
+            data_args.dataset_paths = [data_path]
+            rank0_print(f"Loading {data_path}")
+            cur_data_dict = load_data(data_path)
+            rank0_print(f"Loaded {len(cur_data_dict)} samples from {data_path}")
+            self.list_data_dict.extend(cur_data_dict)
+
+        rank0_print("Formatting inputs...Skip in lazy mode")
+        self.tokenizer = tokenizer
+        self.data_args = data_args
+
+    def __len__(self):
+        return len(self.list_data_dict)
+
+    @property
+    def lengths(self):
+        length_list = []
+        for sample in self.list_data_dict:
+            # Calculate the length of the prompt, answer, chosen, and rejected text
+            cur_len = len(sample["prompt"].split()) + len(sample["answer"].split()) + len(sample["chosen"].split()) + len(sample["rejected"].split())
+            # Add additional tokens if an image is present
+            img_tokens = 128 if "image" in sample else 0
+            length_list.append(cur_len + img_tokens)
+        return length_list
+
+    @property
+    def modality_lengths(self):
+        length_list = []
+        for sample in self.list_data_dict:
+            # Calculate the length of the prompt, answer, chosen, and rejected text
+            cur_len = len(sample["prompt"].split()) + len(sample["answer"].split()) + len(sample["chosen"].split()) + len(sample["rejected"].split())
+            # If the sample includes a video, the length is positive; otherwise, it is negative
+            cur_len = cur_len if ("video" in sample or "image" in sample) else -cur_len
+            length_list.append(cur_len)
+        return length_list
+
+    def process_image(self, image_file):
+        image_folder = self.data_args.image_folder
+        processor = self.data_args.image_processor
+        # print(f"\n\nInspecting the image path, folder = {image_folder}, image={image_file}\n\n")
+        try:
+            image = Image.open(os.path.join(image_folder, image_file)).convert("RGB")
+        except Exception as exn:
+            print(f"Failed to open image {image_file}. Exception:", exn)
+            raise exn
+
+        image_size = image.size
+        if self.data_args.image_aspect_ratio == "highres":
+            image = process_highres_image(image, self.data_args.image_processor, self.data_args.image_grid_pinpoints)
+        elif self.data_args.image_aspect_ratio == "anyres" or "anyres" in self.data_args.image_aspect_ratio:
+            image = process_anyres_image(image, self.data_args.image_processor, self.data_args.image_grid_pinpoints)
+        elif self.data_args.image_aspect_ratio == "crop_split":
+            image = process_highres_image_crop_split(image, self.data_args)
+        elif self.data_args.image_aspect_ratio == "pad":
+
+            def expand2square(pil_img, background_color):
+                width, height = pil_img.size
+                if width == height:
+                    return pil_img
+                elif width > height:
+                    result = Image.new(pil_img.mode, (width, width), background_color)
+                    result.paste(pil_img, (0, (width - height) // 2))
+                    return result
+                else:
+                    result = Image.new(pil_img.mode, (height, height), background_color)
+                    result.paste(pil_img, ((height - width) // 2, 0))
+                    return result
+
+            image = expand2square(image, tuple(int(x * 255) for x in processor.image_mean))
+            image = processor.preprocess(image, return_tensors="pt")["pixel_values"][0]
+        else:
+            image = processor.preprocess(image, return_tensors="pt")["pixel_values"][0]
+        return image, image_size, "image"
+
+    def __getitem__(self, i) -> Dict[str, torch.Tensor]:
+        # TODO: define number of retries somewhere else
+        num_base_retries = 3
+        num_final_retries = 300
+
+        # try the current sample first
+        for attempt_idx in range(num_base_retries):
+            try:
+                sample = self._get_item(i)
+                return sample
+            except Exception as e:
+                # sleep 1s in case it is a cloud disk issue
+                print(f"[Try #{attempt_idx}] Failed to fetch sample {i}. Exception:", e)
+                time.sleep(1)
+
+        # try other samples, in case it is file corruption issue
+        for attempt_idx in range(num_base_retries):
+            try:
+                next_index = min(i + 1, len(self.list_data_dict) - 1)
+                # sample_idx = random.choice(range(len(self)))
+                sample = self._get_item(next_index)
+                return sample
+            except Exception as e:
+                # no need to sleep
+                print(f"[Try other #{attempt_idx}] Failed to fetch sample {next_index}. Exception:", e)
+                pass
+
+        # still fail, most likely to be path issue or cloud disk issue, retry the same sample for longer
+        # for attempt_idx in range(num_final_retries):
+        #     try:
+        #         sample = self._get_item(i)
+        #         return sample
+        #     except Exception as e:
+        #         # sleep 1s in case it is a cloud disk issue
+        #         print(f"[Final try #{attempt_idx}] Failed to fetch sample {i}. Exception:", e)
+        #         time.sleep(1)
+
+        # Finally raise exception on failing.
+        assert False, "Failed to fetch sample."
+
+    def _get_item(self, i) -> Dict[str, torch.Tensor]:
+        sources = self.list_data_dict[i]
+        if isinstance(i, int):
+            sources = [sources]
+        assert len(sources) == 1, "Don't know why it is wrapped to a list"  # FIXME
+
+        suffix = None
+        if "image" in sources[0]:
+            image_file = self.list_data_dict[i]["image"]
+            if type(image_file) is list:
+                image = [self.process_image(f) for f in image_file]
+            else:
+                image = [self.process_image(image_file)]
+            # sources = preprocess_multimodal(copy.deepcopy([e["conversations"] for e in sources]), self.data_args)
+
+        elif "video" in sources[0]:  # FIXME: This logic should be largely improved by Yuanhan. It's too messy now.
+            video_file = self.list_data_dict[i]["video"]
+            video_folder = self.data_args.video_folder
+            video_file = os.path.join(video_folder, video_file)
+            suffix = video_file.split(".")[-1]
+            # video_file = find_existing_video_file(video_folder, video_file)
+            if video_file is None:
+                print("File {} not exist!".format(video_file))
+
+            if suffix == "pkl":
+                video_info = pickle.load(open(video_file, "rb"))
+                image = torch.from_numpy(video_info["feats"][:, 1:])
+                input_prompt = video_info["inputs"].replace("...", "")
+                # replace the default image token with multiple tokens
+                input_prompt = input_prompt.replace(DEFAULT_IMAGE_TOKEN, DEFAULT_IMAGE_TOKEN * self.data_args.video_token)
+                sources, query_prompt = preprocess_multimodal_movie(copy.deepcopy([e["conversations"] for e in sources]), self.data_args, input_prompt)
+            else:  # using videoreader
+                if "shareVideoGPTV" not in video_file and "liangke" not in video_file:
+                    vr = VideoReader(video_file, ctx=cpu(0))
+                    total_frame_num = len(vr)
+                    avg_fps = round(vr.get_avg_fps() / self.data_args.video_fps)
+                    frame_idx = [i for i in range(0, total_frame_num, avg_fps)]
+                    if self.data_args.frames_upbound > 0:
+                        if len(frame_idx) > self.data_args.frames_upbound:
+                            uniform_sampled_frames = np.linspace(0, total_frame_num - 1, self.data_args.frames_upbound, dtype=int)
+                            frame_idx = uniform_sampled_frames.tolist()
+                    video = vr.get_batch(frame_idx).asnumpy()
+                    video = np.array(video)
+                else:
+                    if "liangke" in video_file:
+                        video_file = self.list_data_dict[i]["video"]
+                    frame_files = [os.path.join(video_file, f) for f in os.listdir(video_file) if os.path.isfile(os.path.join(video_file, f))]
+                    frame_files.sort()  # Ensure the frames are sorted if they are named sequentially
+
+                    # TODO: Hard CODE: Determine the indices for uniformly sampling 10 frames
+                    num_frames_to_sample = self.data_args.frames_upbound # previous author hard code sampling 10 frames
+
+                    total_frames = len(frame_files)
+
+                    sampled_indices = np.linspace(0, total_frames - 1, num_frames_to_sample, dtype=int)
+
+                    # Read and store the sampled frames
+                    video = []
+                    for idx in sampled_indices:
+                        frame_path = frame_files[idx]
+                        try:
+                            with Image.open(frame_path) as img:
+                                frame = img.convert("RGB")
+                                video.append(frame)
+                        except IOError:
+                            print(f"Failed to read frame at path: {frame_path}")
+
+                processor = self.data_args.image_processor
+                image = processor.preprocess(video, return_tensors="pt")["pixel_values"]
+                image = [(image, video[0].size, "video")]
+                # sources = preprocess_multimodal(copy.deepcopy([e["conversations"] for e in sources]), self.data_args)
+
+        else:
+            sources = copy.deepcopy([e["conversations"] for e in sources])
+
+        has_image = ("image" in self.list_data_dict[i]) or ("video" in self.list_data_dict[i])
+        # data_dict = preprocess(sources, self.tokenizer, has_image=has_image)
+        data_dict = copy.deepcopy(self.list_data_dict[i])  # inplace modification following
+
+        if "prompt" in data_dict:
+            prompt = data_dict["prompt"]
+            prompt = prompt.replace("<image>", "").strip()
+            prompt = "<image>\n" + prompt
+            data_dict["prompt"] = prompt
+        else:
+            prompt = None
+
+        if suffix == "pkl":
+            prompt = [query_prompt]
+
+        # image exist in the data
+        if "image" in self.list_data_dict[i]:
+            data_dict["image"] = image
+        elif "video" in self.list_data_dict[i]:
+            data_dict["image"] = image
+        elif self.data_args.is_multimodal:
+            # image does not exist in the data, but the model is multimodal
+            crop_size = self.data_args.image_processor.crop_size
+            data_dict["image"] = [
+                (torch.zeros(1, 3, crop_size["height"], crop_size["width"]), (crop_size["width"], crop_size["height"]), "text"),
+            ]
+        # prompt exist in the data
+        data_dict["has_image"] = has_image
+        return data_dict
+
+
+class AddColumnDataset(DPODataset):
+    def __init__(self, original_dataset, new_column, column_name, new_column1, column_name1):
+        self.list_data_dict = original_dataset.list_data_dict
+        self.tokenizer = original_dataset.tokenizer
+        self.data_args = original_dataset.data_args
+        self.new_column = new_column
+        self.column_name = column_name
+        self.new_column1 = new_column1
+        self.column_name1 = column_name1
+
+    def __len__(self):
+        return len(self.list_data_dict)
+
+    def __getitem__(self, idx):
+        item = super().__getitem__(idx)
+        extra_data = self.new_column[idx]
+        extra_data1 = self.new_column1[idx]
+        item[self.column_name] = extra_data
+        item[self.column_name1] = extra_data1
+        return item
 
 class DPOTrainer(Trainer):
     r"""
@@ -412,14 +725,20 @@ class DPOTrainer(Trainer):
                 "num_workers": self.args.dataloader_num_workers,
                 "pin_memory": self.args.dataloader_pin_memory,
                 "shuffle": False,
+                "drop_last": False
             }
 
             # prepare dataloader
-            data_loader = self.accelerator.prepare(DataLoader(self.train_dataset, **dataloader_params))
+            # debug 10 samples
+            indices = list(range(12000, 20000))
+            
+            self.train_dataset = Subset(self.train_dataset, indices)
 
+            data_loader = self.accelerator.prepare(DataLoader(self.train_dataset, **dataloader_params))
             reference_chosen_logps = []
             reference_rejected_logps = []
             for padded_batch in tqdm(iterable=data_loader, desc="Train dataset reference log probs"):
+                # import pdb; pdb.set_trace()
                 reference_chosen_logp, reference_rejected_logp = self.compute_reference_log_probs(padded_batch)
                 reference_chosen_logp, reference_rejected_logp = self.accelerator.gather_for_metrics((reference_chosen_logp, reference_rejected_logp))
                 reference_chosen_logps.append(reference_chosen_logp.cpu())
@@ -428,14 +747,24 @@ class DPOTrainer(Trainer):
             all_reference_chosen_logps = torch.cat(reference_chosen_logps).float().numpy()
             all_reference_rejected_logps = torch.cat(reference_rejected_logps).float().numpy()
 
-            self.train_dataset = self.train_dataset.add_column(name="reference_chosen_logps", column=all_reference_chosen_logps)
-            self.train_dataset = self.train_dataset.add_column(name="reference_rejected_logps", column=all_reference_rejected_logps)
+            np.save("/volsparse1/wxd/reference_chosen_logps_34B-DPO_3.npy", all_reference_chosen_logps)
+            np.save("/volsparse1/wxd/reference_rejected_logps_34B-DPO_3.npy", all_reference_rejected_logps)
+
+            # save to json
+            # DPODataset(tokenizer=tokenizer, data_path=data_args.data_path, data_args=data_args)
+            import pdb; pdb.set_trace()
+
+            wrapped_dataset = AddColumnDataset(self.train_dataset, all_reference_chosen_logps, "reference_chosen_logps", all_reference_rejected_logps, "reference_rejected_logps")
+
+            self.train_dataset = wrapped_dataset
+            # self.train_dataset = self.train_dataset.add_column(name="reference_chosen_logps", column=all_reference_chosen_logps)
+            # self.train_dataset = self.train_dataset.add_column(name="reference_rejected_logps", column=all_reference_rejected_logps)
 
             self._precomputed_train_ref_log_probs = True
 
-            write_logp_to_preference_parquet(self.train_dataset, './')
+            # write_logp_to_preference_parquet(wrapped_dataset, './')
 
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
 
         return super().get_train_dataloader()
 
@@ -685,14 +1014,14 @@ class DPOTrainer(Trainer):
                         reference_rejected_logps,
                         _,
                         _,
-                    ) = self.concatenated_forward(self.model, padded_batch)
+                    ) = self.concatenated_forward(self.model, padded_batch)[:4]
             else:
                 (
                     reference_chosen_logps,
                     reference_rejected_logps,
                     _,
                     _,
-                ) = self.concatenated_forward(self.ref_model, padded_batch)
+                ) = self.concatenated_forward(self.ref_model, padded_batch)[:4]
 
         return reference_chosen_logps, reference_rejected_logps
 
@@ -892,7 +1221,16 @@ class DPOTrainer(Trainer):
             padding_value=self.padding_value,
             device=self.accelerator.device,
         )
+
+        # # inference logps only
+        model = model.to(self.accelerator.device).to(torch.bfloat16)
         len_chosen = batch["chosen_labels"].shape[0]
+
+        new_batch = []
+        for item in concatenated_batch["concatenated_images"]:
+            new_batch.append(item.to(torch.bfloat16))
+        concatenated_batch.pop("concatenated_images")
+        concatenated_batch["concatenated_images"] = torch.stack(new_batch, dim=0)
 
         # import pdb; pdb.set_trace()
         all_logits, new_labels = model(
@@ -977,7 +1315,9 @@ class DPOTrainer(Trainer):
                     ) = self.concatenated_forward(
                         self.ref_model, batch
                     )[:2]
-
+        reference_chosen_logps = reference_chosen_logps.to(policy_chosen_logps.dtype)
+        reference_rejected_logps = reference_rejected_logps.to(policy_chosen_logps.dtype)
+        import pdb; pdb.set_trace()
         unscaled_dpo_losses, chosen_rewards, rejected_rewards = self.dpo_loss(
             policy_chosen_logps,
             policy_rejected_logps,

@@ -1015,6 +1015,15 @@ class DPODataset(Dataset):
         self.tokenizer = tokenizer
         self.data_args = data_args
 
+        # NOTE logps file
+        # chosen_logp_file = "/workspace/wxd/LLaVA-NeXT/reference_chosen_logps_7B.npy"
+        # rejected_logp_file = "/workspace/wxd/LLaVA-NeXT/reference_rejected_logps_7B.npy"
+
+        # self.all_chosen_logp = np.load(chosen_logp_file) # (n, 1)
+        # self.all_rejected_logp = np.load(rejected_logp_file) # (n, 1)
+
+        # import pdb; pdb.set_trace()
+
     def __len__(self):
         return len(self.list_data_dict)
 
@@ -1221,6 +1230,11 @@ class DPODataset(Dataset):
             ]
         # prompt exist in the data
         data_dict["has_image"] = has_image
+
+        # TODO add logps
+        # data_dict["reference_chosen_logps"] = self.all_chosen_logp[i]
+        # data_dict["reference_rejected_logps"] = self.all_rejected_logp[i]
+
         return data_dict
 
 from PIL import ImageFilter
@@ -1376,6 +1390,13 @@ class DPODataCollator(DPODataCollatorWithPadding):
             padded_batch["images"] = images
             # padded_batch["images"] =[padded_batch["modalities"], images]
 
+            # TODO add pre-compute logps
+            # reference_chosen_logps = [instance["reference_chosen_logps"] for instance in features]
+            # reference_rejected_logps = [instance["reference_rejected_logps"] for instance in features]
+
+            # padded_batch["reference_chosen_logps"] = torch.tensor(reference_chosen_logps)
+            # padded_batch["reference_rejected_logps"] = torch.tensor(reference_rejected_logps)
+
         return padded_batch
 
 
@@ -1442,7 +1463,7 @@ def get_model(model_args, training_args, bnb_model_from_pretrained_args):
         customized_kwargs["config"] = cfg_pretrained
 
     ######################### Finish Overwrite ###########################
-
+    # import pdb; pdb.set_trace()
     ref_model = None
     if model_args.model_class_name is not None:
         actual_model_class_name = f"{model_args.model_class_name}ForCausalLM"
@@ -1494,6 +1515,19 @@ def get_model(model_args, training_args, bnb_model_from_pretrained_args):
                 low_cpu_mem_usage=False,
                 **customized_kwargs,
             )
+            model.config.pretrain_mm_mlp_adapter = model_args.pretrain_mm_mlp_adapter
+            # import pdb; pdb.set_trace()
+            # NOTE just for 34B-DPO
+            if "34b-dpo" in model_args.model_name_or_path.lower():
+                 # NOTE just for 34B-DPO
+                if model.config.pretrain_mm_mlp_adapter is not None:
+                    mm_projector_weights = torch.load(model.config.pretrain_mm_mlp_adapter, map_location="cpu")
+
+                    def get_w(weights, keyword):
+                        return {k.split(keyword + ".")[1]: v for k, v in weights.items() if keyword in k}
+
+                    incompatible_keys = model.model.mm_projector.load_state_dict(get_w(mm_projector_weights, "mm_projector"), strict=False)
+                    rank0_print(f"Loaded mm projector weights from {model.config.pretrain_mm_mlp_adapter}. Incompatible keys: {incompatible_keys}")
 
             if "zero3" in training_args.deepspeed:
                 rank0_print("#### Initialize reference model #####")
@@ -1777,6 +1811,9 @@ def train(attn_implementation=None):
         training_args.use_im_start_end = model_args.mm_use_im_start_end
         model.config.mm_use_im_patch_token = model_args.mm_use_im_patch_token
         model.initialize_vision_tokenizer(model_args, tokenizer=tokenizer)
+
+        # model.config.pretrain_mm_mlp_adapter = model_args.pretrain_mm_mlp_adapter
+        # import pdb; pdb.set_trace()
 
         if ref_model is not None:
             ref_model.get_model().initialize_vision_modules(model_args=model_args, fsdp=training_args.fsdp)
