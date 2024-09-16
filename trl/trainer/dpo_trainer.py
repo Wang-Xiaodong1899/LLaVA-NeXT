@@ -730,7 +730,7 @@ class DPOTrainer(Trainer):
 
             # prepare dataloader
             # debug 10 samples
-            indices = list(range(0, 4000))
+            indices = list(range(0, 8000))
             
             self.train_dataset = Subset(self.train_dataset, indices)
 
