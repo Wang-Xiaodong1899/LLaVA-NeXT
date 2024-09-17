@@ -152,6 +152,8 @@ class DataArguments:
     frames_upbound: Optional[int] = field(default=0)
     num_sample: Optional[int] = field(default=None)
 
+    reference_logits_file: Optional[str] = field(default=None)
+
 
 @dataclass
 class TrainingArguments(transformers.TrainingArguments):
@@ -1015,12 +1017,15 @@ class DPODataset(Dataset):
         self.tokenizer = tokenizer
         self.data_args = data_args
 
-        # NOTE logps file
-        # chosen_logp_file = "/workspace/wxd/LLaVA-NeXT/reference_chosen_logps_7B.npy"
-        # rejected_logp_file = "/workspace/wxd/LLaVA-NeXT/reference_rejected_logps_7B.npy"
+        if getattr(data_args, "reference_logits_file", None) is not None:
+            # NOTE logps file
+            chosen_logp_file = data_args.reference_logits_file
+            # chosen_logp_file = "/volsparse1/wxd/reference_chosen_logps_34B-DPO.npy"
+            # rejected_logp_file = "/volsparse1/wxd/reference_rejected_logps_34B-DPO.npy"
+            rejected_logp_file = chosen_logp_file.replace("chosen", "rejected")
 
-        # self.all_chosen_logp = np.load(chosen_logp_file) # (n, 1)
-        # self.all_rejected_logp = np.load(rejected_logp_file) # (n, 1)
+            self.all_chosen_logp = np.load(chosen_logp_file) # (n, 1)
+            self.all_rejected_logp = np.load(rejected_logp_file) # (n, 1)
 
         # import pdb; pdb.set_trace()
 
@@ -1232,8 +1237,9 @@ class DPODataset(Dataset):
         data_dict["has_image"] = has_image
 
         # TODO add logps
-        # data_dict["reference_chosen_logps"] = self.all_chosen_logp[i]
-        # data_dict["reference_rejected_logps"] = self.all_rejected_logp[i]
+        if "reference_chosen_logps" in data_dict:
+            data_dict["reference_chosen_logps"] = self.all_chosen_logp[i]
+            data_dict["reference_rejected_logps"] = self.all_rejected_logp[i]
 
         return data_dict
 
