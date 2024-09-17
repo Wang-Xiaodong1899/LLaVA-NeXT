@@ -752,7 +752,7 @@ class DPOTrainer(Trainer):
 
             # save to json
             # DPODataset(tokenizer=tokenizer, data_path=data_args.data_path, data_args=data_args)
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
 
             wrapped_dataset = AddColumnDataset(self.train_dataset, all_reference_chosen_logps, "reference_chosen_logps", all_reference_rejected_logps, "reference_rejected_logps")
 
@@ -1317,7 +1317,7 @@ class DPOTrainer(Trainer):
                     )[:2]
         reference_chosen_logps = reference_chosen_logps.to(policy_chosen_logps.dtype)
         reference_rejected_logps = reference_rejected_logps.to(policy_chosen_logps.dtype)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         unscaled_dpo_losses, chosen_rewards, rejected_rewards = self.dpo_loss(
             policy_chosen_logps,
             policy_rejected_logps,
