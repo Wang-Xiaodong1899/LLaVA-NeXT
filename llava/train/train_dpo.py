@@ -1027,6 +1027,8 @@ class DPODataset(Dataset):
             self.all_chosen_logp = np.load(chosen_logp_file) # (n, 1)
             self.all_rejected_logp = np.load(rejected_logp_file) # (n, 1)
 
+            rank0_print(f"Loading refer logps from {data_args.reference_logits_file}")
+
         # import pdb; pdb.set_trace()
 
     def __len__(self):
