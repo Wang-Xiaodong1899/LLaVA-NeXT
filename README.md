@@ -54,3 +54,13 @@ wandb login
 bash scripts/train/dpo_2_flash-attn.sh 5e-7 ./
 
 ```
+
+### **Evaluation (only need 1 GPU)**
+```
+conda activate llava
+pip install jsonlines
+
+# cd LLaVA-NeXT
+cd data
+wget https://hf-mirror.com/datasets/lmms-lab/VideoChatGPT/resolve/main/videos.zip
+unzip videos.zip
