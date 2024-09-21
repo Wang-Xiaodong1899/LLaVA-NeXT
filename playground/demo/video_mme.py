@@ -199,7 +199,7 @@ def run_inference(args):
         video_num = sample["video_id"] # eg. 001
         video_name = sample["videoID"] # eg. fFjv93ACGo8
         question_id = sample["question_id"]
-        qs = sample["question"]
+        question = sample["question"]
         options = sample["options"] # eg. ["A. xxx", "B. xxx", ...]
         answer = sample["answer"]
         
@@ -208,6 +208,18 @@ def run_inference(args):
             if os.path.exists(temp_path):
                 video_path = temp_path
                 break
+        
+        qs = f"""
+        Select the best answer to the following multiple-choice question based on the video. Respond with only the letter (A, B, C, or D) of the correct option.
+        {question}
+        {options[0]}
+        {options[1]}
+        {options[2]}
+        {options[3]}
+        The best answer is:
+        """
+        
+        print(qs)
         
         # Check if the video exists
         if video_path is not None:  # Modified this line
