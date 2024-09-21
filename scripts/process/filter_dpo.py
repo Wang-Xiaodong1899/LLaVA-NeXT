@@ -25,26 +25,27 @@ chosen_data = np.load(chosen_path)
 
 gap = chosen_data - rejected_data
 
-pos_index = np.where(gap > 0)[0]
+neg_index = np.where(gap < 0)[0]
 
 
 annotation = load_jsonl(jsonl_path)
 
-annotation_pos = [annotation[idx] for idx in pos_index]
+annotation_neg = [annotation[idx] for idx in neg_index]
 
-jsonl_pos_path = f"C:\\Users\\wangxiaodong\\Desktop\\sft_dpo_17k_filter_pos.jsonl"
+jsonl_pos_path = f"C:\\Users\\wangxiaodong\\Desktop\\sft_dpo_17k_filter_neg.jsonl"
 
-write_jsonl(jsonl_pos_path, annotation_pos)
+write_jsonl(jsonl_pos_path, annotation_neg)
 
 print(len(annotation))
-print(len(annotation_pos))
+print(len(annotation_neg))
 
-pos_gap = gap[pos_index]
-# plt.plot(range(len(pos_gap)), pos_gap)
+neg_gap = gap[neg_index]
+plt.title('(refer_logp_chosen-refer_logp_rejected)')
+plt.plot(range(len(neg_gap)), neg_gap)
 
 # plt.plot(range(len(gap)), gap)
 print(f"max: {max(gap)}, min: {min(gap)}")
-print(f"max: {max(pos_gap)}, min: {min(pos_gap)}")
+print(f"max: {max(neg_gap)}, min: {min(neg_gap)}")
 
 
 
