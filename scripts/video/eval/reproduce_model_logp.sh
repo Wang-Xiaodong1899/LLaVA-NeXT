@@ -18,7 +18,7 @@ POOL_STRIDE=$4
 POOL_MODE=$5
 NEWLINE_POSITION=$6
 OVERWRITE=$7
-VIDEO_PATH=$8
+
 FORCE_SAMPLE=${9:-False}
 
 
@@ -31,7 +31,6 @@ fi
     
 python3 scripts/process/analysis_logp.py \
     --model-path $CKPT \
-    --video_path ${VIDEO_PATH} \
     --output_dir ./work_dirs/dpo_17k_data/$SAVE_DIR \
     --output_name test \
     --chunk-idx $(($IDX - 1)) \
@@ -46,7 +45,7 @@ python3 scripts/process/analysis_logp.py \
     --force_sample $FORCE_SAMPLE \
 
 # example
-# bash scripts/video/demo/video_demo.sh /root/autodl-tmp/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True playground/demo/xU25MMA2N4aVtYay.mp4 True
+# bash scripts/video/eval/reproduce_model_logp.sh /workspace/wxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True
 
 # video case What are the men playing on the beach? 
 # TODO test whether to affect the DPO model following ability
