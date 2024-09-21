@@ -1213,6 +1213,11 @@ class DPODataset(Dataset):
         # data_dict = preprocess(sources, self.tokenizer, has_image=has_image)
         # NOTE copy all keys: include chosen, rejected, prompt, video, id, etc...
         data_dict = copy.deepcopy(self.list_data_dict[i])  # inplace modification following
+        
+        # NOTE diy: model-output --> rejected
+        diy_output = data_dict.pop("model-output")
+        data_dict.pop("rejected")
+        data_dict["rejected"] = diy_output
 
         if "prompt" in data_dict:
             prompt = data_dict["prompt"]

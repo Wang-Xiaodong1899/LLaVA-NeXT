@@ -732,6 +732,9 @@ class DPOTrainer(Trainer):
             # debug 10 samples
             indices = list(range(0, 8000))
             
+            # check index
+            indices = [i for i in indices if i < len(self.train_dataset)]
+            
             self.train_dataset = Subset(self.train_dataset, indices)
 
             data_loader = self.accelerator.prepare(DataLoader(self.train_dataset, **dataloader_params))
@@ -749,10 +752,13 @@ class DPOTrainer(Trainer):
 
             # np.save("/volsparse1/wxd/reference_chosen_logps_34B-DPO_0.npy", all_reference_chosen_logps)
             # np.save("/volsparse1/wxd/reference_rejected_logps_34B-DPO_0.npy", all_reference_rejected_logps)
+            
+            np.save("/volsparse1/wxd/reference_chosen_logps_7B_test.npy", all_reference_chosen_logps)
+            np.save("/volsparse1/wxd/reference_model-ouput_logps_7B_test.npy", all_reference_rejected_logps)
 
             # save to json
             # DPODataset(tokenizer=tokenizer, data_path=data_args.data_path, data_args=data_args)
-            # import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
 
             wrapped_dataset = AddColumnDataset(self.train_dataset, all_reference_chosen_logps, "reference_chosen_logps", all_reference_rejected_logps, "reference_rejected_logps")
 
