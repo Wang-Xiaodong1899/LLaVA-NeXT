@@ -40,5 +40,5 @@ python3 playground/demo/video_mme.py \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
     --answers-file results/answer-video-mme-${SAVE_NAME}.json \
-    --pretrain_mm_mlp_adapter /volsparse1/wxd/models/LLaVA-NeXT-Video-34B/mm_projector_weights.pt \
+    --pretrain_mm_mlp_adapter /volsparse1/wxd/models/vicuna/LLaVA-NeXT-Video-34B/mm_projector_weights.pt \
     --duration $DURATION
