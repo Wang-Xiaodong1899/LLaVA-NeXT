@@ -186,7 +186,7 @@ def run_inference(args):
     
     video_formats = ['.mp4', '.avi', '.mov', '.mkv']
 
-    hf_data = hf_datasets.load_dataset("parquet", data_files=f"C://Users//wangxiaodong//Downloads//test-00000-of-00001.parquet")['train']
+    hf_data = hf_datasets.load_dataset("parquet", data_files="/volsparse1/wxd/data/Video-MME/test-00000-of-00001.parquet")['train']
     keys = ['video_id', 'duration', 'domain', 'sub_category', 'url', 'videoID', 'question_id', 'task_type', 'question', 'options', 'answer']
 
     save_data = []
