@@ -46,7 +46,7 @@ python3 scripts/process/analysis_logp.py \
     --answers-file answer-17k-${SAVENAME}-logp.jsonl \
 
 # example
-# bash scripts/video/eval/reproduce_model_logp.sh /workspace/wxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token Video-7B True
+# bash scripts/video/eval/reproduce_model_logp.sh /workspace/wxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True Video-7B
 
 # 34B
-# bash scripts/video/demo/video_demo.sh /volsparse1/wxd/models/LLaVA-NeXT-Video-34B-DPO/ mistral_direct 16 2 average no_token 34B-DPO True
+# bash scripts/video/demo/video_demo.sh /volsparse1/wxd/models/LLaVA-NeXT-Video-34B-DPO/ mistral_direct 16 2 average no_token True 34B-DPO
