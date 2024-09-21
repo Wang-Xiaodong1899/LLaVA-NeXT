@@ -134,14 +134,51 @@ def parse_args():
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--video-folder", type=str, default="/volsparse1/wxd/data/Video-MME/data")
     parser.add_argument("--question-file", type=str, default="/workspace/wxd/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
-    parser.add_argument("--answers-file", type=str, default="results/answer-video-mme.json")
-    parser.add_argument("--duration", type=str, default="short")
-    parser.add_argument("--subtitle", action="store_true") # TODO
+    parser.add_argument("--answers-file", type=str, default="answer-17k-reproduce-DPO-logp.jsonl")
 
     parser.add_argument("--enable_video_slow", type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--enable_video_fast", type=lambda x: (str(x).lower() == 'true'), default=False)
     
     return parser.parse_args()
+
+def load_video(video_path, args):
+    if os.path.isdir(video_path):
+        frame_files = [os.path.join(video_path, f) for f in os.listdir(video_path) if os.path.isfile(os.path.join(video_path, f))]
+        frame_files.sort()  # Ensure the frames are sorted if they are named sequentially
+        num_frames_to_sample = args.for_get_frames_num # previous author hard code sampling 10 frames
+
+        total_frames = len(frame_files)
+
+        sampled_indices = np.linspace(0, total_frames - 1, num_frames_to_sample, dtype=int)
+
+        # Read and store the sampled frames
+        video = []
+        for idx in sampled_indices:
+            frame_path = frame_files[idx]
+            try:
+                with Image.open(frame_path) as img:
+                    frame = img.convert("RGB")
+                    video.append(frame)
+            except IOError:
+                print(f"Failed to read frame at path: {frame_path}")
+        return video
+    else:
+        vr = VideoReader(video_path, ctx=cpu(0))
+        total_frame_num = len(vr)
+        fps = round(vr.get_avg_fps())
+        frame_idx = [i for i in range(0, len(vr), fps)]
+        # sample_fps = args.for_get_frames_num if total_frame_num > args.for_get_frames_num else total_frame_num
+        if len(frame_idx) > args.for_get_frames_num or args.force_sample:
+            sample_fps = args.for_get_frames_num
+            uniform_sampled_frames = np.linspace(0, total_frame_num - 1, sample_fps, dtype=int)
+            frame_idx = uniform_sampled_frames.tolist()
+        spare_frames = vr.get_batch(frame_idx).asnumpy()
+        print(f'frame length: {len(spare_frames)}')
+        # Save frames as images
+        # for i, frame in enumerate(spare_frames):
+        #     cv2.imwrite(f'{args.output_dir}/frame_{i}.jpg', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+
+    return spare_frames
 
 def run_inference(args):
     """
@@ -189,7 +226,10 @@ def run_inference(args):
         os.makedirs(args.output_dir)
     
     answers_file = os.path.expanduser(args.answers_file)
+    answers_file = os.path.join(args.output_dir, answers_file)
+    
     os.makedirs(os.path.dirname(answers_file), exist_ok=True)
+    ans_file = open(answers_file, "w")
     
     
     video_formats = ['.mp4', '.avi', '.mov', '.mkv']
@@ -197,5 +237,79 @@ def run_inference(args):
     data = load_jsonl("/workspace/wxd/LLaVA-NeXT/data/shareVideoGPTV/sft_dpo_17k.jsonl")
     
     for item in tqdm(data):
+        video_id = item['video']
+        video_dir = os.path.join("/workspace/wxd/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data", video_id)
+        video = load_video(video_dir, args)
+        video = image_processor.preprocess(video, return_tensors="pt")["pixel_values"].half().cuda()
+        video = [video]
+        question = item["prompt"]
+        answer = item["answer"]
+        sample_set = item
         
+        if "gpt4v" != args.model_path:
+            qs = question
+            if model.config.mm_use_im_start_end:
+                qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
+            else:
+                qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
+
+            conv = conv_templates[args.conv_mode].copy()
+            conv.append_message(conv.roles[0], qs)
+            conv.append_message(conv.roles[1], None)
+            prompt = conv.get_prompt()
+
+            input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).cuda()
+            if tokenizer.pad_token_id is None:
+                if "qwen" in tokenizer.name_or_path.lower():
+                    print("Setting pad token to bos token for qwen model.")
+                    tokenizer.pad_token_id = 151643
+                    
+            attention_masks = input_ids.ne(tokenizer.pad_token_id).long().cuda()
+
+            stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
+            keywords = [stop_str]
+            stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
+
+            cur_prompt = question
+        else:
+            prompt = question
+
+        if "gpt4v" != args.model_path:
+
+
+            with torch.inference_mode():
+                # model.update_prompt([[cur_prompt]])
+                # import pdb;pdb.set_trace()
+                # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
+                if "mistral" not in cfg_pretrained._name_or_path.lower():
+                    output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1,num_beams=1,use_cache=True, stopping_criteria=[stopping_criteria])
+                    # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
+                else:
+                    output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1, num_beams=1, use_cache=True)
+                    # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True)
+        else:
+            pass
+        
+        if "gpt4v" != args.model_path:
+            outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
+        else:
+            pass
+        
+        if "mistral" not in cfg_pretrained._name_or_path.lower():
+            if outputs.endswith(stop_str):
+                outputs = outputs[: -len(stop_str)]
+
+        outputs = outputs.strip()
+        # print(f"Question: {prompt}\n")
+        # print(f"Response: {outputs}\n")
+        
+        sample_set["DPO-7B-output"] = outputs
+        
+        ans_file.write(json.dumps(sample_set, ensure_ascii=False) + "\n")
+        ans_file.flush()
     
+    ans_file.close()
+
+if __name__ == "__main__":
+    args = parse_args()
+    run_inference(args)
