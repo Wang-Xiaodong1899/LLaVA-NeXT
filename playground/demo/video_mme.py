@@ -194,7 +194,7 @@ def run_inference(args):
     
 
     # generate answer by order
-    for idx in tqdm(range(len(hf_data))[:20]):
+    for idx in tqdm(range(len(hf_data))[:900]):
         sample = hf_data[idx]
         video_num = sample["video_id"] # eg. 001
         video_name = sample["videoID"] # eg. fFjv93ACGo8
