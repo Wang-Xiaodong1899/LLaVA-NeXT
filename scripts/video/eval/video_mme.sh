@@ -19,6 +19,7 @@ POOL_MODE=$5
 NEWLINE_POSITION=$6
 OVERWRITE=$7
 SAVE_NAME=$8
+DURATION=$9
 
 if [ "$OVERWRITE" = False ]; then
     SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}_overwrite_${OVERWRITE}
@@ -38,4 +39,5 @@ python3 playground/demo/video_mme.py \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
-    --answers-file results/answer-video-mme-${SAVE_NAME}.json
+    --answers-file results/answer-video-mme-${SAVE_NAME}.json \
+    --duration $DURATION

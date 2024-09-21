@@ -128,6 +128,7 @@ def parse_args():
     parser.add_argument("--video-folder", type=str, default="/volsparse1/wxd/data/Video-MME/data")
     parser.add_argument("--question-file", type=str, default="/workspace/wxd/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
     parser.add_argument("--answers-file", type=str, default="results/answer-video-mme.json")
+    parser.add_argument("--duration", type=str, default="short")
 
     parser.add_argument("--enable_video_slow", type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--enable_video_fast", type=lambda x: (str(x).lower() == 'true'), default=False)
@@ -194,14 +195,18 @@ def run_inference(args):
     
 
     # generate answer by order
-    for idx in tqdm(range(len(hf_data))[:900]):
+    for idx in tqdm(range(len(hf_data))):
         sample = hf_data[idx]
+        if sample["duration"] != args.duration:
+            continue
+        
         video_num = sample["video_id"] # eg. 001
         video_name = sample["videoID"] # eg. fFjv93ACGo8
         question_id = sample["question_id"]
         question = sample["question"]
         options = sample["options"] # eg. ["A. xxx", "B. xxx", ...]
         answer = sample["answer"]
+        
         
         for fmt in video_formats:  # Added this line
             temp_path = os.path.join(args.video_folder, f"{video_name}{fmt}")
