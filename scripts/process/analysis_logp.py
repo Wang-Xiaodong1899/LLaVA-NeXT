@@ -32,6 +32,14 @@ import shortuuid
 
 import numpy as np
 
+def load_jsonl(file_path):
+    data = []
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            data.append(json.loads(line))
+    return data
+
+
 
 def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, image_resolution=336, video_framerate=1, s=None, e=None):
     # speed up video decode via decord.
@@ -97,7 +105,6 @@ def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, 
 
     return torch.from_numpy(video), video_mask
 
-
 def parse_args():
     """
     Parse command-line arguments.
@@ -130,13 +137,11 @@ def parse_args():
     parser.add_argument("--answers-file", type=str, default="results/answer-video-mme.json")
     parser.add_argument("--duration", type=str, default="short")
     parser.add_argument("--subtitle", action="store_true") # TODO
-    parser.add_argument("--pretrain_mm_mlp_adapter", type=str, default=None) 
 
     parser.add_argument("--enable_video_slow", type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--enable_video_fast", type=lambda x: (str(x).lower() == 'true'), default=False)
     
     return parser.parse_args()
-
 
 def run_inference(args):
     """
@@ -155,7 +160,6 @@ def run_inference(args):
             overwrite_config["mm_newline_position"] = args.mm_newline_position
             overwrite_config["enable_video_slow"] = args.enable_video_slow
             overwrite_config["enable_video_fast"] = args.enable_video_fast
-            overwrite_config["pretrain_mm_mlp_adapter"] = args.pretrain_mm_mlp_adapter
 
             cfg_pretrained = AutoConfig.from_pretrained(args.model_path)
 
@@ -189,123 +193,9 @@ def run_inference(args):
     
     
     video_formats = ['.mp4', '.avi', '.mov', '.mkv']
-
-    hf_data = hf_datasets.load_dataset("parquet", data_files="/volsparse1/wxd/data/Video-MME/test-00000-of-00001.parquet")['train']
-    keys = ['video_id', 'duration', 'domain', 'sub_category', 'url', 'videoID', 'question_id', 'task_type', 'question', 'options', 'answer']
-
-    save_data = []
-    groups = {}
     
-
-    # generate answer by order
-    for idx in tqdm(range(len(hf_data))):
-        sample = hf_data[idx]
-        if sample["duration"] != args.duration:
-            continue
-        
-        video_num = sample["video_id"] # eg. 001
-        video_name = sample["videoID"] # eg. fFjv93ACGo8
-        question_id = sample["question_id"]
-        question = sample["question"]
-        options = sample["options"] # eg. ["A. xxx", "B. xxx", ...]
-        answer = sample["answer"]
-        
-        
-        for fmt in video_formats:  # Added this line
-            temp_path = os.path.join(args.video_folder, f"{video_name}{fmt}")
-            if os.path.exists(temp_path):
-                video_path = temp_path
-                break
-        
-        qs = f"""
-        Select the best answer to the following multiple-choice question based on the video. Respond with only the letter (A, B, C, or D) of the correct option.
-        {question}
-        {options[0]}
-        {options[1]}
-        {options[2]}
-        {options[3]}
-        The best answer is:
-        """
-        
-        # print(qs)
-        
-        # Check if the video exists
-        if video_path is not None:  # Modified this line
-            video_frames, slice_len = _get_rawvideo_dec(video_path, image_processor, max_frames=args.for_get_frames_num)
-            video_frames = [video_frames.half().cuda()]
-        
-        if model.config.mm_use_im_start_end:
-            qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
-        else:
-            qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
-        
-        try:
-            cur_prompt = qs
-
-            conv = conv_templates[args.conv_mode].copy()
-            conv.append_message(conv.roles[0], qs)
-            conv.append_message(conv.roles[1], None)
-            prompt = conv.get_prompt()
-            
-            input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).cuda()
-            if tokenizer.pad_token_id is None:
-                if "qwen" in tokenizer.name_or_path.lower():
-                    print("Setting pad token to bos token for qwen model.")
-                    tokenizer.pad_token_id = 151643
-
-            attention_masks = input_ids.ne(tokenizer.pad_token_id).long().cuda()
-
-            stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
-            keywords = [stop_str]
-            stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
-            
-            if "gpt4v" != args.model_path:
-                with torch.inference_mode():
-                    if "mistral" not in cfg_pretrained._name_or_path.lower():
-                        output_ids = model.generate(inputs=input_ids, images=video_frames, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1,num_beams=1,use_cache=True, stopping_criteria=[stopping_criteria])
-                    else:
-                        output_ids = model.generate(inputs=input_ids, images=video_frames, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1, num_beams=1, use_cache=True)
-            else:
-                pass
-            
-            outputs_1 = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
-            if "mistral" not in cfg_pretrained._name_or_path.lower():
-                if outputs_1.endswith(stop_str):
-                    outputs_1 = outputs_1[: -len(stop_str)]
-            outputs_1 = outputs_1.strip()
-            
-            # save answer by video_num
-            current_response = {
-                "question_id": sample["question_id"],
-                "task_type": sample["task_type"],
-                "question": sample["question"],
-                "options": sample["options"],
-                "answer": sample["answer"],
-                "response": outputs_1, 
-            }
-            if video_num not in groups:
-                groups[video_num] = {
-                    "video_id": video_num,
-                    "duration": sample["duration"],
-                    "domain": sample["domain"],
-                    "sub_category": sample["sub_category"],
-                    "questions": [current_response]
-                }
-            else:
-                groups[video_num]["questions"].append(current_response)
-            
-        except Exception as e:
-            print(f"Error processing video file '{video_name}': {e}")
-
-    for key in groups.keys():
-        save_data.append(groups[key])
+    data = load_jsonl("/workspace/wxd/LLaVA-NeXT/data/shareVideoGPTV/sft_dpo_17k.jsonl")
     
-    ans_file = open(answers_file, "w")
-    json.dump(save_data, ans_file)
-    ans_file.close()
+    for item in tqdm(data):
+        
     
-
-if __name__ == "__main__":
-    args = parse_args()
-    print(f'eval frames: {args.for_get_frames_num}')
-    run_inference(args)
