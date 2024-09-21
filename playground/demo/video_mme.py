@@ -219,7 +219,7 @@ def run_inference(args):
         The best answer is:
         """
         
-        print(qs)
+        # print(qs)
         
         # Check if the video exists
         if video_path is not None:  # Modified this line
