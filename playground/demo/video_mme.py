@@ -261,7 +261,7 @@ def run_inference(args):
                 "question": sample["question"],
                 "options": sample["options"],
                 "answer": sample["answer"],
-                "response": sample["response"], 
+                "response": outputs_1, 
             }
             if video_num not in groups:
                 groups[video_num] = {
