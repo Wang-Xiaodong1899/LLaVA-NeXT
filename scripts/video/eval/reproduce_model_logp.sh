@@ -18,7 +18,7 @@ POOL_STRIDE=$4
 POOL_MODE=$5
 NEWLINE_POSITION=$6
 OVERWRITE=$7
-
+SAVENAME=$8
 FORCE_SAMPLE=${9:-False}
 
 
@@ -43,6 +43,7 @@ python3 scripts/process/analysis_logp.py \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
     --force_sample $FORCE_SAMPLE \
+    --answers-file answer-17k-${SAVENAME}-logp.jsonl \
 
 # example
 # bash scripts/video/eval/reproduce_model_logp.sh /workspace/wxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True

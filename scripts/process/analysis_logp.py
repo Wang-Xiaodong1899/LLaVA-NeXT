@@ -303,7 +303,7 @@ def run_inference(args):
         # print(f"Question: {prompt}\n")
         # print(f"Response: {outputs}\n")
         
-        sample_set["DPO-7B-output"] = outputs
+        sample_set["model-output"] = outputs
         
         ans_file.write(json.dumps(sample_set, ensure_ascii=False) + "\n")
         ans_file.flush()
