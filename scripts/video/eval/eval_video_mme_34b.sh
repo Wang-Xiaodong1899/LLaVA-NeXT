@@ -8,7 +8,7 @@ OVERWRITE=${5:False}
 
 #eval_frame: 16 (align with finetuning)
 if [ "$OVERWRITE" = True ]; then
-    bash scripts/video/eval/video_mme_34b.sh $CKPT vicuna_v1 $FRAMES 2 average no_token True $SAVE_NAME $DURATION
+    bash scripts/video/eval/video_mme_34b.sh $CKPT mistral_direct $FRAMES 2 average no_token True $SAVE_NAME $DURATION
 fi
 
 python playground/demo/eval_video_mme.py \
