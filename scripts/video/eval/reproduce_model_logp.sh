@@ -46,11 +46,7 @@ python3 scripts/process/analysis_logp.py \
     --answers-file answer-17k-${SAVENAME}-logp.jsonl \
 
 # example
-# bash scripts/video/eval/reproduce_model_logp.sh /workspace/wxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token True
-
-# video case What are the men playing on the beach? 
-# TODO test whether to affect the DPO model following ability
-# bash scripts/video/demo/video_demo.sh /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B-DPO vicuna_v1 32 2 average no_token True playground/demo/v_oR8o_PuKS28.mp4
+# bash scripts/video/eval/reproduce_model_logp.sh /workspace/wxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 32 2 average no_token Video-7B True
 
 # 34B
-# bash scripts/video/demo/video_demo.sh /volsparse1/wxd/models/LLaVA-NeXT-Video-34B-DPO/ mistral_direct 16 2 average no_token True playground/demo/v_oR8o_PuKS28.mp4
+# bash scripts/video/demo/video_demo.sh /volsparse1/wxd/models/LLaVA-NeXT-Video-34B-DPO/ mistral_direct 16 2 average no_token 34B-DPO True
