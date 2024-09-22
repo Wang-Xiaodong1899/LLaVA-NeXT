@@ -195,6 +195,8 @@ class TrainingArguments(transformers.TrainingArguments):
     accumu_slow_fast: bool = field(default=False)
     ignore_rejected: bool = field(default=False)
     enable_video_shuffle: bool = field(default=False)
+    enable_tube_sample: bool = field(default=False)
+    enable_tube_sample_ratio: bool = field(default=False)
     nll_alpha: float = field(default=0.)
     dpo_weight: float = field(default=1.0)
     cond_alpha: float = field(default=0.)
@@ -1838,6 +1840,8 @@ def train(attn_implementation=None):
     model.config.enable_video_slow_num = training_args.enable_video_slow_num
     model.config.enable_video_fast_num = training_args.enable_video_fast_num
     model.config.enable_video_shuffle = training_args.enable_video_shuffle
+    model.config.enable_tube_sample = training_args.enable_tube_sample
+    model.config.enable_tube_sample_ratio = training_args.enable_tube_sample_ratio
 
     model.config.accumu_slow_fast = training_args.accumu_slow_fast
 
@@ -1866,6 +1870,7 @@ def train(attn_implementation=None):
         accumu_slow_fast=training_args.accumu_slow_fast,
         ignore_rejected=training_args.ignore_rejected,
         enable_video_shuffle=training_args.enable_video_shuffle,
+        enable_tube_sample=training_args.enable_tube_sample,
         dpo_weight=training_args.dpo_weight,
         nll_alpha=training_args.nll_alpha,
         cond_alpha=training_args.cond_alpha,

@@ -175,6 +175,7 @@ class CDPOTrainer(Trainer):
         dpo_weight: float = 1.0,
         ignore_rejected: bool = False,
         enable_video_shuffle: bool = False,
+        enable_tube_sample: bool = False,
         nll_alpha: float = 0.,
         cond_alpha: float = 0.0,
         base_alpha: float = 0.0,
@@ -221,6 +222,7 @@ class CDPOTrainer(Trainer):
         self.accumu_slow_fast = accumu_slow_fast
         self.ignore_rejected = ignore_rejected
         self.enable_video_shuffle = enable_video_shuffle
+        self.enable_tube_sample = enable_tube_sample
 
         if ref_model:
             self.ref_model = ref_model
@@ -683,6 +685,7 @@ class CDPOTrainer(Trainer):
         accumu_slow_fast = False,
         ignore_rejected = False,
         enable_video_shuffle = False,
+        enable_tube_sample = False,
     ) -> Dict[str, torch.LongTensor]:
         """Concatenate the chosen and rejected inputs into a single tensor.
 
@@ -788,7 +791,7 @@ class CDPOTrainer(Trainer):
                             ),
                             dim=0,
                         ).to(device=device)
-        elif duplicate_chosen_for_slow or duplicate_chosen_for_fast or enable_video_shuffle:
+        elif duplicate_chosen_for_slow or duplicate_chosen_for_fast or enable_video_shuffle or enable_tube_sample:
             for k in batch:
                 if k.startswith("chosen") and isinstance(batch[k], torch.Tensor):
                     if "labels" in k or is_encoder_decoder:
@@ -827,7 +830,7 @@ class CDPOTrainer(Trainer):
                 concatenated_batch["concatenated_images"] = batch["images"] * 4
                 concatenated_batch["image_sizes"] = batch["image_sizes"] * 4
                 concatenated_batch["modalities"] = batch["modalities"] * 4
-        elif duplicate_chosen_for_slow or duplicate_chosen_for_fast or enable_video_shuffle:
+        elif duplicate_chosen_for_slow or duplicate_chosen_for_fast or enable_video_shuffle or enable_tube_sample:
             if ignore_rejected:
                 concatenated_batch["concatenated_images"] = batch["images"] * 2
                 concatenated_batch["image_sizes"] = batch["image_sizes"] * 2
@@ -1039,7 +1042,8 @@ class CDPOTrainer(Trainer):
             duplicate_chosen_for_fast=self.duplicate_chosen_for_fast,
             accumu_slow_fast=self.accumu_slow_fast,
             ignore_rejected=self.ignore_rejected,
-            enable_video_shuffle=self.enable_video_shuffle
+            enable_video_shuffle=self.enable_video_shuffle,
+            enable_tube_sample=self.enable_tube_sample
         )
         len_chosen = batch["chosen_labels"].shape[0]
 

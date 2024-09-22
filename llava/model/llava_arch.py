@@ -290,6 +290,7 @@ class LlavaMetaForCausalLM(ABC):
                     accumu_slow_fast = getattr(self.config, "accumu_slow_fast", False)
 
                     enable_video_shuffle = getattr(self.config, "enable_video_shuffle", False)
+                    enable_tube_sample = getattr(self.config, "enable_tube_sample", False)
 
                     # XXX ignore rejected
                     ignore_rejected = getattr(self.config, "ignore_rejected", False)
@@ -297,6 +298,7 @@ class LlavaMetaForCausalLM(ABC):
                     # stride
                     enable_video_slow_num = getattr(self.config, "enable_video_slow_num", 2)
                     enable_video_fast_num = getattr(self.config, "enable_video_fast_num", 6)
+                    enable_tube_sample_ratio = getattr(self.config, "enable_tube_sample_ratio", 0.1)
 
                     enable_video_fast_upsampler = getattr(self.config, "enable_video_fast_upsampler", True)
 
@@ -379,6 +381,13 @@ class LlavaMetaForCausalLM(ABC):
                             # idx in [0, 1]
                             image_features.append(self.get_2dPool(image_feat))
                             rank0_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
+                    elif enable_tube_sample:
+                        sample_ratio = enable_tube_sample_ratio
+                        frame, hw, dim = image_feat.shape
+                        sample_num = int(hw * sample_ratio)
+                        sampled_indices = torch.randperm(hw)[:sample_num]
+                        sampled_video_tokens = image_feat[:, sampled_indices, :]
+                        image_features.append(sampled_video_tokens)
                     else:
                         image_features.append(self.get_2dPool(image_feat))
                         # rank_print(f'video feat shape: {image_features[-1].shape}')
