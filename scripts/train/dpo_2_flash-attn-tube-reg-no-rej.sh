@@ -47,7 +47,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path ${ROOT}/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --enable_tube_sample True \
-    --enable_tube_sample_ratio 0.3 \
+    --enable_tube_sample_ratio 0.2 \
     --ignore_rejected True \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --nll_alpha 1.0 \
