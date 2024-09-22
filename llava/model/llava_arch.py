@@ -382,15 +382,24 @@ class LlavaMetaForCausalLM(ABC):
                             image_features.append(self.get_2dPool(image_feat))
                             rank0_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
                     elif enable_tube_sample:
-                        sample_ratio = enable_tube_sample_ratio
-                        frame, hw, dim = image_feat.shape
-                        h = w = math.sqrt(hw) 
-                        new_h = int(h * sample_ratio)
-                        new_w = int(w * sample_ratio)
-                        sample_num = int(new_h * new_w)
-                        sampled_indices = torch.randperm(hw)[:sample_num]
-                        sampled_video_tokens = image_feat[:, sampled_indices, :]
-                        image_features.append(sampled_video_tokens)
+                        bsz = len(encoded_image_features) // 3
+                        if ignore_rejected:
+                            bsz = len(encoded_image_features) // 2
+                        if idx in video_idx_in_batch[-bsz:]:
+                            sample_ratio = enable_tube_sample_ratio
+                            frame, hw, dim = image_feat.shape
+                            h = w = math.sqrt(hw) 
+                            new_h = int(h * sample_ratio)
+                            new_w = int(w * sample_ratio)
+                            sample_num = int(new_h * new_w)
+                            sampled_indices = torch.randperm(hw)[:sample_num]
+                            sampled_video_tokens = image_feat[:, sampled_indices, :]
+                            image_features.append(sampled_video_tokens)
+                            rank0_print(f'idx {idx} jump in Tube, video indices: {indices}')
+                        else:
+                            # idx in [0, 1]
+                            image_features.append(self.get_2dPool(image_feat))
+                            rank0_print(f'idx {idx} jump in normal, video feat shape: {image_features[-1].shape}')
                     else:
                         image_features.append(self.get_2dPool(image_feat))
                         # rank_print(f'video feat shape: {image_features[-1].shape}')
