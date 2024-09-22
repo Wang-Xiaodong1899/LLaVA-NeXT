@@ -15,7 +15,7 @@ export WANDB_PROJECT=llava-next-jf-4A100
 export WANDB_NAME=llava_dpo_17k_nll-loss-chosen-tube-reg-no-rej
 
 # gpu_ids=0
-gpu_ids=0,1,2,3
+gpu_ids=1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
@@ -47,7 +47,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path ${ROOT}/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --enable_tube_sample True \
-    --enable_tube_sample_ratio 0.1 \
+    --enable_tube_sample_ratio 0.3 \
     --ignore_rejected True \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --nll_alpha 1.0 \

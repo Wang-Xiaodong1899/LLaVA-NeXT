@@ -298,7 +298,7 @@ class LlavaMetaForCausalLM(ABC):
                     # stride
                     enable_video_slow_num = getattr(self.config, "enable_video_slow_num", 2)
                     enable_video_fast_num = getattr(self.config, "enable_video_fast_num", 6)
-                    enable_tube_sample_ratio = getattr(self.config, "enable_tube_sample_ratio", 0.1)
+                    enable_tube_sample_ratio = getattr(self.config, "enable_tube_sample_ratio", 0.3)
 
                     enable_video_fast_upsampler = getattr(self.config, "enable_video_fast_upsampler", True)
 
@@ -384,7 +384,10 @@ class LlavaMetaForCausalLM(ABC):
                     elif enable_tube_sample:
                         sample_ratio = enable_tube_sample_ratio
                         frame, hw, dim = image_feat.shape
-                        sample_num = int(hw * sample_ratio)
+                        h = w = math.sqrt(hw) 
+                        new_h = int(h * sample_ratio)
+                        new_w = int(w * sample_ratio)
+                        sample_num = int(new_h * new_w)
                         sampled_indices = torch.randperm(hw)[:sample_num]
                         sampled_video_tokens = image_feat[:, sampled_indices, :]
                         image_features.append(sampled_video_tokens)
