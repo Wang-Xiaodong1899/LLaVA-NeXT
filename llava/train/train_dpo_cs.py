@@ -196,7 +196,7 @@ class TrainingArguments(transformers.TrainingArguments):
     ignore_rejected: bool = field(default=False)
     enable_video_shuffle: bool = field(default=False)
     enable_tube_sample: bool = field(default=False)
-    enable_tube_sample_ratio: bool = field(default=False)
+    enable_tube_sample_ratio: float = field(default=0.1)
     nll_alpha: float = field(default=0.)
     dpo_weight: float = field(default=1.0)
     cond_alpha: float = field(default=0.)
