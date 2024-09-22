@@ -75,6 +75,10 @@ def parse_args():
     # add condition args
     parser.add_argument("--enable_video_slow", type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--enable_video_fast", type=lambda x: (str(x).lower() == 'true'), default=False)
+    parser.add_argument("--enable_tube_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
+    parser.add_argument("--enable_video_shuffle", type=lambda x: (str(x).lower() == 'true'), default=False)
+    
+    
     return parser.parse_args()
 
 
@@ -152,6 +156,8 @@ def run_inference(args):
             overwrite_config["mm_newline_position"] = args.mm_newline_position
             overwrite_config["enable_video_slow"] = args.enable_video_slow
             overwrite_config["enable_video_fast"] = args.enable_video_fast
+            overwrite_config["enable_video_shuffle"] = args.enable_video_shuffle
+            overwrite_config["enable_tube_sample"] = args.enable_tube_sample
             overwrite_config["pretrain_mm_mlp_adapter"] = args.pretrain_mm_mlp_adapter
 
             cfg_pretrained = AutoConfig.from_pretrained(args.model_path)

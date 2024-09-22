@@ -3,7 +3,7 @@
 CKPT=$1
 SAVE_NAME=$2
 FRAMES=$3
-DURATION=$4
+DURATION=$4 # short
 OVERWRITE=${5:False}
 
 #eval_frame: 16 (align with finetuning)
