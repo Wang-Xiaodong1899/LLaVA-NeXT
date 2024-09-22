@@ -395,7 +395,7 @@ class LlavaMetaForCausalLM(ABC):
                             sampled_indices = torch.randperm(hw)[:sample_num]
                             sampled_video_tokens = image_feat[:, sampled_indices, :]
                             image_features.append(sampled_video_tokens)
-                            rank0_print(f'idx {idx} jump in Tube, video indices: {indices}')
+                            rank0_print(f'idx {idx} jump in Tube, video feat shape: {image_features[-1].shape}')
                         else:
                             # idx in [0, 1]
                             image_features.append(self.get_2dPool(image_feat))
