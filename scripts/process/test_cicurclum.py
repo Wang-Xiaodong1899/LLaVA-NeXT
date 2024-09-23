@@ -36,7 +36,6 @@ class CustomDataset(Dataset):
         return result
     
     def sample_shards(self, total_samples: int):
-        # 根据概率从 shards 中采样下标
         sampled_indices = []
         for shard, prob in zip(self.shards, self.probabilities):
             num_samples = int(total_samples * prob)
@@ -70,7 +69,7 @@ items = []
 
 for idx, batch in enumerate(data_loader):
     print(idx)
-    if idx >=10000:
+    if idx >=100:
         break
 
     items.append(batch['logp'].numpy())
@@ -78,6 +77,9 @@ for idx, batch in enumerate(data_loader):
 import numpy as np
 import matplotlib.pyplot as plt
 items = np.array(items).reshape(-1, 1)
+
+print(len(dataset))
+print(len(data_loader))
 
 plt.hist(items, bins=10, range=(0, 1), edgecolor='black')
 plt.show()
