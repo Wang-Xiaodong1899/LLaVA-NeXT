@@ -244,7 +244,7 @@ def run_inference(args):
         else:
             qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
         
-        if True:
+        try:
             cur_prompt = qs
 
             conv = conv_templates[args.conv_mode].copy()
@@ -299,8 +299,8 @@ def run_inference(args):
             else:
                 groups[video_num]["questions"].append(current_response)
             
-        # except Exception as e:
-        #     print(f"Error processing video file '{video_name}': {e}")
+        except Exception as e:
+            print(f"Error processing video file '{video_name}': {e}")
 
     for key in groups.keys():
         save_data.append(groups[key])
