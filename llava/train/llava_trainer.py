@@ -466,13 +466,13 @@ class LLaVATrainer(Trainer):
             super(LLaVATrainer, self)._save(output_dir, state_dict)
 
 class RankSampler(Sampler):
-    def __init__(self, dataset_length: int, batch_size: int, world_size: int, take_samples: int, num_shards: int, probabilities):
+    def __init__(self, dataset_length: int, batch_size: int, world_size: int, take_samples: int, num_shards: int):
         self.dataset_length = dataset_length
         self.batch_size = batch_size
         self.take_samples = take_samples
         self.world_size = world_size
         self.num_shards = num_shards
-        self.probabilities = probabilities
+        self.probabilities = [0.4, 0.4, 0.1, 0.05, 0.05]
         self.shards = self.create_shards()
     
     def create_shards(self):
@@ -516,8 +516,7 @@ class LLaVADPOTrainer(DPOTrainer):
                 self.args.train_batch_size,
                 self.args.world_size,
                 self.args.take_samples,
-                self.args.num_shards,
-                self.args.probabilities
+                self.args.num_shards
             )
         else:
             return super()._get_train_sampler()

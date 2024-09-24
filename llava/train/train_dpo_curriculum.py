@@ -197,7 +197,6 @@ class TrainingArguments(transformers.TrainingArguments):
     train_batch_size: int = 2
     take_samples: int = 100
     num_shards: int = 5
-    probabilities: List = [0.4, 0.4, 0.1, 0.05, 0.05]
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):
