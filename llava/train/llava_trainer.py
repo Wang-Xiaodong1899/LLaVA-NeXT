@@ -7,6 +7,9 @@ from accelerate import Accelerator
 from accelerate.utils import InitProcessGroupKwargs, GradientAccumulationPlugin
 from torch.utils.data import Dataset, Sampler, DataLoader
 
+import random
+
+
 from trl.trainer import DPOTrainer, CDPOTrainer
 from trl.trainer.utils import DPODataCollatorWithPadding
 
@@ -462,12 +465,42 @@ class LLaVATrainer(Trainer):
         else:
             super(LLaVATrainer, self)._save(output_dir, state_dict)
 
+class RankSampler(Sampler):
+    def __init__(self, dataset_length: int, batch_size: int, world_size: int, take_samples: int, num_shards: int, probabilities):
+        self.dataset_length = dataset_length
+        self.batch_size = batch_size
+        self.take_samples = take_samples
+        self.world_size = world_size
+        self.num_shards = num_shards
+        self.probabilities = probabilities
+        self.shards = self.create_shards()
+    
+    def create_shards(self):
+        shard_size = self.dataset_length // self.num_shards
+        return [list(range(i * shard_size, (i + 1) * shard_size)) for i in range(self.num_shards)]
+    
+    def sample_shards(self):
+        sampled_indices = []
+        for shard, prob in zip(self.shards, self.probabilities):
+            num_samples = int(self.take_samples * prob)
+            sampled_indices.extend(random.sample(shard, min(num_samples, len(shard))))
+        return sampled_indices
+
+    def __iter__(self):
+        while True:
+            sampled_data = self.sample_shards()
+            random.shuffle(sampled_data)
+            for i in range(0, len(sampled_data), self.batch_size):
+                yield sampled_data[i:i + self.batch_size]
+    
+    def __len__(self):
+        return self.dataset_length // self.batch_size
 
 class LLaVADPOTrainer(DPOTrainer):
     def _get_train_sampler(self) -> Optional[torch.utils.data.Sampler]:
         if self.train_dataset is None or not has_length(self.train_dataset):
             return None
-
+        import pdb; pdb.set_trace()
         if self.args.group_by_modality_length:
             lengths = self.train_dataset.modality_lengths
             return LengthGroupedSampler(
@@ -476,6 +509,15 @@ class LLaVADPOTrainer(DPOTrainer):
                 world_size=self.args.world_size,
                 lengths=lengths,
                 group_by_modality=True,
+            )
+        elif self.args.rank_samples:
+            return RankSampler(
+                self.args.dataset_length,
+                self.args.train_batch_size,
+                self.args.world_size,
+                self.args.take_samples,
+                self.args.num_shards,
+                self.args.probabilities
             )
         else:
             return super()._get_train_sampler()

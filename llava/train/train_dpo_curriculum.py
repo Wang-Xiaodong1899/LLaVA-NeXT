@@ -190,6 +190,14 @@ class TrainingArguments(transformers.TrainingArguments):
     gamma: float = field(default=1.0)
     generate_during_eval: bool = field(default=False)
     precompute_ref_log_probs: bool = field(default=False)
+    
+    rank_samples: bool = True
+    dataset_length: int = 16959
+    world_size: int = 1
+    train_batch_size: int = 1
+    take_samples: int = 100
+    num_shards: int = 5
+    probabilities: List = [0.4, 0.4, 0.1, 0.05, 0.05]
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):
@@ -1036,14 +1044,8 @@ class DPODataset(Dataset):
                 key=lambda pair: pair[0]
             )]
 
-        self.num_shards = data_args.num_shards
-        self.probabilities = data_args.probabilities
-        self.shards = self.create_shards()
-
-        # import pdb; pdb.set_trace()
-    def create_shards(self):
-        shard_size = len(self.list_data_dict) // self.num_shards
-        return [list(range(i * shard_size, (i + 1) * shard_size)) for i in range(self.num_shards)]
+        self.list_data_dict = sorted_list
+        import pdb; pdb.set_trace()
 
     def __len__(self):
         return len(self.list_data_dict)
@@ -1121,13 +1123,6 @@ class DPODataset(Dataset):
                 result[key] = torch.stack([item[key] for item in items])
         
         return result
-    
-    def sample_shards(self, total_samples: int):
-        sampled_indices = []
-        for shard, prob in zip(self.shards, self.probabilities):
-            num_samples = int(total_samples * prob)
-            sampled_indices.extend(random.sample(shard, min(num_samples, len(shard))))
-        return sampled_indices
 
     def __getitem_i__(self, i) -> Dict[str, torch.Tensor]:
         # TODO: define number of retries somewhere else
@@ -1296,24 +1291,6 @@ class GaussianBlur(object):
 def augmentation(frame, transform, state):
     torch.set_rng_state(state)
     return transform(frame)
-
-class CustomSampler:
-    def __init__(self, dataset: DPODataset, batch_size: int, total_samples: int):
-        self.dataset = dataset
-        self.batch_size = batch_size
-        self.total_samples = total_samples
-
-    def __iter__(self):
-
-        while True:
-            batch = []
-            sampled_data = self.dataset.sample_shards(total_samples=self.total_samples)
-            random.shuffle(sampled_data)
-            for item in sampled_data:
-                batch.append(item)
-                if len(batch) == self.batch_size:
-                    yield batch
-                    batch = []
 
 @dataclass
 class DPODataCollator(DPODataCollatorWithPadding):
