@@ -62,7 +62,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --mm_newline_position "no_token" \
     --mm_resampler_type "spatial_pool" \
     --mm_spatial_pool_out_channels 1024 \
-    --group_by_modality_length True \
+    --group_by_modality_length False \
     --image_aspect_ratio anyres \
     --image_grid_pinpoints "[(336, 672), (672, 336), (672, 672), (1008, 336), (336, 1008)]" \
     --mm_patch_merge_type spatial_unpad \
