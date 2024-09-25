@@ -147,11 +147,13 @@ def get_length_grouped_indices(lengths, batch_size, world_size, generator=None, 
     # We need to use torch for the random part as a distributed sampler will set the random seed for torch.
     import pdb; pdb.set_trace()
     indices = torch.randperm(len(lengths), generator=generator)
-    megabatch_size = world_size * batch_size
+    megabatch_size = world_size * batch_size #e.g, 1*2
+    # [[1,2], [3,4],...]
     megabatches = [indices[i : i + megabatch_size].tolist() for i in range(0, len(lengths), megabatch_size)]
     megabatches = [sorted(megabatch, key=lambda i: lengths[i], reverse=True) for megabatch in megabatches]
     megabatches = [split_to_even_chunks(megabatch, lengths, world_size) for megabatch in megabatches]
-
+    # [[[1,2]], [[3,4]], ...]
+    # retuen flattern indices
     return [i for megabatch in megabatches for batch in megabatch for i in batch]
 
 
@@ -236,6 +238,7 @@ class LengthGroupedSampler(Sampler):
         else:
             if self.group_by_modality: # here
                 indices = get_modality_length_grouped_indices(self.lengths, self.batch_size, self.world_size, generator=self.generator)
+                # return all indices of the whole dataset
             elif self.group_by_modality_auto:
                 indices = get_modality_length_grouped_indices_auto(self.lengths, self.batch_size, self.world_size, generator=self.generator)
             else:
