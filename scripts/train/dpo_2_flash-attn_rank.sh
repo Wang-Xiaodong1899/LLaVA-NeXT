@@ -42,7 +42,7 @@ PROMPT_VERSION="vicuna_v1"
 #torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
-    llava/train/train_dpo_curriculum.py \
+    llava/train/train_dpo_rank.py \
     --deepspeed scripts/zero2.json \
     --model_name_or_path ${ROOT}/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
