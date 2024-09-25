@@ -104,7 +104,7 @@ def get_modality_length_grouped_indices(lengths, batch_size, world_size, generat
 
     # We need to use torch for the random part as a distributed sampler will set the random seed for torch.
     assert all(l != 0 for l in lengths), "Should not have zero length."
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     if all(l > 0 for l in lengths) or all(l < 0 for l in lengths):
         # fix video frames so code jump here
         # all samples are in the same modality
@@ -145,7 +145,7 @@ def get_length_grouped_indices(lengths, batch_size, world_size, generator=None, 
     """
 
     # We need to use torch for the random part as a distributed sampler will set the random seed for torch.
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     indices = torch.randperm(len(lengths), generator=generator)
     megabatch_size = world_size * batch_size #e.g, 1*2
     # [[1,2], [3,4],...]
@@ -213,7 +213,7 @@ def get_rank_shard_logps_grouped_indices(lengths, batch_size, world_size, genera
     2) shuffle data within chunks
     """
     
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     num_shards = 10
     data_length = len(lengths)
     
@@ -269,7 +269,7 @@ class LengthGroupedSampler(Sampler):
             assert not self.group_by_modality, "Variable length grouping is not supported with modality grouping."
             indices = get_variable_length_grouped_indices(self.lengths, self.batch_size, self.world_size, generator=self.generator)
         else:
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             if self.group_by_modality: # here
                 indices = get_modality_length_grouped_indices(self.lengths, self.batch_size, self.world_size, generator=self.generator)
                 # return all indices of the whole dataset
