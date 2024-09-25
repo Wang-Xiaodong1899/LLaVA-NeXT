@@ -201,6 +201,46 @@ def get_modality_length_grouped_indices_auto(lengths, batch_size, world_size, ge
     return [i for megabatch in megabatches for i in megabatch]
 
 
+# xiaodong
+def get_rank_shard_logps_grouped_indices(lengths, batch_size, world_size, generator=None):
+    """
+    Given input data is sorted.
+    1) create n shard
+    2) shuffle data within chunks
+    """
+    num_shards = 10
+    data_length = len(lengths)
+    
+    def create_shards():
+        shard_size = data_length // num_shards
+        return [list(range(i * shard_size, (i + 1) * shard_size)) for i in range(num_shards)]
+
+    
+    
+    
+    
+    mm_indices, mm_lengths = zip(*[(i, l) for i, l in enumerate(lengths) if l > 0])
+    lang_indices, lang_lengths = zip(*[(i, -l) for i, l in enumerate(lengths) if l < 0])
+
+    mm_shuffle = [mm_indices[i] for i in get_length_grouped_indices(mm_lengths, batch_size, world_size, generator=None)]
+    lang_shuffle = [lang_indices[i] for i in get_length_grouped_indices(lang_lengths, batch_size, world_size, generator=None)]
+    megabatch_size = world_size * batch_size
+    mm_megabatches = [mm_shuffle[i : i + megabatch_size] for i in range(0, len(mm_shuffle), megabatch_size)]
+    lang_megabatches = [lang_shuffle[i : i + megabatch_size] for i in range(0, len(lang_shuffle), megabatch_size)]
+
+    last_mm = mm_megabatches[-1]
+    last_lang = lang_megabatches[-1]
+    additional_batch = last_mm + last_lang
+    megabatches = mm_megabatches[:-1] + lang_megabatches[:-1]
+    megabatch_indices = torch.randperm(len(megabatches), generator=generator)
+    megabatches = [megabatches[i] for i in megabatch_indices]
+
+    if len(additional_batch) > 0:
+        megabatches.append(sorted(additional_batch))
+
+    return [i for megabatch in megabatches for i in megabatch]
+
+
 class LengthGroupedSampler(Sampler):
     r"""
     Sampler that samples indices in a way that groups together features of the dataset of roughly the same length while
