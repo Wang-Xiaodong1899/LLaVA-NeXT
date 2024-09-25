@@ -193,9 +193,6 @@ class TrainingArguments(transformers.TrainingArguments):
     
     rank_samples: bool = True
     dataset_length: int = 16959
-    world_size: int = 1
-    train_batch_size: int = 2
-    take_samples: int = 100
     num_shards: int = 5
 
 
