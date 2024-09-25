@@ -106,6 +106,7 @@ def get_modality_length_grouped_indices(lengths, batch_size, world_size, generat
     assert all(l != 0 for l in lengths), "Should not have zero length."
     import pdb; pdb.set_trace()
     if all(l > 0 for l in lengths) or all(l < 0 for l in lengths):
+        # fix video frames so code jump here
         # all samples are in the same modality
         return get_length_grouped_indices(lengths, batch_size, world_size, generator=generator)
     mm_indices, mm_lengths = zip(*[(i, l) for i, l in enumerate(lengths) if l > 0])
@@ -144,6 +145,7 @@ def get_length_grouped_indices(lengths, batch_size, world_size, generator=None, 
     """
 
     # We need to use torch for the random part as a distributed sampler will set the random seed for torch.
+    import pdb; pdb.set_trace()
     indices = torch.randperm(len(lengths), generator=generator)
     megabatch_size = world_size * batch_size
     megabatches = [indices[i : i + megabatch_size].tolist() for i in range(0, len(lengths), megabatch_size)]
