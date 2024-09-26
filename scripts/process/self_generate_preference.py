@@ -24,13 +24,13 @@ from PIL import Image
 
 
 
-hallu_prompt_list = ["Answer this question with imaginary objects that could be in the scene. ",
-    "Enrich your answer by adding hypothetical objects or characters that could be part of the scene. ",
-    "Answer this question with actual objects or people that could logically exist in the video. ",
-    "Enrich your answer by including elements that are not there but could fit seamlessly into the background of the video. ",
-    "Answer this question by imagining other everyday objects or activities that take place off-screen. ",
-    "Enrich your answer by enhancing the scene with details of possible events or objects. ",
-    "Answer this question by imagining natural elements that could actually enter the scene, such as weather or animals. Make the anwser affirmative. "]
+hallu_prompt_list = ["Answer this question with imaginary objects that could be in the scene. Make the anwser affirmative.",
+    "Enrich your answer by adding hypothetical objects or characters that could be part of the scene. Make the anwser affirmative.",
+    "Answer this question with objects or people that could logically exist in the video. Make the anwser affirmative.",
+    "Enrich your answer by including elements that are not there but could fit seamlessly into the background of the video. Make the anwser affirmative.",
+    "Answer this question by imagining other everyday objects or activities that take place off-screen. Make the anwser affirmative.",
+    "Enrich your answer by enhancing the scene with details of possible events or objects. Make the anwser affirmative.",
+    "Answer this question by imagining natural elements that could actually enter the scene, such as weather or animals. Make the anwser affirmative."]
 
 
 
