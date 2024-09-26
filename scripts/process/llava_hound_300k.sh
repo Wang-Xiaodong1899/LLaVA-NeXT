@@ -12,7 +12,7 @@ cd /volsparse1/wxd/data/llava_hound
 for i in $(seq $start $end)
 do
     file_name="chunk_${i}.tar.gz"
-    url="${base_url}/chunk_${i}.tar.gz"
+    url="${base_url}chunk_${i}.tar.gz"
 
     echo "Downloading ${file_name}..."
 
