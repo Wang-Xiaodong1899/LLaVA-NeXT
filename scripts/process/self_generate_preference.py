@@ -336,6 +336,8 @@ def run_inference(args):
             if args.add_hallu:
                 hallu_prompt = random.choice(hallu_prompt_list)
                 question = hallu_prompt + question
+            
+            print(question)
             qs = question
             if model.config.mm_use_im_start_end:
                 qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
