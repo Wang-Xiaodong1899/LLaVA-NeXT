@@ -34,6 +34,7 @@ fi
 python scripts\process\self_generate_preference.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
+    --add-hallu True \
     --output_dir /volsparse1/wxd/data/self-gen/video_hallu/$SAVE_DIR \
     --output_name 3x3_tokens_${START}_${END} \
     --jsonl-file $JSONLFILE \

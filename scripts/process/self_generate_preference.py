@@ -76,7 +76,7 @@ def parse_args():
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--add-aug", type=bool, default=False)
-    parser.add_argument("--add-hallu", type=bool, default=True) 
+    parser.add_argument("--add-hallu", type=bool, default=False) 
     parser.add_argument("--jsonl-file", type=str, default="/volsparse1/wxd/data/llava_hound/chatgpt_qa_900k.jsonl")
     parser.add_argument("--start", type=int, default=0)
     parser.add_argument("--end", type=int, default=2000)
