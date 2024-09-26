@@ -235,7 +235,7 @@ def run_inference(args):
     for item in tqdm(jsonl_data[args.start:args.end]):
 
         sample_set = {}
-        video = item["video"]
+        video_ = item["video"]
         sample_set['id'] = item["id"]
         
         
@@ -245,10 +245,10 @@ def run_inference(args):
         sample_set["prompt"] = question
         sample_set["answer"] = answer
         
-        sample_set["video"] = video
+        sample_set["video"] = video_
         
         
-        video_path = os.path.join(video_root, video)
+        video_path = os.path.join(video_root, video_)
 
         # Check if the video exists
         if os.path.exists(video_path):
