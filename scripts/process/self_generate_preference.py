@@ -223,7 +223,7 @@ def run_inference(args):
         os.makedirs(args.output_dir)
 
     output_name = args.output_name
-    answers_file = os.path.join(args.output_dir, f"{output_name}.json")
+    answers_file = os.path.join(args.output_dir, f"{output_name}.jsonl")
     ans_file = open(answers_file, "w")
 
     video_root = args.video_root
