@@ -31,7 +31,7 @@ else
     SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}
 fi
     
-python scripts\process\self_generate_preference.py \
+python scripts/process/self_generate_preference.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
     --add-hallu True \
