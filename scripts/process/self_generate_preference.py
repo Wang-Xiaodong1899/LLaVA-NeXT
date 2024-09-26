@@ -241,6 +241,8 @@ def run_inference(args):
         
         question = next(convo['value'] for convo in item['conversations'] if convo['from'] == 'human')
         answer = next(convo['value'] for convo in item['conversations'] if convo['from'] == 'gpt')
+        
+        question = question.replace("<video>\n", "")
 
         sample_set["prompt"] = question
         sample_set["answer"] = answer
