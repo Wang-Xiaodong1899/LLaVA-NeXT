@@ -2,7 +2,7 @@ import os
 import json
 
 # Define the input folder path and output file path
-input_folder = 'volsparse1/wxd/data/self-gen/video_aug/checkpoint-3000_vicuna_v1_frames_4_stride_2'
+input_folder = '/volsparse1/wxd/data/self-gen/video_aug/checkpoint-3000_vicuna_v1_frames_4_stride_2'
 output_file = 'aug_f4_0_8000.jsonl'
 
 # Create the output file
