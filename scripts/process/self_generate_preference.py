@@ -122,7 +122,7 @@ def load_video(video_path, args):
         
         # add augmentation
         aug_tranform = transforms.Compose([
-            transforms.RandomResizedCrop(224, scale=(0.08, 1.)),
+            transforms.RandomResizedCrop(224, scale=(0.08, 0.3)),
             transforms.RandomApply([
                 transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
             ], p=0.8),
@@ -134,15 +134,16 @@ def load_video(video_path, args):
         # # save original video frame
         # for (idx, v) in enumerate(video):
         #     v.save(f'{os.path.basename(video_path)}_00{idx}.jpg')
+        ori_video = video
         if args.add_aug:
             state = torch.get_rng_state()
-            video = [augmentation(v, aug_tranform, state) for v in video]
+            aug_video = [augmentation(v, aug_tranform, state) for v in video]
         
         # save aug video frame
         # for (idx, v) in enumerate(video):
         #     v.save(f'{os.path.basename(video_path)}_00{idx}_aug.jpg')
         
-        return video
+        return ori_video, aug_video
     else:
         vr = VideoReader(video_path, ctx=cpu(0))
         total_frame_num = len(vr)
@@ -255,9 +256,12 @@ def run_inference(args):
         # Check if the video exists
         if os.path.exists(video_path):
             if "gpt4v" != args.model_path:
-                video = load_video(video_path, args)
+                video, aug_video = load_video(video_path, args)
                 video = image_processor.preprocess(video, return_tensors="pt")["pixel_values"].half().cuda()
                 video = [video]
+                
+                aug_video = image_processor.preprocess(aug_video, return_tensors="pt")["pixel_values"].half().cuda()
+                aug_video = [aug_video]
             else:
                 video = load_video_base64(video_path)
                 interval = int(len(video) / args.for_get_frames_num)
@@ -337,7 +341,10 @@ def run_inference(args):
                 hallu_prompt = random.choice(hallu_prompt_list)
                 question = question + " " + hallu_prompt
             
-            print(question)
+            if args.add_aug:
+                video = aug_video
+            
+            # print(question)
             qs = question
             if model.config.mm_use_im_start_end:
                 qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
