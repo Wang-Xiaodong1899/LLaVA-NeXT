@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-base_url="https://huggingface.co/datasets/ShareGPTVideo/train_video_and_instruction/resolve/main/train_300k/chunk_"
+base_url="https://huggingface.co/datasets/ShareGPTVideo/train_video_and_instruction/resolve/main/train_300k/"
 
 
 start=0
@@ -11,8 +11,8 @@ cd /volsparse1/wxd/data/llava_hound
 
 for i in $(seq $start $end)
 do
-    file_name="${i}.tar.gz"
-    url="${base_url}${i}.zip"
+    file_name="chunk_${i}.tar.gz"
+    url="${base_url}/chunk_${i}.tar.gz"
 
     echo "Downloading ${file_name}..."
 
