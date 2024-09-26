@@ -335,7 +335,7 @@ def run_inference(args):
             # add-hallu
             if args.add_hallu:
                 hallu_prompt = random.choice(hallu_prompt_list)
-                question = question + hallu_prompt
+                question = question + " " + hallu_prompt
             
             print(question)
             qs = question
