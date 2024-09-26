@@ -214,7 +214,7 @@ def get_rank_shard_logps_grouped_indices(lengths, batch_size, world_size, genera
     """
     
     # import pdb; pdb.set_trace()
-    num_shards = 10
+    num_shards = 3
     data_length = len(lengths)
     
     shards = create_shards(data_length, num_shards)
