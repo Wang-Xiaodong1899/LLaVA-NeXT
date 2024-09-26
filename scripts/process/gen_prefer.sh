@@ -36,7 +36,7 @@ python scripts/process/self_generate_preference.py \
     --video_root ${VIDEO_PATH} \
     --add-hallu True \
     --output_dir /volsparse1/wxd/data/self-gen/video_hallu/$SAVE_DIR \
-    --output_name 3x3_tokens_${START}_${END} \
+    --output_name hallu_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
@@ -50,4 +50,4 @@ python scripts/process/self_generate_preference.py \
     
     
 # example
-# bash scripts/process/gen_prefer.sh /root/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 16 2 average no_token True /volsparse1/wxd/data/llava_hound/QA/ /volsparse1/wxd/data/llava_hound/chatgpt_qa_900k.jsonl 0 2000
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer.sh /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava_dpo_17k_flash-attn/checkpoint-3000/ vicuna_v1 16 2 average no_token True /volsparse1/wxd/data/llava_hound/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000
