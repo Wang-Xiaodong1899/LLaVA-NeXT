@@ -80,6 +80,8 @@ def parse_args():
     parser.add_argument("--jsonl-file", type=str, default="/volsparse1/wxd/data/llava_hound/chatgpt_qa_900k.jsonl")
     parser.add_argument("--start", type=int, default=0)
     parser.add_argument("--end", type=int, default=2000)
+    parser.add_argument("--skip-chosen", type=bool, default=False) 
+    
     return parser.parse_args()
 
 import random
@@ -266,71 +268,72 @@ def run_inference(args):
                 video = load_video_base64(video_path)
                 interval = int(len(video) / args.for_get_frames_num)
 
-        # chosen answer
-        if "gpt4v" != args.model_path:
-            qs = question
-            if model.config.mm_use_im_start_end:
-                qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
-            else:
-                qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
-
-            conv = conv_templates[args.conv_mode].copy()
-            conv.append_message(conv.roles[0], qs)
-            conv.append_message(conv.roles[1], None)
-            prompt = conv.get_prompt()
-
-            input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).cuda()
-            if tokenizer.pad_token_id is None:
-                if "qwen" in tokenizer.name_or_path.lower():
-                    print("Setting pad token to bos token for qwen model.")
-                    tokenizer.pad_token_id = 151643
-                    
-            attention_masks = input_ids.ne(tokenizer.pad_token_id).long().cuda()
-
-            stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
-            keywords = [stop_str]
-            stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
-
-            cur_prompt = question
-        else:
-            prompt = question
-
-        system_error = ""
-
-        if "gpt4v" != args.model_path:
-
-            with torch.inference_mode():
-                # model.update_prompt([[cur_prompt]])
-                # import pdb;pdb.set_trace()
-                # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
-                if "mistral" not in cfg_pretrained._name_or_path.lower():
-                    output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1,num_beams=1,use_cache=True, stopping_criteria=[stopping_criteria])
-                    # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
+        if not args.skip_chosen:
+            # chosen answer
+            if "gpt4v" != args.model_path:
+                qs = question
+                if model.config.mm_use_im_start_end:
+                    qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
                 else:
-                    output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1, num_beams=1, use_cache=True)
-                    # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True)
+                    qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
 
-        if "gpt4v" != args.model_path:
-            outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
-        
-        # print(f"Question: {prompt}\n")
-        # print(f"Response: {outputs}\n")
+                conv = conv_templates[args.conv_mode].copy()
+                conv.append_message(conv.roles[0], qs)
+                conv.append_message(conv.roles[1], None)
+                prompt = conv.get_prompt()
 
-        if "gpt4v" == args.model_path:
-            if system_error == 'content_policy_violation':
-                continue
-            elif system_error == "":
-                continue
+                input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).cuda()
+                if tokenizer.pad_token_id is None:
+                    if "qwen" in tokenizer.name_or_path.lower():
+                        print("Setting pad token to bos token for qwen model.")
+                        tokenizer.pad_token_id = 151643
+                        
+                attention_masks = input_ids.ne(tokenizer.pad_token_id).long().cuda()
+
+                stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
+                keywords = [stop_str]
+                stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
+
+                cur_prompt = question
             else:
-                import pdb;pdb.set_trace()
+                prompt = question
 
-        # import pdb;pdb.set_trace()
-        if "mistral" not in cfg_pretrained._name_or_path.lower():
-            if outputs.endswith(stop_str):
-                outputs = outputs[: -len(stop_str)]
+            system_error = ""
 
-        outputs = outputs.strip()
-        sample_set["chosen"] = outputs
+            if "gpt4v" != args.model_path:
+
+                with torch.inference_mode():
+                    # model.update_prompt([[cur_prompt]])
+                    # import pdb;pdb.set_trace()
+                    # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
+                    if "mistral" not in cfg_pretrained._name_or_path.lower():
+                        output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1,num_beams=1,use_cache=True, stopping_criteria=[stopping_criteria])
+                        # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
+                    else:
+                        output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1, num_beams=1, use_cache=True)
+                        # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True)
+
+            if "gpt4v" != args.model_path:
+                outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
+            
+            # print(f"Question: {prompt}\n")
+            # print(f"Response: {outputs}\n")
+
+            if "gpt4v" == args.model_path:
+                if system_error == 'content_policy_violation':
+                    continue
+                elif system_error == "":
+                    continue
+                else:
+                    import pdb;pdb.set_trace()
+
+            # import pdb;pdb.set_trace()
+            if "mistral" not in cfg_pretrained._name_or_path.lower():
+                if outputs.endswith(stop_str):
+                    outputs = outputs[: -len(stop_str)]
+
+            outputs = outputs.strip()
+            sample_set["chosen"] = outputs
         
         
         # rejected answer
