@@ -11,6 +11,8 @@ with open(jsonl_file_path, 'r') as jsonl_file:
         entry = json.loads(line)  # Parse the JSON line into a dictionary
         matched_data.append(entry)  # Add matching entry to the list
 
+matched_data = sorted(matched_data, key=lambda x: x['id'])
+
 jsonl_file_path = "aug_f4_0_8000.jsonl"
 
 matched_data_1 = []
@@ -19,6 +21,8 @@ with open(jsonl_file_path, 'r') as jsonl_file:
     for line in jsonl_file:
         entry = json.loads(line)  # Parse the JSON line into a dictionary
         matched_data_1.append(entry)  # Add matching entry to the list
+
+matched_data_1 = sorted(matched_data_1, key=lambda x: x['id'])
 
 new_data = []
 for s1, s2 in zip(matched_data, matched_data_1):
