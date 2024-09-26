@@ -22,6 +22,8 @@ with open(jsonl_file_path, 'r') as jsonl_file:
 
 new_data = []
 for s1, s2 in zip(matched_data, matched_data_1):
+    print(s1["id"], s2["id"])
+    import pdb; pdb.set_trace()
     if s1["id"] == s2["id"]:
         s2["chosen"] = s1["chosen"]
         new_data.append(s2)
