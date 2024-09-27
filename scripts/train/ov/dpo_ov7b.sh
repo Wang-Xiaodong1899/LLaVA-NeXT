@@ -15,7 +15,7 @@ export WANDB_PROJECT=llava-ov-jf-4A100
 export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn
 
 # gpu_ids=0
-gpu_ids=0,1,2,3
+gpu_ids=3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
@@ -43,7 +43,8 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --deepspeed scripts/zero2.json \
     --model_name_or_path ${ROOT}/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
-    --dpo_alpha 1.0 --beta ${beta} --gamma 0 \
+    --mm_tunable_parts="mm_mlp_adapter" \
+    --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder ${ROOT}/data/shareVideoGPTV/dpo_train_data \
@@ -53,6 +54,10 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --mm_vision_select_layer -2 \
     --mm_use_im_start_end False \
     --mm_use_im_patch_token False \
+    --mm_spatial_pool_mode "bilinear" \
+    --mm_newline_position "one_token" \
+    --mm_resampler_type null \
+    
     --group_by_modality_length True \
     --image_aspect_ratio anyres_max_9 \
     --image_grid_pinpoints "(1x1),...,(6x6)" \
@@ -79,4 +84,9 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --dataloader_num_workers 16 \
     --lazy_preprocess True \
     --report_to wandb \
-    --dataloader_drop_last True
+    --torch_compile True \
+    --torch_compile_backend "inductor" \
+    --dataloader_drop_last True \
+    --attn_implementation flash_attention_2 \
+    --image_split_resolution null \
+    --image_crop_resolution 384
