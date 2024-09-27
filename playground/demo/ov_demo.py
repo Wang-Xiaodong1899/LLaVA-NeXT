@@ -19,7 +19,7 @@ from decord import VideoReader, cpu
 
 warnings.filterwarnings("ignore")
 # Load the OneVision model
-pretrained = "/volsparse1/wxd/models/qwen/llava-onevision-qwen2-7b-ov"
+pretrained = "/workspace/wxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov"
 model_name = "llava_qwen"
 device = "cuda"
 device_map = "auto"
