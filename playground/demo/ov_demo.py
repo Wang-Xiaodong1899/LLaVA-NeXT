@@ -42,7 +42,7 @@ def load_video(video_path, max_frames_num):
 
 
 # Load and process video
-video_path = "xU25MMA2N4aVtYay.mp4"
+video_path = "/workspace/wxd/LLaVA-NeXT/playground/demo/xU25MMA2N4aVtYay.mp4"
 video_frames = load_video(video_path, 16)
 print(video_frames.shape) # (16, 1024, 576, 3)
 image_tensors = []
