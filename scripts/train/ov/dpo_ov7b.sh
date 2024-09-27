@@ -15,7 +15,7 @@ export WANDB_PROJECT=llava-ov-jf-4A100
 export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn
 
 # gpu_ids=0
-gpu_ids=3
+gpu_ids=0,1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
@@ -29,7 +29,7 @@ data_path=${ROOT}/data/shareVideoGPTV/sft_dpo_17k.jsonl
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
-port=19001
+port=19002
 
 VISION_MODEL_VERSION="google/siglip-so400m-patch14-384"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
@@ -66,7 +66,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 3 \
-    --per_device_train_batch_size 1 \
+    --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
