@@ -49,7 +49,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /volsparse1/wxd/data/llava_hound/QA \
+    --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
