@@ -57,7 +57,6 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --mm_spatial_pool_mode "bilinear" \
     --mm_newline_position "one_token" \
     --mm_resampler_type null \
-    
     --group_by_modality_length True \
     --image_aspect_ratio anyres_max_9 \
     --image_grid_pinpoints "(1x1),...,(6x6)" \
