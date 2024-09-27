@@ -27,6 +27,7 @@ matched_data_1 = sorted(matched_data_1, key=lambda x: x['id'])
 new_data = []
 for s1, s2 in zip(matched_data, matched_data_1):
     if s1["id"] == s2["id"]:
+        import pdb; pdb.set_trace()
         s2["chosen"] = s1["chosen"]
         new_data.append(s2)
 
