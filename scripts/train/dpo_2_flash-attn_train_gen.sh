@@ -24,7 +24,7 @@ output_dir=/volsparse1/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=${ROOT}/aug_f4_add_chosen_0_8000.jsonl
+data_path=${ROOT}/data/shareVideoGPTV/aug_f4_add_chosen_0_8000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
