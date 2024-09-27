@@ -43,7 +43,6 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --deepspeed scripts/zero2.json \
     --model_name_or_path ${ROOT}/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
-    --mm_tunable_parts="mm_mlp_adapter" \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
