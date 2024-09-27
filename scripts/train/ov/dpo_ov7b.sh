@@ -80,7 +80,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --tf32 True \
     --model_max_length 3584 \
     --gradient_checkpointing True \
-    --dataloader_num_workers 16 \
+    --dataloader_num_workers 4 \
     --lazy_preprocess True \
     --report_to wandb \
     --torch_compile True \
