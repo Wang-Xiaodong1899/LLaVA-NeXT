@@ -1101,13 +1101,13 @@ class DPODataset(Dataset):
 
         # try the current sample first
         for attempt_idx in range(num_base_retries):
-            if True:
+            try:
                 sample = self._get_item(i)
                 return sample
-            # except Exception as e:
-            #     # sleep 1s in case it is a cloud disk issue
-            #     print(f"[Try #{attempt_idx}] Failed to fetch sample {i}. Exception:", e)
-            #     time.sleep(1)
+            except Exception as e:
+                # sleep 1s in case it is a cloud disk issue
+                print(f"[Try #{attempt_idx}] Failed to fetch sample {i}. Exception:", e)
+                time.sleep(1)
 
         # try other samples, in case it is file corruption issue
         for attempt_idx in range(num_base_retries):
