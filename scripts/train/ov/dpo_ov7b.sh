@@ -87,5 +87,5 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --torch_compile_backend "inductor" \
     --dataloader_drop_last True \
     --attn_implementation flash_attention_2 \
-    --image_split_resolution None \
+    --image_split_resolution 384 \
     --image_crop_resolution 384
