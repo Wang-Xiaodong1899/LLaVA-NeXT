@@ -25,7 +25,7 @@ python playground/demo/eval_video_mme.py \
 # tip
 
 # vicuna: llava-next-video
-# export DECORD_EOF_RETRY_MAX=20480 && CUDA_VISIBLE_DEVICES=1 bash scripts/video/eval/eval_video_mme.sh ckpt_path name-medium 16 medium True vicuna_v1 2 average no_token
+# export DECORD_EOF_RETRY_MAX=20480 && CUDA_VISIBLE_DEVICES=1 bash scripts/video/eval/eval_video_mme.sh ckpt_path name-medium 16 medium True vicuna_v1 2 average no_token 336
 
 # qwen: onevision
-# export DECORD_EOF_RETRY_MAX=20480 && CUDA_VISIBLE_DEVICES=1 bash scripts/video/eval/eval_video_mme.sh /workspace/wxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov 7b-ov-short 16 short True qwen_1_5 1 bilinear one_token
+# export DECORD_EOF_RETRY_MAX=20480 && CUDA_VISIBLE_DEVICES=1 bash scripts/video/eval/eval_video_mme.sh /workspace/wxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov 7b-ov-short 16 short True qwen_1_5 1 bilinear one_token 384
