@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-jf-4A100
-export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn_beta_0.01
+export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -43,7 +43,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --deepspeed scripts/zero3.json \
     --model_name_or_path ${ROOT}/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
-    --dpo_alpha 1.0 --beta 0.01 --gamma 0 \
+    --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder ${ROOT}/data/shareVideoGPTV/dpo_train_data \
