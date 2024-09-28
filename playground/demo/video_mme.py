@@ -138,6 +138,9 @@ def parse_args():
     parser.add_argument("--enable_tube_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--enable_video_shuffle", type=lambda x: (str(x).lower() == 'true'), default=False)
     
+    # image_resolution
+    parser.add_argument("--image_resolution", type=int, default=336)
+    
     
     return parser.parse_args()
 
@@ -242,7 +245,7 @@ def run_inference(args):
         
         # Check if the video exists
         if video_path is not None:  # Modified this line
-            video_frames, slice_len = _get_rawvideo_dec(video_path, image_processor, max_frames=args.for_get_frames_num)
+            video_frames, slice_len = _get_rawvideo_dec(video_path, image_processor, max_frames=args.for_get_frames_num, image_resolution=args.image_resolution)
             video_frames = [video_frames.half().cuda()]
         
         if model.config.mm_use_im_start_end:

@@ -10,10 +10,11 @@ CONV_MODE=$6
 POOL_STRIDE=$7
 POOL_MODE=$8
 NEWLINE_POSITION=$9
+RESOLUTION=${10:336}
 
 #eval_frame: 16 (align with finetuning)
 if [ "$OVERWRITE" = True ]; then
-    bash scripts/video/eval/video_mme.sh $CKPT $CONV_MODE $FRAMES $POOL_STRIDE $POOL_MODE $NEWLINE_POSITION True $SAVE_NAME $DURATION
+    bash scripts/video/eval/video_mme.sh $CKPT $CONV_MODE $FRAMES $POOL_STRIDE $POOL_MODE $NEWLINE_POSITION True $SAVE_NAME $DURATION $RESOLUTION
 fi
 
 python playground/demo/eval_video_mme.py \

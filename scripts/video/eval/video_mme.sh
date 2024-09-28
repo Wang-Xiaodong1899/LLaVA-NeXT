@@ -20,6 +20,7 @@ NEWLINE_POSITION=$6
 OVERWRITE=$7
 SAVE_NAME=$8
 DURATION=$9
+RESOLUTION=${10}
 
 if [ "$OVERWRITE" = False ]; then
     SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}_overwrite_${OVERWRITE}
@@ -40,4 +41,5 @@ python3 playground/demo/video_mme.py \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
     --answers-file results/answer-video-mme-${SAVE_NAME}.json \
-    --duration $DURATION
+    --duration $DURATION \
+    --image_resolution $RESOLUTION
