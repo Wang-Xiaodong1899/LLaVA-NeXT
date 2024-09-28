@@ -150,6 +150,11 @@ def run_inference(args):
     """
     if "gpt4v" != args.model_path:
         model_name = get_model_name_from_path(args.model_path)
+        if "onevision" or "ov" in args.model_path:
+            model_name = "llava_qwen"
+            print(f'***********************************')
+            print(f'model_name: {model_name} !!!!!!!!!')
+            print(f'***********************************')
         # Set model configuration parameters if they exist
         if args.overwrite == True:
             overwrite_config = {}

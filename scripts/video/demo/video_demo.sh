@@ -59,3 +59,6 @@ python3 playground/demo/video_demo.py \
 
 # 34B
 # bash scripts/video/demo/video_demo.sh /volsparse1/wxd/models/LLaVA-NeXT-Video-34B-DPO/ mistral_direct 16 2 average no_token True playground/demo/v_oR8o_PuKS28.mp4
+
+# ov
+# bash scripts/video/demo/video_demo.sh /root/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 16 1 bilinear one_token True playground/demo/v_oR8o_PuKS28.mp4

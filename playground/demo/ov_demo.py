@@ -49,7 +49,7 @@ image_tensors = []
 frames = image_processor.preprocess(video_frames, return_tensors="pt")["pixel_values"].half().cuda()
 image_tensors.append(frames)
 
-import pdb; pdb.set_trace()
+# import pdb; pdb.set_trace()
 
 # Prepare conversation input
 conv_template = "qwen_1_5"
