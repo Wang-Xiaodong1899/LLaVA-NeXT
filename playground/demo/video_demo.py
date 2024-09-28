@@ -226,6 +226,7 @@ def run_inference(args):
         if os.path.exists(video_path):
             if "gpt4v" != args.model_path:
                 video = load_video(video_path, args)
+                print(video.shape)
                 video = image_processor.preprocess(video, return_tensors="pt")["pixel_values"].half().cuda()
                 video = [video]
             else:
