@@ -30,13 +30,16 @@ unzip dpo_train_data.zip
 
 ### Pretrained model prepare
 ```
-mkdir -p vicuna && cd vicuna
+# mkdir -p vicuna && cd vicuna
+
+mkdir -p qwen && cd qwen
 
 # if no git-lfs, install it by
 # apt-get install git-lfs
 
 git lfs install
-git clone https://hf-mirror.com/lmms-lab/LLaVA-NeXT-Video-7B
+# git clone https://hf-mirror.com/lmms-lab/LLaVA-NeXT-Video-7B
+git clone https://huggingface.co/lmms-lab/llava-onevision-qwen2-7b-ov
 ```
 
 ### Start train
@@ -55,12 +58,19 @@ wandb login
 
 # (9.10 training)
 # sync code
-git reset --hard origin/ding
+# git reset --hard origin/ding
 # bash scripts/train/dpo_2_cf_flash-attn-fast-reg-no-rej.sh 5e-7 ./
-bash scripts/train/dpo_2_cs_flash-attn-slow-reg-no-rej.sh 5e-7 ./
+# bash scripts/train/dpo_2_cs_flash-attn-slow-reg-no-rej.sh 5e-7 ./
+
+# (9.29 training)
+# sync code
+git reset --hard origin/ding
+
+bash scripts/train/ov/dpo_ov7b.sh 5e-7 ./
+
 ```
 
-### **Evaluation (only need 1 GPU)**
+### **~~Evaluation (only need 1 GPU)~~**
 ```
 conda activate llava
 pip install jsonlines
