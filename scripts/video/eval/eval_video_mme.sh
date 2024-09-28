@@ -4,7 +4,7 @@ CKPT=$1
 SAVE_NAME=$2
 FRAMES=$3
 DURATION=$4 # short
-OVERWRITE=${5:False} # overwrite previous eval result
+OVERWRITE=$5 # overwrite previous eval result
 
 CONV_MODE=$6
 POOL_STRIDE=$7
