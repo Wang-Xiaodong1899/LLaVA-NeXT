@@ -10,7 +10,7 @@ CONV_MODE=$6
 POOL_STRIDE=$7
 POOL_MODE=$8
 NEWLINE_POSITION=$9
-RESOLUTION=${10:336}
+RESOLUTION=${10}
 
 #eval_frame: 16 (align with finetuning)
 if [ "$OVERWRITE" = True ]; then
