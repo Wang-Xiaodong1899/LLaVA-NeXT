@@ -28,6 +28,8 @@ if [ "$OVERWRITE" = False ]; then
 else
     SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}
 fi
+
+echo $RESOLUTION
     
 python3 playground/demo/video_mme.py \
     --model-path $CKPT \
