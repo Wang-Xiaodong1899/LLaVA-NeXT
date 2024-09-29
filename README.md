@@ -70,6 +70,32 @@ bash scripts/train/ov/dpo_ov7b.sh 5e-7 ./
 
 ```
 
+### Evaluation on Video-MME
+```
+cd LLaVA-NeXT
+mkdir -p data && cd data
+mkdir -p Video-MME && cd Video-MME
+# metadata
+wget https://huggingface.co/datasets/lmms-lab/Video-MME/resolve/main/videomme/test-00000-of-00001.parquet
+
+# video data
+# download zip
+bash scripts/process/video_mme/video_mme.sh
+
+# unzip
+bash scripts/process/video_mme/unzip.sh
+
+
+# start eval on 1 GPU
+# short
+export DECORD_EOF_RETRY_MAX=20480 && CUDA_VISIBLE_DEVICES=0 bash scripts/video/eval/eval_video_mme.sh ckpt_path 7b-ov-DPO-short 32 short True qwen_1_5 1 bilinear one_token 384
+# medium
+export DECORD_EOF_RETRY_MAX=20480 && CUDA_VISIBLE_DEVICES=1 bash scripts/video/eval/eval_video_mme.sh ckpt_path 7b-ov-DPO-medium 32 medium True qwen_1_5 1 bilinear one_token 384
+# long
+export DECORD_EOF_RETRY_MAX=20480 && CUDA_VISIBLE_DEVICES=2 bash scripts/video/eval/eval_video_mme.sh ckpt_path 7b-ov-DPO-long 32 long True qwen_1_5 1 bilinear one_token 384
+
+```
+
 ### **~~Evaluation (only need 1 GPU)~~**
 ```
 conda activate llava
