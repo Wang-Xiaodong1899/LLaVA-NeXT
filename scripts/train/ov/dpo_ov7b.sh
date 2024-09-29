@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-jf-4A100
-export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn_f32_blinear2
+export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn_f16_blinear2
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -48,7 +48,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_folder xxx \
     --video_folder ${ROOT}/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
-    --frames_upbound 32 \
+    --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
