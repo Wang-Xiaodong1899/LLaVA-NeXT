@@ -11,8 +11,8 @@ context = f"""
 Given an image, there are instances and some relations.
 Instances: {instances}
 relations: {relations}
-Please use this information to compose a description of the image, including the main instances and the main relations. 
-Please describe it in natural language. Do not use the names of the instances.
+Summarize the main instances and main relationships given. Do not use the names of the instances. 
+Describe the image in a very natural sentence.
 """
 
 client = OpenAI(
