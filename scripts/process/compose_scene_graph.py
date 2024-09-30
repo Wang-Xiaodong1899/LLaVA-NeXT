@@ -2,9 +2,9 @@ from openai import OpenAI
 
 instances = ['neck0', 'hair0', 'hair1', 'shirt0', 'hand0', 'nose0', 'ear0', 'mouth0', 'hand1', 'arm0'] 
 relations = [
-    ['neck0', 'on', 'hair1'],
-    ['shirt0', 'on', 'hand1'],
-    ['hand0', 'holding', 'hand1']
+    ['hair1', 'on', 'neck0'],
+    ['hand1', 'on', 'shirt0'],
+    ['hand1', 'holding', 'hand0']
 ]
 
 context = f"""
