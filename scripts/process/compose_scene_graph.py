@@ -1,0 +1,40 @@
+from openai import OpenAI
+
+instances = ['neck0', 'hair0', 'hair1', 'shirt0', 'hand0', 'nose0', 'ear0', 'mouth0', 'hand1', 'arm0'] 
+relations = [
+    ['neck0', 'on', 'hair1']
+    ['shirt0', 'on', 'hand1']
+    ['hand0', 'holding', 'hand1']
+]
+
+context = f"""
+Given an image, there are instances and some relations.
+Instances: {instances}
+relations: {relations}
+Please use this information to compose a description of the image, including the main instances and the main relations. 
+Please describe it in natural language. Do not use the names of the instances.
+"""
+
+client = OpenAI(
+    base_url="https://api.ai-gaochao.cn/v1/",
+    api_key='sk-UYqwq36Z0hmfyaWJ69F675A344D645D79c9dB863Ae870eAd'
+)
+
+completion = client.chat.completions.create(
+                model="gpt-3.5-turbo-1106",
+                messages=[
+                    {
+                        "role": "system",
+                        "content":
+                            "You are an intelligent chatbot. "
+                    },
+                    {
+                        "role": "user",
+                        "content": context
+                    }
+                ]
+            )
+            # Convert response to a Python dictionary.
+response_message = completion.choices[0].message.content
+print(response_message)
+print(completion.model)
