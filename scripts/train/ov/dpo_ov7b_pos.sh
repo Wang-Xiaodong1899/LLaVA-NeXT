@@ -75,7 +75,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --learning_rate $lr \
     --weight_decay 0. \
     --warmup_ratio 0.1 \
-    --lr_scheduler_type "cosine" \
+    --lr_scheduler_type "linear" \
     --logging_steps 1 \
     --tf32 True \
     --model_max_length 3584 \
