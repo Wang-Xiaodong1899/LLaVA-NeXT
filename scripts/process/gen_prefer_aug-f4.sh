@@ -53,7 +53,7 @@ python scripts/process/self_generate_preference.py \
     
 
 # example
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_aug.sh /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava_dpo_17k_flash-attn/checkpoint-3000/ vicuna_v1 4 2 average no_token True /volsparse1/wxd/data/llava_hound/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_aug.sh /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava_dpo_17k_flash-attn/checkpoint-3000/ vicuna_v1 4 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000
 
 # one-vision
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_aug.sh /workspace/wxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 4 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 384
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_aug.sh /workspace/wxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 4 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 384
