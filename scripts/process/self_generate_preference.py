@@ -152,7 +152,6 @@ def load_video(video_path, args):
         total_frame_num = len(ori_video)
         sample_frame = args.for_get_frames_num
         uniform_sampled_frames = np.linspace(0, total_frame_num - 1, sample_frame, dtype=int)
-        ori_video = [ori_video[idx] for idx in uniform_sampled_frames]
         aug_video = [aug_video[idx] for idx in uniform_sampled_frames]
         
         return ori_video, aug_video
