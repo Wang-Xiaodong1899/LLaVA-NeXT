@@ -80,7 +80,8 @@ def parse_args():
     parser.add_argument("--jsonl-file", type=str, default="/volsparse1/wxd/data/llava_hound/chatgpt_qa_900k.jsonl")
     parser.add_argument("--start", type=int, default=0)
     parser.add_argument("--end", type=int, default=2000)
-    parser.add_argument("--skip-chosen", type=bool, default=False) 
+    parser.add_argument("--skip-chosen", type=bool, default=False)
+    parser.add_argument("--image_resolution", type=int, default=224) 
     
     return parser.parse_args()
 
@@ -123,8 +124,9 @@ def load_video(video_path, args):
                 print(f"Failed to read frame at path: {frame_path}")
         
         # add augmentation
+        # NOTE fix image_resolution 224
         aug_tranform = transforms.Compose([
-            transforms.RandomResizedCrop(224, scale=(0.08, 0.3)),
+            transforms.RandomResizedCrop(args.image_resolution, scale=(0.08, 0.3)),
             transforms.RandomApply([
                 transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
             ], p=0.8),
@@ -144,6 +146,14 @@ def load_video(video_path, args):
         # save aug video frame
         # for (idx, v) in enumerate(video):
         #     v.save(f'{os.path.basename(video_path)}_00{idx}_aug.jpg')
+        
+        # NOTE fix bug
+        # for_get_frames_num not work for frames dir
+        total_frame_num = len(ori_video)
+        sample_frame = args.for_get_frames_num
+        uniform_sampled_frames = np.linspace(0, total_frame_num - 1, sample_frame, dtype=int)
+        ori_video = [ori_video[idx] for idx in uniform_sampled_frames]
+        aug_video = [aug_video[idx] for idx in uniform_sampled_frames]
         
         return ori_video, aug_video
     else:
@@ -190,6 +200,11 @@ def run_inference(args):
     # Initialize the model
     if "gpt4v" != args.model_path:
         model_name = get_model_name_from_path(args.model_path)
+        if "onevision" in args.model_path or "ov" in args.model_path:
+            model_name = "llava_qwen"
+            print(f'***********************************')
+            print(f'model_name: {model_name} !!!!!!!!!')
+            print(f'***********************************')
         # Set model configuration parameters if they exist
         if args.overwrite == True:
             overwrite_config = {}
