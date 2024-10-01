@@ -46,6 +46,7 @@ python scripts/process/self_generate_preference.py \
     --overwrite ${OVERWRITE} \
     --mm_spatial_pool_stride ${POOL_STRIDE:-4} \
     --for_get_frames_num $FRAMES \
+    --normal_frames 32 \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \

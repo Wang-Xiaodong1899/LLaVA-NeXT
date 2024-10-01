@@ -70,6 +70,7 @@ def parse_args():
     parser.add_argument("--mm_patch_merge_type", type=str, default="spatial_unpad")
     parser.add_argument("--overwrite", type=lambda x: (str(x).lower() == 'true'), default=True)
     parser.add_argument("--for_get_frames_num", type=int, default=4)
+    parser.add_argument("--normal_frames", type=int, default=32)
     parser.add_argument("--load_8bit",  type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--prompt", type=str, default=None) 
     parser.add_argument("--api_key", type=str, help="OpenAI API key")
@@ -106,7 +107,7 @@ def load_video(video_path, args):
     if os.path.isdir(video_path):
         frame_files = [os.path.join(video_path, f) for f in os.listdir(video_path) if os.path.isfile(os.path.join(video_path, f))]
         frame_files.sort()  # Ensure the frames are sorted if they are named sequentially
-        num_frames_to_sample = args.for_get_frames_num # previous author hard code sampling 10 frames
+        num_frames_to_sample = args.normal_frames # previous author hard code sampling 10 frames
 
         total_frames = len(frame_files)
 
