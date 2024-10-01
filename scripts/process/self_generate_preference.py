@@ -318,7 +318,7 @@ def run_inference(args):
             system_error = ""
 
             if "gpt4v" != args.model_path:
-                print(f'video length: {len(video)}')
+                # print(f'video length: {len(video)}')
                 with torch.inference_mode():
                     # model.update_prompt([[cur_prompt]])
                     # import pdb;pdb.set_trace()
@@ -395,7 +395,7 @@ def run_inference(args):
         system_error = ""
 
         if "gpt4v" != args.model_path:
-            print(f'video length: {len(video)}')
+            # print(f'video length: {len(video)}')
             with torch.inference_mode():
                 # model.update_prompt([[cur_prompt]])
                 # import pdb;pdb.set_trace()
