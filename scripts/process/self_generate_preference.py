@@ -153,7 +153,7 @@ def load_video(video_path, args):
         sample_frame = args.for_get_frames_num
         uniform_sampled_frames = np.linspace(0, total_frame_num - 1, sample_frame, dtype=int)
         aug_video = [aug_video[idx] for idx in uniform_sampled_frames]
-        
+        import pdb; pdb.set_trace()
         return ori_video, aug_video
     else:
         vr = VideoReader(video_path, ctx=cpu(0))
