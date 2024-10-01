@@ -36,7 +36,6 @@ python scripts/process/self_generate_preference.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
     --add-aug true \
-    --skip-chosen false \
     --output_dir /volsparse1/wxd/data/self-gen/video_aug/$SAVE_DIR \
     --output_name ov-7b-aug_f4_${START}_${END} \
     --jsonl-file $JSONLFILE \
