@@ -269,6 +269,8 @@ def run_inference(args):
         
         
         video_path = os.path.join(video_root, video_)
+        
+        video = None
 
         # Check if the video exists
         if os.path.exists(video_path):
@@ -316,7 +318,7 @@ def run_inference(args):
             system_error = ""
 
             if "gpt4v" != args.model_path:
-
+                print(f'video length: {len(video)}')
                 with torch.inference_mode():
                     # model.update_prompt([[cur_prompt]])
                     # import pdb;pdb.set_trace()
@@ -393,7 +395,7 @@ def run_inference(args):
         system_error = ""
 
         if "gpt4v" != args.model_path:
-
+            print(f'video length: {len(video)}')
             with torch.inference_mode():
                 # model.update_prompt([[cur_prompt]])
                 # import pdb;pdb.set_trace()
