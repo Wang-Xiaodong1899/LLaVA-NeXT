@@ -284,7 +284,7 @@ def run_inference(args):
             else:
                 video = load_video_base64(video_path)
                 interval = int(len(video) / args.for_get_frames_num)
-
+        import pdb; pdb.set_trace()
         if not args.skip_chosen:
             # chosen answer
             if "gpt4v" != args.model_path:
