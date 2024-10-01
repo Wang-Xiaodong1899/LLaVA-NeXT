@@ -270,6 +270,8 @@ def run_inference(args):
         
         video_path = os.path.join(video_root, video_)
         
+        import pdb; pdb.set_trace()
+        
         video = None
 
         # Check if the video exists
