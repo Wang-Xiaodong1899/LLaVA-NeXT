@@ -197,6 +197,11 @@ def run_inference(args):
     Args:
         args: Command-line arguments.
     """
+    print(f"********************************")
+    print(f"add-aug: {args.add_aug}")
+    print(f"skip-chosen: {args.skip_chosen}")
+    print(f"********************************")
+
     # Initialize the model
     if "gpt4v" != args.model_path:
         model_name = get_model_name_from_path(args.model_path)
@@ -245,11 +250,6 @@ def run_inference(args):
     ans_file = open(answers_file, "w")
 
     video_root = args.video_root
-
-    print(f"********************************")
-    print(f"add-aug: {args.add_aug}")
-    print(f"skip-chosen: {args.skip_chosen}")
-    print(f"********************************")
 
     with open(args.jsonl_file, 'r', encoding='utf-8') as file:
         jsonl_data = [json.loads(line) for line in file]
