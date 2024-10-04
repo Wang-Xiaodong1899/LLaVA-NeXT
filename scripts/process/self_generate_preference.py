@@ -143,6 +143,8 @@ def load_video(video_path, args):
         if args.add_aug:
             state = torch.get_rng_state()
             aug_video = [augmentation(v, aug_tranform, state) for v in video]
+        else:
+            aug_video = video
         
         # save aug video frame
         # for (idx, v) in enumerate(video):
