@@ -246,6 +246,11 @@ def run_inference(args):
 
     video_root = args.video_root
 
+    print(f"********************************")
+    print(f"add-aug: {args.add_aug}")
+    print(f"skip-chosen: {args.skip_chosen}")
+    print(f"********************************")
+
     with open(args.jsonl_file, 'r', encoding='utf-8') as file:
         jsonl_data = [json.loads(line) for line in file]
 
