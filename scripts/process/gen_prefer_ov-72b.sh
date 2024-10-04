@@ -35,7 +35,6 @@ fi
 python scripts/process/self_generate_preference.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --add-aug false \
     --skip-chosen true \
     --output_dir /volsparse1/wxd/data/self-gen/video_ov-72b/$SAVE_DIR \
     --output_name ov-72b_f32_${START}_${END} \
