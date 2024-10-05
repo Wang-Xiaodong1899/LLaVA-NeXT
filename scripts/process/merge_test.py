@@ -23,9 +23,9 @@ for idx, line in enumerate(chosen):
     # match data
     for line2 in back:
         if line2["id"] == line["id"]:
-            chosen[idx]["rejected"] = line2["rejected"]
+            chosen[idx]["rejected"] = line2["chosen"]
 
-output_file = "ov-72b-f32_add_7b_aug_reject_0_8000.jsonl"
+output_file = "ov-72b-f32_add_7b_chosen_0_8000.jsonl"
 
 with open(output_file, 'w', encoding='utf-8') as outfile:
     for line in chosen:
