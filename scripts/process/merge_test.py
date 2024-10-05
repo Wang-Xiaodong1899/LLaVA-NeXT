@@ -30,5 +30,5 @@ output_file = "ov-72b-f32_add_7b_aug_reject_0_8000.jsonl"
 with open(output_file, 'w', encoding='utf-8') as outfile:
     for line in chosen:
         json.dump(line, output_file)  # Write the JSON entry to the file
-        output_file.write('\n')  # Add a newline after each entry
+        outfile.write('\n')  # Add a newline after each entry
 print("completed!")
