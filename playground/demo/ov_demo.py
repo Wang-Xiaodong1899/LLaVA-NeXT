@@ -78,7 +78,7 @@ conv_template = "qwen_1_5"
 
 question = f"""
 {DEFAULT_IMAGE_TOKEN}
-This is a video of a car driving from a front-view camera. Please answer the following questions based on the video content.
+This is a video of a car driving from a front-view camera. Please answer the following questions based on the video content. Follow the output format below.
 Weather:
 Time:
 Road environment:
@@ -86,7 +86,7 @@ Driving action:
 Scene summary:
 """
 # question = f"{DEFAULT_IMAGE_TOKEN}\nDescribe what's happening in this video."
-
+print(question)
 conv = copy.deepcopy(conv_templates[conv_template])
 conv.append_message(conv.roles[0], question)
 conv.append_message(conv.roles[1], None)
