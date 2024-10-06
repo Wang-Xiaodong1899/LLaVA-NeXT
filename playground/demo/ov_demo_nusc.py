@@ -82,7 +82,7 @@ Weather: (e.g., sunny, cloudy, rainy, etc.)
 Time: (e.g., daytime, nighttime, etc.)
 Road environment:
 Driving action: Select one of [Speed up, Slow down, Speed up rapidly, Slow down rapidly, Go straight slowly, Go straight at a constant speed, Turn left, Turn right, Change lane to the left, Change lane to the right, Shift slightly to the left, Shift slightly to the right, Stop, Wait], or select multiple action sequences, up to a maximum of 4 action sequences.
-Concise scenario summary:
+Concise scene summary:
 """
 # question = f"{DEFAULT_IMAGE_TOKEN}\nDescribe what's happening in this video."
 print(question)
