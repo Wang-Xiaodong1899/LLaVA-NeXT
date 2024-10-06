@@ -26,7 +26,6 @@ device_map = "auto"
 tokenizer, model, image_processor, max_length = load_pretrained_model(pretrained, None, model_name, device_map=device_map, attn_implementation="sdpa")
 
 model.eval()
-for_get_frames_num = 16
 
 # Function to extract frames from video
 def load_video(video_path, max_frames_num, start=0, end=None):
@@ -35,7 +34,7 @@ def load_video(video_path, max_frames_num, start=0, end=None):
         frame_files.sort()  # Ensure the frames are sorted if they are named sequentially
         
         frame_files = frame_files[start: end]
-        num_frames_to_sample = for_get_frames_num # previous author hard code sampling 10 frames
+        num_frames_to_sample = max_frames_num # previous author hard code sampling 10 frames
 
         total_frames = len(frame_files)
 
@@ -65,7 +64,7 @@ def load_video(video_path, max_frames_num, start=0, end=None):
 
 # Load and process video
 video_path = "/workspace/wxd/SVD/scene-0061"
-video_frames = load_video(video_path, 16, 0, 16)
+video_frames = load_video(video_path, 8, 0, 8)
 # print(video_frames.shape) # (16, 1024, 576, 3)
 image_tensors = []
 frames = image_processor.preprocess(video_frames, return_tensors="pt")["pixel_values"].half().cuda()
