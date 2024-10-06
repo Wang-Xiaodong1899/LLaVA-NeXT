@@ -79,7 +79,7 @@ conv_template = "qwen_1_5"
 question = f"""
 {DEFAULT_IMAGE_TOKEN}
 This is a video of a car driving from a front-view camera. Please answer the following questions based on the video content. Follow the output format below. Answers should be clear, not vague.
-Weather: (e.g., clear, cloudy, etc.)
+Weather: (e.g., sunny, cloudy, rainy, etc.)
 Time: (e.g., daytime, nighttime, etc.)
 Road environment:
 Driving action: Select one of [Speed up, Slow down, Speed up rapidly, Slow down rapidly, Go straight slowly, Go straight at a constant speed, Turn left, Turn right, Change lane to the left, Change lane to the right, Shift slightly to the left, Shift slightly to the right, Stop, Wait], or select multiple action sequences, up to a maximum of 4 action sequences.
