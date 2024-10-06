@@ -26,10 +26,32 @@ device_map = "auto"
 tokenizer, model, image_processor, max_length = load_pretrained_model(pretrained, None, model_name, device_map=device_map, attn_implementation="sdpa")
 
 model.eval()
-
+for_get_frames_num = 16
 
 # Function to extract frames from video
-def load_video(video_path, max_frames_num):
+def load_video(video_path, max_frames_num, start=0, end=None):
+    if os.path.isdir(video_path):
+        frame_files = [os.path.join(video_path, f) for f in os.listdir(video_path) if os.path.isfile(os.path.join(video_path, f))]
+        frame_files.sort()  # Ensure the frames are sorted if they are named sequentially
+        
+        frame_files = frame_files[start: end]
+        num_frames_to_sample = for_get_frames_num # previous author hard code sampling 10 frames
+
+        total_frames = len(frame_files)
+
+        sampled_indices = np.linspace(0, total_frames - 1, num_frames_to_sample, dtype=int)
+
+        # Read and store the sampled frames
+        video = []
+        for idx in sampled_indices:
+            frame_path = frame_files[idx]
+            try:
+                with Image.open(frame_path) as img:
+                    frame = img.convert("RGB")
+                    video.append(frame)
+            except IOError:
+                print(f"Failed to read frame at path: {frame_path}")
+        return video
     if type(video_path) == str:
         vr = VideoReader(video_path, ctx=cpu(0))
     else:
@@ -42,9 +64,9 @@ def load_video(video_path, max_frames_num):
 
 
 # Load and process video
-video_path = "/workspace/wxd/LLaVA-NeXT/playground/demo/jobs.mp4"
-video_frames = load_video(video_path, 16)
-print(video_frames.shape) # (16, 1024, 576, 3)
+video_path = "/workspace/wxd/SVD/scene-0061"
+video_frames = load_video(video_path, 16, 0, 16)
+# print(video_frames.shape) # (16, 1024, 576, 3)
 image_tensors = []
 frames = image_processor.preprocess(video_frames, return_tensors="pt")["pixel_values"].half().cuda()
 image_tensors.append(frames)
@@ -53,8 +75,18 @@ image_tensors.append(frames)
 
 # Prepare conversation input
 conv_template = "qwen_1_5"
-question = f"{DEFAULT_IMAGE_TOKEN}\nDescribe what's happening in this video."
 
+question = f"""
+{DEFAULT_IMAGE_TOKEN}
+This is a video of a car driving from a front-view camera. Please answer the following questions based on the video content. Follow the output format below. Answers should be clear, not vague.
+Weather: (e.g., sunny, cloudy, rainy, etc.)
+Time: (e.g., daytime, nighttime, etc.)
+Road environment:
+Driving action: Select one of [Speed up, Slow down, Speed up rapidly, Slow down rapidly, Go straight slowly, Go straight at a constant speed, Turn left, Turn right, Change lane to the left, Change lane to the right, Shift slightly to the left, Shift slightly to the right, Stop, Wait], or select multiple action sequences, up to a maximum of 4 action sequences.
+Concise scenario summary:
+"""
+# question = f"{DEFAULT_IMAGE_TOKEN}\nDescribe what's happening in this video."
+print(question)
 conv = copy.deepcopy(conv_templates[conv_template])
 conv.append_message(conv.roles[0], question)
 conv.append_message(conv.roles[1], None)
