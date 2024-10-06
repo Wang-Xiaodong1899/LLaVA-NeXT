@@ -66,7 +66,7 @@ def load_video(video_path, max_frames_num, start=0, end=None):
 # Load and process video
 video_path = "/workspace/wxd/SVD/scene-0061"
 video_frames = load_video(video_path, 16, 0, 16)
-print(video_frames.shape) # (16, 1024, 576, 3)
+# print(video_frames.shape) # (16, 1024, 576, 3)
 image_tensors = []
 frames = image_processor.preprocess(video_frames, return_tensors="pt")["pixel_values"].half().cuda()
 image_tensors.append(frames)
