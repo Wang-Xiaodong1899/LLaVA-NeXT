@@ -78,7 +78,7 @@ conv_template = "qwen_1_5"
 
 question = f"""
 {DEFAULT_IMAGE_TOKEN}
-This is a video of a car driving from a front-view camera. Please answer the following questions based on the video content. Follow the output format below.
+This is a video of a car driving from a front-view camera. Please answer the following questions based on the video content. Follow the output format below. Answers need to be definite, not probable.
 Weather:
 Time:
 Road environment:
