@@ -26,7 +26,7 @@ mkdir -p $output_dir
 # DATA
 # diy: change other diy model output
 # data_path=${ROOT}/data/shareVideoGPTV/sft_dpo_17k.jsonl
-data_path=/workspace/wxd/LLaVA-NeXT/work_dirs/dpo_17k_data/LLaVA-NeXT-Video-7B_vicuna_v1_frames_16_stride_2/answer-17k-Video-7B-logp.jsonl
+data_path=/root/LLaVA-NeXT/work_dirs/dpo_17k_data/LLaVA-NeXT-Video-7B_vicuna_v1_frames_16_stride_2/answer-17k-Video-7B-logp.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.

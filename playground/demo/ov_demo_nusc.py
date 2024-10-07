@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.path.append("/workspace/wxd/LLaVA-NeXT/")
+sys.path.append("/root/LLaVA-NeXT/")
 
 from llava.model.builder import load_pretrained_model
 from llava.mm_utils import get_model_name_from_path, process_images, tokenizer_image_token
@@ -19,7 +19,7 @@ from decord import VideoReader, cpu
 
 warnings.filterwarnings("ignore")
 # Load the OneVision model
-pretrained = "/workspace/wxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov"
+pretrained = "/qwen/llava-onevision-qwen2-7b-ov"
 model_name = "llava_qwen"
 device = "cuda"
 device_map = "auto"

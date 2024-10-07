@@ -127,7 +127,7 @@ def parse_args():
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--video-folder", type=str, default="/volsparse1/wxd/data/Video-MME/data")
-    parser.add_argument("--question-file", type=str, default="/workspace/wxd/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
+    parser.add_argument("--question-file", type=str, default="/root/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
     parser.add_argument("--answers-file", type=str, default="results/answer-video-mme.json")
     parser.add_argument("--duration", type=str, default="short")
     parser.add_argument("--subtitle", action="store_true") # TODO

@@ -133,7 +133,7 @@ def parse_args():
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--video-folder", type=str, default="/volsparse1/wxd/data/Video-MME/data")
-    parser.add_argument("--question-file", type=str, default="/workspace/wxd/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
+    parser.add_argument("--question-file", type=str, default="/root/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
     parser.add_argument("--answers-file", type=str, default="answer-17k-reproduce-DPO-logp.jsonl")
 
     parser.add_argument("--enable_video_slow", type=lambda x: (str(x).lower() == 'true'), default=False)
@@ -234,11 +234,11 @@ def run_inference(args):
     
     video_formats = ['.mp4', '.avi', '.mov', '.mkv']
     
-    data = load_jsonl("/workspace/wxd/LLaVA-NeXT/data/shareVideoGPTV/sft_dpo_17k.jsonl")
+    data = load_jsonl("/root/LLaVA-NeXT/data/shareVideoGPTV/sft_dpo_17k.jsonl")
     
     for item in tqdm(data):
         video_id = item['video']
-        video_dir = os.path.join("/workspace/wxd/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data", video_id)
+        video_dir = os.path.join("/root/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data", video_id)
         video = load_video(video_dir, args)
         video = image_processor.preprocess(video, return_tensors="pt")["pixel_values"].half().cuda()
         video = [video]
