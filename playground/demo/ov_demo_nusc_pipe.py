@@ -210,8 +210,8 @@ if __name__ == "__main__":
     
     infer_frame = 8
     
-    scene_start = 0
-    scene_end = 80
+    scene_start = 80
+    scene_end = 150
     
     answers_file = os.path.join(f"nusc_video_{split}_{infer_frame}_ov-7b_{scene_start}_{scene_end}.jsonl")
     ans_file = open(answers_file, "w")
