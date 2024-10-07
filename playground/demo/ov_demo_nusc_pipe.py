@@ -209,10 +209,13 @@ if __name__ == "__main__":
     
     infer_frame = 8
     
-    answers_file = os.path.join(f"nusc_video_train_{infer_frame}_ov-7b.jsonl")
+    scene_start = 300
+    scene_end = 500
+    
+    answers_file = os.path.join(f"nusc_video_train_{infer_frame}_ov-7b_{scene_start}_{scene_end}.jsonl")
     ans_file = open(answers_file, "w")
     
-    for my_scene in tqdm(scenes):
+    for my_scene in tqdm(scenes[scene_start: scene_end]):
         paths = dataset.get_paths_from_scene(my_scene) # real video paths for captioning
         indices = [list(range(i, i+8)) for i in range(0, len(paths)-8+1, 4)]
         for items in indices:
