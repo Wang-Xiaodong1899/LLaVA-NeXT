@@ -204,15 +204,16 @@ def parse_paragraph(paragraph):
 
 if __name__ == "__main__":
     
-    dataset = frameDataset()
+    split = "val"
+    dataset = frameDataset(split=split)
     scenes = list(dataset.samples_groups.keys())
     
     infer_frame = 8
     
-    scene_start = 500
-    scene_end = 700
+    scene_start = 0
+    scene_end = 80
     
-    answers_file = os.path.join(f"nusc_video_train_{infer_frame}_ov-7b_{scene_start}_{scene_end}.jsonl")
+    answers_file = os.path.join(f"nusc_video_{split}_{infer_frame}_ov-7b_{scene_start}_{scene_end}.jsonl")
     ans_file = open(answers_file, "w")
     
     for my_scene in tqdm(scenes[scene_start: scene_end]):
