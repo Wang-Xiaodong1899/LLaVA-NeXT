@@ -3,21 +3,21 @@ import os
 
 matched_data = []
 
-jsonl_file_path = "ov-72b-f32_0_16000.jsonl"
+jsonl_file_path = r"C://Users//wangxiaodong//Downloads//ov-72b-f32_0_16000.jsonl"
 
 # Read the JSONL file
-with open(jsonl_file_path, 'r') as jsonl_file:
+with open(jsonl_file_path, 'r', encoding='utf-8') as jsonl_file:
     for line in jsonl_file:
         entry = json.loads(line)  # Parse the JSON line into a dictionary
         matched_data.append(entry)  # Add matching entry to the list
 
 matched_data = sorted(matched_data, key=lambda x: x['id'])
 
-jsonl_file_path = "ov-7b-f32_0_16000.jsonl"
+jsonl_file_path = r"C://Users//wangxiaodong//Downloads//ov-7b-f32_0_16000.jsonl"
 
 matched_data_1 = []
 # Read the JSONL file
-with open(jsonl_file_path, 'r') as jsonl_file:
+with open(jsonl_file_path, 'r', encoding='utf-8') as jsonl_file:
     for line in jsonl_file:
         entry = json.loads(line)  # Parse the JSON line into a dictionary
         matched_data_1.append(entry)  # Add matching entry to the list
@@ -32,7 +32,7 @@ for s1, s2 in zip(matched_data, matched_data_1):
         new_data.append(s2)
 
 print(len(new_data))
-with open('ov-72b-7b_chosen_rejected_0_16000.jsonl', 'w') as output_file:
+with open(r"C://Users//wangxiaodong//Downloads//ov-72b-7b_chosen_rejected_0_16000.jsonl", 'w', encoding='utf-8') as output_file:
     for item in new_data:
         json.dump(item, output_file)  # Write the JSON entry to the file
         output_file.write('\n')  # Add a newline after each entry

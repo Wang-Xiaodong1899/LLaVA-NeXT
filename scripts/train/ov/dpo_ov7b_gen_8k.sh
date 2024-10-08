@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-jf-4A100
-export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn_f16_blinear2_gen-8k_72b_7b_chosen
+export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn_f16_blinear2_gen-16k_72b_chosen_7b_reject
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -24,7 +24,7 @@ output_dir=/volsparse1/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=${ROOT}/ov-72b-f32_add_7b_chosen_0_8000.jsonl
+data_path=${ROOT}/ov-72b-7b_chosen_rejected_0_16000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
