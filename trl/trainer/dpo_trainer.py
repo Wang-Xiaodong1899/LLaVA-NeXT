@@ -1334,7 +1334,8 @@ class DPOTrainer(Trainer):
             unscaled_dpo_losses = unscaled_dpo_losses.mean()
             dpo_losses = unscaled_dpo_losses * self.dpo_alpha
         else:
-            dpo_losses = 0
+            dpo_losses = torch.tensor(0.)
+            unscaled_dpo_losses = torch.tensor(0.)
             reward_accuracies = torch.tensor(0.)
             chosen_rewards, rejected_rewards = torch.tensor(0.), torch.tensor(0.)
         # consider sft loss
