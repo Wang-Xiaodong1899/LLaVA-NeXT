@@ -1321,17 +1321,20 @@ class DPOTrainer(Trainer):
                     ) = self.concatenated_forward(
                         self.ref_model, batch
                     )[:2]
-        reference_chosen_logps = reference_chosen_logps.to(policy_chosen_logps.dtype)
-        reference_rejected_logps = reference_rejected_logps.to(policy_chosen_logps.dtype)
-        # import pdb; pdb.set_trace()
-        unscaled_dpo_losses, chosen_rewards, rejected_rewards = self.dpo_loss(
-            policy_chosen_logps,
-            policy_rejected_logps,
-            reference_chosen_logps,
-            reference_rejected_logps,
-        )
-        unscaled_dpo_losses = unscaled_dpo_losses.mean()
-        dpo_losses = unscaled_dpo_losses * self.dpo_alpha
+        if self.dpo_alpha > 0:
+            reference_chosen_logps = reference_chosen_logps.to(policy_chosen_logps.dtype)
+            reference_rejected_logps = reference_rejected_logps.to(policy_chosen_logps.dtype)
+            # import pdb; pdb.set_trace()
+            unscaled_dpo_losses, chosen_rewards, rejected_rewards = self.dpo_loss(
+                policy_chosen_logps,
+                policy_rejected_logps,
+                reference_chosen_logps,
+                reference_rejected_logps,
+            )
+            unscaled_dpo_losses = unscaled_dpo_losses.mean()
+            dpo_losses = unscaled_dpo_losses * self.dpo_alpha
+        else:
+            dpo_losses = 0
         # consider sft loss
         if self.gamma > 0:
             unscaled_sft_loss = self.get_sft_loss(policy_chosen_logits, chosen_labels)
