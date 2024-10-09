@@ -1335,6 +1335,8 @@ class DPOTrainer(Trainer):
             dpo_losses = unscaled_dpo_losses * self.dpo_alpha
         else:
             dpo_losses = 0
+            reward_accuracies = torch.tensor(0.)
+            chosen_rewards, rejected_rewards = torch.tensor(0.), torch.tensor(0.)
         # consider sft loss
         if self.gamma > 0:
             unscaled_sft_loss = self.get_sft_loss(policy_chosen_logits, chosen_labels)
@@ -1349,7 +1351,8 @@ class DPOTrainer(Trainer):
         else:
             losses = sft_loss
         
-        reward_accuracies = (chosen_rewards > rejected_rewards).float()
+        # reward_accuracies = (chosen_rewards > rejected_rewards).float()
+        
 
         def all_gather_tensor(tensor):
             if torch.distributed.is_available() and torch.distributed.is_initialized():
