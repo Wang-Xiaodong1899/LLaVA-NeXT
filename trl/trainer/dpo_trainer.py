@@ -1332,13 +1332,20 @@ class DPOTrainer(Trainer):
         )
         unscaled_dpo_losses = unscaled_dpo_losses.mean()
         dpo_losses = unscaled_dpo_losses * self.dpo_alpha
-        unscaled_sft_loss = self.get_sft_loss(policy_chosen_logits, chosen_labels)
-        sft_loss = unscaled_sft_loss * self.gamma
+        # consider sft loss
+        if self.gamma > 0:
+            unscaled_sft_loss = self.get_sft_loss(policy_chosen_logits, chosen_labels)
+            # XXX also consider rejected (if rejected is good)
+            unscaled_sft_loss = unscaled_sft_loss + self.get_sft_loss(policy_rejected_logits, rejected_labels)
+            sft_loss = unscaled_sft_loss * self.gamma
+        else:
+            sft_loss = 0.
 
-        # print(sft_loss.shape, dpo_losses.shape)
-        losses = dpo_losses + sft_loss
-        # losses = sft_loss # sft only
-        # losses = dpo_losses # dpo only
+        if self.dpo_alpha > 0:
+            losses = dpo_losses + sft_loss
+        else:
+            losses = sft_loss
+        
         reward_accuracies = (chosen_rewards > rejected_rewards).float()
 
         def all_gather_tensor(tensor):
