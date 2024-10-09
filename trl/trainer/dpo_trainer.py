@@ -1365,9 +1365,9 @@ class DPOTrainer(Trainer):
             return tensor
 
         # gather chosen_rewards across devices
-        chosen_rewards = all_gather_tensor(chosen_rewards)
-        rejected_rewards = all_gather_tensor(rejected_rewards)
-        reward_accuracies = all_gather_tensor(reward_accuracies)
+        # chosen_rewards = all_gather_tensor(chosen_rewards)
+        # rejected_rewards = all_gather_tensor(rejected_rewards)
+        # reward_accuracies = all_gather_tensor(reward_accuracies)
         policy_chosen_logps = all_gather_tensor(policy_chosen_logps)
         policy_rejected_logps = all_gather_tensor(policy_rejected_logps)
         reference_chosen_logps = all_gather_tensor(reference_chosen_logps)
