@@ -1336,7 +1336,7 @@ class DPOTrainer(Trainer):
         if self.gamma > 0:
             unscaled_sft_loss = self.get_sft_loss(policy_chosen_logits, chosen_labels)
             # XXX also consider rejected (if rejected is good)
-            unscaled_sft_loss = unscaled_sft_loss + self.get_sft_loss(policy_rejected_logits, rejected_labels)
+            # unscaled_sft_loss = unscaled_sft_loss + self.get_sft_loss(policy_rejected_logits, rejected_labels)
             sft_loss = unscaled_sft_loss * self.gamma
         else:
             sft_loss = 0.

@@ -43,7 +43,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --deepspeed scripts/zero3.json \
     --model_name_or_path ${ROOT}/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
-    --dpo_alpha 0 --beta 0.1 --gamma 0.5 \
+    --dpo_alpha 0 --beta 0.1 --gamma 1.0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \
