@@ -101,7 +101,7 @@ input_ids = tokenizer_image_token(prompt_question, tokenizer, IMAGE_TOKEN_INDEX,
 image_sizes = [frame.size for frame in video_frames]
 
 # origin: temperature = 0, not do_sample
-# Sample: temperature 0.7, do_sample
+# Sample: temperature 0.7, top_p 0.9 do_sample
 
 # Generate response
 cont = model.generate(
@@ -110,6 +110,7 @@ cont = model.generate(
     image_sizes=image_sizes,
     do_sample=True,
     temperature=0.7,
+    top_p=0.9,
     max_new_tokens=4096,
     modalities=["video"],
 )
