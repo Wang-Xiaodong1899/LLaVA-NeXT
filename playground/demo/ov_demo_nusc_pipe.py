@@ -19,6 +19,7 @@ import warnings
 from decord import VideoReader, cpu
 
 from einops import rearrange, repeat
+import fire
 from nuscenes.nuscenes import NuScenes
 from nuscenes.utils.splits import create_splits_scenes
 from nuscenes.can_bus.can_bus_api import NuScenesCanBus
@@ -33,7 +34,7 @@ import sys
 
 warnings.filterwarnings("ignore")
 # Load the OneVision model
-pretrained = "/qwen/llava-onevision-qwen2-7b-ov"
+pretrained = "/root/autodl-fs/models/llava-onevision-qwen2-7b-ov/"
 model_name = "llava_qwen"
 device = "cuda"
 device_map = "auto"
@@ -101,8 +102,15 @@ def run_inference(video_paths, max_frames_num=8, start=0, end=None):
     Time: (e.g., daytime, nighttime, etc.)
     Road environment:
     Critical objects:
-    Driving action: Please determine the driving action of the current vehicle (the vehicle where the current view is located). Candidate actions are: [Speed up, Slow down, Speed up rapidly, Slow down rapidly, Go straight slowly, Go straight at a constant speed,  Turn left, Turn right, Change lane to the left, Change lane to the right, Shift slightly to the left,  Shift slightly to the right, Stop, Wait]. Please infer the driving action of the current car based on the video content, you can choose one action, or choose multiple actions to form an action sequence, but no more than 4 actions. The output template can be: The ego vehicle...
-    Scene summary: (e.g., The ego vehicle...)
+
+    Driving action: Please determine the driving action of the ego car. Candidate actions are [Speed up, Slow down, Speed up rapidly, Slow down rapidly, Go straight slowly, Go straight at a constant speed,  Turn left, Turn right, Change lane to the left, Change lane to the right, Shift slightly to the left,  Shift slightly to the right, Stop, Wait]. Please infer the driving action of the ego car based on the video content, you can choose one action, or choose multiple actions to form an action sequence, but no more than 4 actions. Start with (The ego car...)
+
+    Output:
+    Weather:
+    Time:
+    Road environment:
+    Critical objects:
+    Driving action: The ego car...
     """
     # question = f"{DEFAULT_IMAGE_TOKEN}\nDescribe what's happening in this video."
     # print(question)
@@ -202,18 +210,14 @@ def parse_paragraph(paragraph):
     return data
 
 
-if __name__ == "__main__":
-    
-    split = "val"
+def main(scene_start=0, scene_end=200, split="train"):
+
     dataset = frameDataset(split=split)
     scenes = list(dataset.samples_groups.keys())
     
     infer_frame = 8
     
-    scene_start = 80
-    scene_end = 150
-    
-    answers_file = os.path.join(f"nusc_video_{split}_{infer_frame}_ov-7b_{scene_start}_{scene_end}_test.jsonl")
+    answers_file = os.path.join(f"nusc_video_{split}_{infer_frame}_ov-7b_{scene_start}_{scene_end}.jsonl")
     ans_file = open(answers_file, "w")
     
     for my_scene in tqdm(scenes[scene_start: scene_end]):
@@ -232,3 +236,6 @@ if __name__ == "__main__":
             ans_file.flush()
     
     ans_file.close()
+
+if __name__ == "__main__":
+    fire.Fire(main)
