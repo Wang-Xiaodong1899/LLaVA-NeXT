@@ -75,15 +75,20 @@ image_tensors.append(frames)
 # Prepare conversation input
 conv_template = "qwen_1_5"
 
+# question = f"""
+# {DEFAULT_IMAGE_TOKEN}
+# This is a video of a car driving from a front-view camera. Please answer the following questions based on the video content. Follow the output format below. Answers should be clear, not vague.
+# Weather: (e.g., sunny, cloudy, rainy, etc.)
+# Time: (e.g., daytime, nighttime, etc.)
+# Road environment:
+# Critical objects:
+# Driving action: Select one of [Speed up, Slow down, Speed up rapidly, Slow down rapidly, Go straight slowly, Go straight at a constant speed, Turn left, Turn right, Change lane to the left, Change lane to the right, Shift slightly to the left, Shift slightly to the right, Stop, Wait], or select multiple action sequences, up to a maximum of 4 action sequences.
+# Scene summary:
+# """
+
 question = f"""
 {DEFAULT_IMAGE_TOKEN}
-This is a video of a car driving from a front-view camera. Please answer the following questions based on the video content. Follow the output format below. Answers should be clear, not vague.
-Weather: (e.g., sunny, cloudy, rainy, etc.)
-Time: (e.g., daytime, nighttime, etc.)
-Road environment:
-Critical objects:
-Driving action: Select one of [Speed up, Slow down, Speed up rapidly, Slow down rapidly, Go straight slowly, Go straight at a constant speed, Turn left, Turn right, Change lane to the left, Change lane to the right, Shift slightly to the left, Shift slightly to the right, Stop, Wait], or select multiple action sequences, up to a maximum of 4 action sequences.
-Scene summary:
+describe this video in detail.
 """
 # question = f"{DEFAULT_IMAGE_TOKEN}\nDescribe what's happening in this video."
 print(question)
@@ -95,13 +100,16 @@ prompt_question = conv.get_prompt()
 input_ids = tokenizer_image_token(prompt_question, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).to(device)
 image_sizes = [frame.size for frame in video_frames]
 
+# origin: temperature = 0, not do_sample
+# Sample: temperature 0.7, do_sample
+
 # Generate response
 cont = model.generate(
     input_ids,
     images=image_tensors,
     image_sizes=image_sizes,
-    do_sample=False,
-    temperature=0,
+    do_sample=True,
+    temperature=0.7,
     max_new_tokens=4096,
     modalities=["video"],
 )
