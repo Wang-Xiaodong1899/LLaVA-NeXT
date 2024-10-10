@@ -1374,7 +1374,7 @@ class DPOTrainer(Trainer):
 
         prefix = "eval_" if train_eval == "eval" else ""
         metrics[f"{prefix}losses/dpo"] = unscaled_dpo_losses.cpu()
-        metrics[f"{prefix}losses/sft"] = sft_loss.cpu()
+        metrics[f"{prefix}losses/sft"] = unscaled_sft_loss.cpu()
         metrics[f"{prefix}losses/total"] = losses.cpu()
         metrics[f"{prefix}rewards/chosen"] = chosen_rewards.mean().cpu()
         metrics[f"{prefix}rewards/rejected"] = rejected_rewards.mean().cpu()

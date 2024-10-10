@@ -70,7 +70,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 200 \
+    --save_steps 100 \
     --save_total_limit 2 \
     --learning_rate $lr \
     --weight_decay 0. \
@@ -80,7 +80,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --tf32 True \
     --model_max_length 3584 \
     --gradient_checkpointing True \
-    --dataloader_num_workers 4 \
+    --dataloader_num_workers 16 \
     --lazy_preprocess True \
     --report_to wandb \
     --torch_compile True \
