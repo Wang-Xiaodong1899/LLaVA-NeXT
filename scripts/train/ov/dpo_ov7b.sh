@@ -70,12 +70,12 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 500 \
-    --save_total_limit 3 \
+    --save_steps 200 \
+    --save_total_limit 2 \
     --learning_rate $lr \
     --weight_decay 0. \
     --warmup_ratio 0.1 \
-    --lr_scheduler_type "cosine" \
+    --lr_scheduler_type "linear" \
     --logging_steps 1 \
     --tf32 True \
     --model_max_length 3584 \
