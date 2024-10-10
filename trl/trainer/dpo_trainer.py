@@ -1352,7 +1352,7 @@ class DPOTrainer(Trainer):
         else:
             losses = sft_loss
         
-        # reward_accuracies = (chosen_rewards > rejected_rewards).float()
+        reward_accuracies = (chosen_rewards > rejected_rewards).float()
         
 
         def all_gather_tensor(tensor):
