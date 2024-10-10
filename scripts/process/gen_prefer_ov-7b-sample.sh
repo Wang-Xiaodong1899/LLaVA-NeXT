@@ -35,7 +35,6 @@ fi
 python scripts/process/self_generate_preference_sample.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --skip-chosen true \
     --output_dir /volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/$SAVE_DIR \
     --output_name ov-7b_f16_K5_${START}_${END} \
     --jsonl-file $JSONLFILE \
