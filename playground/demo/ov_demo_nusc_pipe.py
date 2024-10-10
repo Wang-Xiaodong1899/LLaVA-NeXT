@@ -101,7 +101,7 @@ def run_inference(video_paths, max_frames_num=8, start=0, end=None):
     Time: (e.g., daytime, nighttime, etc.)
     Road environment:
     Critical objects:
-    Driving action: Select one of [Speed up, Slow down, Speed up rapidly, Slow down rapidly, Go straight slowly, Go straight at a constant speed, Turn left, Turn right, Change lane to the left, Change lane to the right, Shift slightly to the left, Shift slightly to the right, Stop, Wait], or select multiple action sequences, up to a maximum of 4 action sequences.
+    Driving action: Please determine the driving action of the current vehicle (the vehicle where the current view is located). Candidate actions are: [Speed up, Slow down, Speed up rapidly, Slow down rapidly, Go straight slowly, Go straight at a constant speed,  Turn left, Turn right, Change lane to the left, Change lane to the right, Shift slightly to the left,  Shift slightly to the right, Stop, Wait]. Please infer the driving action of the current car based on the video content, you can choose one action, or choose multiple actions to form an action sequence, but no more than 4 actions. The output template can be: The ego vehicle...
     Scene summary: (e.g., The ego vehicle...)
     """
     # question = f"{DEFAULT_IMAGE_TOKEN}\nDescribe what's happening in this video."
@@ -213,7 +213,7 @@ if __name__ == "__main__":
     scene_start = 80
     scene_end = 150
     
-    answers_file = os.path.join(f"nusc_video_{split}_{infer_frame}_ov-7b_{scene_start}_{scene_end}.jsonl")
+    answers_file = os.path.join(f"nusc_video_{split}_{infer_frame}_ov-7b_{scene_start}_{scene_end}_test.jsonl")
     ans_file = open(answers_file, "w")
     
     for my_scene in tqdm(scenes[scene_start: scene_end]):
