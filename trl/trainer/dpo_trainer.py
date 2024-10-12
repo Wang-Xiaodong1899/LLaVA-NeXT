@@ -1126,7 +1126,7 @@ class DPOTrainer(Trainer):
 
         pi_logratios = pi_logratios.to(self.accelerator.device)
         ref_logratios = ref_logratios.to(self.accelerator.device)
-        logits = pi_logratios - ref_logratios
+        logits = pi_logratios - ref_logratios + 5
         # print(f"pi log ratios: {pi_logratios}")
         # print(f"ref log ratios: {ref_logratios}")
         # print(f"logits: {logits}")
