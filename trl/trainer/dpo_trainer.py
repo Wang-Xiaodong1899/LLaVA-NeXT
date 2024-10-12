@@ -754,8 +754,8 @@ class DPOTrainer(Trainer):
             # np.save("/volsparse1/wxd/reference_chosen_logps_34B-DPO_0.npy", all_reference_chosen_logps)
             # np.save("/volsparse1/wxd/reference_rejected_logps_34B-DPO_0.npy", all_reference_rejected_logps)
             
-            np.save("/volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_16_stride_1/ov-7b_f16_K5_0_2000_k0_k1_logp_chosen.npy", all_reference_chosen_logps)
-            np.save("/volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_16_stride_1/ov-7b_f16_K5_0_2000_k0_k1_logp_rejected.npy", all_reference_rejected_logps)
+            np.save("/volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_16_stride_1/ov-7b_f16_K5_0_2000_k2_k3_logp_chosen.npy", all_reference_chosen_logps)
+            np.save("/volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_16_stride_1/ov-7b_f16_K5_0_2000_k2_k3_logp_rejected.npy", all_reference_rejected_logps)
 
             # save to json
             # DPODataset(tokenizer=tokenizer, data_path=data_args.data_path, data_args=data_args)

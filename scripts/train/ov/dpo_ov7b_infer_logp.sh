@@ -27,7 +27,7 @@ mkdir -p $output_dir
 # diy: change other diy model output
 # data_path=${ROOT}/data/shareVideoGPTV/sft_dpo_17k.jsonl
 # data_path=/workspace/wxd/LLaVA-NeXT/work_dirs/dpo_17k_data/LLaVA-NeXT-Video-7B_vicuna_v1_frames_16_stride_2/answer-17k-Video-7B-logp.jsonl
-data_path=/volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_16_stride_1/ov-7b_f16_K5_0_2000_k0_k1.jsonl
+data_path=/volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_16_stride_1/ov-7b_f16_K5_0_2000_k2_k3.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
