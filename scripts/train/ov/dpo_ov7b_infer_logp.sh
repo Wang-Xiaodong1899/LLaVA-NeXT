@@ -42,7 +42,7 @@ PROMPT_VERSION="qwen_1_5"
 
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NNODES}" --node_rank="${RANK}" --master_addr="${ADDR}" --master_port="${PORT}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
-    llava/train/train_dpo_logp_diy.py \
+    llava/train/train_dpo.py \
     --deepspeed scripts/zero2.json \
     --model_name_or_path ${ROOT}/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
