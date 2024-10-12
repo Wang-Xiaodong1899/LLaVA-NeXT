@@ -22,9 +22,8 @@ cd LLaVA-NeXT
 mkdir -p data
 mkdir -p data/shareVideoGPTV
 cd data/shareVideoGPTV
-wget https://hf-mirror.com/datasets/Xiaodong/DPO_sdf_17k/resolve/main/dpo_train_data.zip
-wget https://hf-mirror.com/datasets/Xiaodong/video_instruction_train_dpo/resolve/main/sft_dpo_17k.jsonl
-
+wget https://huggingface.co/datasets/Xiaodong/video_instruction_train_dpo/resolve/main/sft_dpo_17k.jsonl
+wget https://huggingface.co/datasets/Xiaodong/DPO_sdf_17k/resolve/main/dpo_train_data.zip
 unzip dpo_train_data.zip
 ```
 
