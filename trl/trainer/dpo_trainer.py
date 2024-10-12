@@ -1129,7 +1129,7 @@ class DPOTrainer(Trainer):
         
         # XXX logits = pi_logratios - ref_logratios + 5
         # XXX margin loss, 0.1 * 
-        margin_logps = 0.1 * torch.clamp(policy_rejected_logps-policy_chosen_logps, min=0).to(self.accelerator.device)
+        margin_logps = 0.5 * torch.clamp(policy_rejected_logps-policy_chosen_logps, min=0).to(self.accelerator.device)
         
         logits = pi_logratios - ref_logratios
         
