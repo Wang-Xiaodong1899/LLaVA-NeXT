@@ -26,7 +26,8 @@ mkdir -p $output_dir
 # DATA
 # diy: change other diy model output
 # data_path=${ROOT}/data/shareVideoGPTV/sft_dpo_17k.jsonl
-data_path=/workspace/wxd/LLaVA-NeXT/work_dirs/dpo_17k_data/LLaVA-NeXT-Video-7B_vicuna_v1_frames_16_stride_2/answer-17k-Video-7B-logp.jsonl
+# data_path=/workspace/wxd/LLaVA-NeXT/work_dirs/dpo_17k_data/LLaVA-NeXT-Video-7B_vicuna_v1_frames_16_stride_2/answer-17k-Video-7B-logp.jsonl
+data_path=/volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_16_stride_1/ov-7b_f16_K5_0_2000_k0_k1.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -46,7 +47,7 @@ PROMPT_VERSION="vicuna_v1"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_logp_diy.py \
     --deepspeed scripts/zero2.json \
-    --model_name_or_path /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava_dpo_17k_flash-attn/checkpoint-2000/ \
+    --model_name_or_path ${ROOT}/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
@@ -71,7 +72,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
-    --num_train_epochs 3 \
+    --num_train_epochs 1 \
     --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
