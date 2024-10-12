@@ -15,7 +15,7 @@ export WANDB_PROJECT=llava-ov-jf-4A100
 export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn_f16_blinear2_infer
 
 # gpu_ids=0
-gpu_ids=0
+gpu_ids=2
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
