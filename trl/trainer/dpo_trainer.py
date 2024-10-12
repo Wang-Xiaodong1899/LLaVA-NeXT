@@ -1126,7 +1126,13 @@ class DPOTrainer(Trainer):
 
         pi_logratios = pi_logratios.to(self.accelerator.device)
         ref_logratios = ref_logratios.to(self.accelerator.device)
-        logits = pi_logratios - ref_logratios + 5
+        
+        # XXX logits = pi_logratios - ref_logratios + 5
+        # XXX margin loss, 0.1 * 
+        margin_logps = 0.1 * torch.clamp(policy_rejected_logps-policy_chosen_logps, min=0).to(self.accelerator.device)
+        
+        logits = pi_logratios - ref_logratios
+        
         # print(f"pi log ratios: {pi_logratios}")
         # print(f"ref log ratios: {ref_logratios}")
         # print(f"logits: {logits}")
@@ -1157,6 +1163,9 @@ class DPOTrainer(Trainer):
             )
         else:
             raise ValueError(f"Unknown loss type: {self.loss_type}. Should be one of ['sigmoid', 'hinge', 'ipo', 'kto_pair']")
+        
+        # XXX use margin loss
+        losses = losses + margin_logps
 
         chosen_rewards = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device)).detach()
         rejected_rewards = self.beta * (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device)).detach()
