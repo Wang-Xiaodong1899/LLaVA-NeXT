@@ -44,7 +44,7 @@ PROMPT_VERSION="vicuna_v1"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo.py \
     --deepspeed scripts/zero2.json \
-    --model_name_or_path /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava-next-dpo-iter2/checkpoint-500/ \
+    --model_name_or_path /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava-next-vicuna-dpo-iter2/checkpoint-500/ \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
