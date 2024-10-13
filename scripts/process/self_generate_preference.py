@@ -208,6 +208,10 @@ def run_inference(args):
     if "gpt4v" != args.model_path:
         model_name = get_model_name_from_path(args.model_path)
         print(f"model_name: {model_name}")
+        # TODO
+        if "next" in model_name.lower():
+            model_name = "llava_llama"
+            print(f"model_name: {model_name}")
         if "onevision" in args.model_path or "ov" in args.model_path:
             model_name = "llava_qwen"
             print(f'***********************************')
