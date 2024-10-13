@@ -45,7 +45,7 @@ python scripts/process/self_generate_preference.py \
     --overwrite ${OVERWRITE} \
     --mm_spatial_pool_stride ${POOL_STRIDE:-4} \
     --for_get_frames_num $FRAMES \
-    --normal_frames 32 \
+    --normal_frames 16 \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
@@ -57,3 +57,6 @@ python scripts/process/self_generate_preference.py \
 
 # one-vision
 # CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_aug-f4.sh /workspace/wxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 4 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 384
+
+# iter-2
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_aug-f4.sh /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava_dpo_17k_flash-attn_DPO_stage_2_8k_data/checkpoint-500 vicuna_v1 4 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 8000 10000
