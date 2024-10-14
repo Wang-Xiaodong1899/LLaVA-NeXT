@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-jf-4A100
-export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn_f16_blinear2_gen-8k_72b_cb_7b_ksample
+export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn_f16_blinear2_gen-8k_72b_cb_7b_ksample_fixmargin
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -70,7 +70,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 400 \
+    --save_steps 300 \
     --save_total_limit 2 \
     --learning_rate $lr \
     --weight_decay 0. \
