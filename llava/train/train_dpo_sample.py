@@ -1050,7 +1050,7 @@ class DPODataset(Dataset):
         length_list = []
         for sample in self.list_data_dict:
             # Calculate the length of the prompt, answer, chosen, and rejected text
-            cur_len = len(sample["prompt"].split()) + len(sample["answer"].split()) + len(sample["chosen"].split()) + len(sample["rejected"].split())
+            cur_len = len(sample["prompt"].split()) + len(sample["answer"].split()) + len(sample["chosen"].split()) + len(random.choice(sample["rejected"]).split())
             # If the sample includes a video, the length is positive; otherwise, it is negative
             cur_len = cur_len if ("video" in sample or "image" in sample) else -cur_len
             length_list.append(cur_len)
