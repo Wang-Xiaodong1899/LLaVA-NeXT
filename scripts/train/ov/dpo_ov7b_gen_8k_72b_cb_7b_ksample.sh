@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-jf-4A100
-export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn_f16_blinear2_gen-8k_72b_cb_7b_ksample_fixmargin
+export WANDB_NAME=llava-ov-qwen_dpo_17k_flash-attn_f16_blinear2_gen-8k_72b_cb_7b_ksample_fixmargin_1
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -41,7 +41,7 @@ PROMPT_VERSION="qwen_1_5"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo.py \
     --deepspeed scripts/zero3.json \
-    --model_name_or_path ${ROOT}/qwen/llava-onevision-qwen2-7b-ov \
+    --model_name_or_path /volsparse1/wxd/ckpt/llava-ov-jf-4A100/llava-ov-qwen_dpo_17k_flash-attn_f16_blinear2_gen-8k_72b_cb_7b_ksample_fixmargin \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
