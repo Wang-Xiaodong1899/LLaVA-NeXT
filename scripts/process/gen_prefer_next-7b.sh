@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/root/LLaVA-NeXT"
+ROOT_DIR="/workspace/wxd/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -32,11 +32,12 @@ else
     SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}
 fi
     
-python scripts/process/self_generate_preference_sample.py \
+python scripts/process/self_generate_preference.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /root/autodl-fs/data/self-gen/video_ov-7b-sample-K5/$SAVE_DIR \
-    --output_name ov-7b_f16_K5_${START}_${END} \
+    --skip-chosen true \
+    --output_dir /root/autodl-fs/data/self-gen/Next-DPO-iter1-greedy/$SAVE_DIR \
+    --output_name Next-DPO-iter1-greedy_f16_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
@@ -52,7 +53,4 @@ python scripts/process/self_generate_preference_sample.py \
 
 
 # one-vision
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_ov-7b-sample.sh /workspace/wxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 16 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 384
-
-# next
-
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_ov-7b.sh /workspace/wxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 32 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 384
