@@ -279,7 +279,7 @@ def run_inference(args):
                 video = load_video_base64(video_path)
                 interval = int(len(video) / args.for_get_frames_num)
         
-        K = 5
+        K = 1
         outputs_list = []
         for _ in range(K):
             # chosen answer
