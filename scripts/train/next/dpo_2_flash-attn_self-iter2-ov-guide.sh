@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_dpo_17k_flash-attn_DPO_iter2-ov
+export WANDB_NAME=llava_dpo_17k_flash-attn_DPO_iter2-ov-guide
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -24,8 +24,7 @@ output_dir=/volsparse1/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/volsparse1/wxd/data/shareVideoGPTV/ov-72b-f32_next-7b-f16_ksample_chosen1_0_8000.jsonl
-# NOTE: data hava some problems: rejected answer from NeXT-7B, but try to optimize NeXT-7B-DPO
+data_path=/volsparse1/wxd/data/shareVideoGPTV/ov-72b-f32_next-7b-DPO-iter1-sample-K1_0_8000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
