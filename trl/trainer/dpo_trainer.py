@@ -1364,9 +1364,9 @@ class DPOTrainer(Trainer):
             return tensor
 
         # gather chosen_rewards across devices
-        chosen_rewards = all_gather_tensor(chosen_rewards)
-        rejected_rewards = all_gather_tensor(rejected_rewards)
-        reward_accuracies = all_gather_tensor(reward_accuracies)
+        # chosen_rewards = all_gather_tensor(chosen_rewards)
+        # rejected_rewards = all_gather_tensor(rejected_rewards)
+        # reward_accuracies = all_gather_tensor(reward_accuracies)
         policy_chosen_logps = all_gather_tensor(policy_chosen_logps)
         policy_rejected_logps = all_gather_tensor(policy_rejected_logps)
         reference_chosen_logps = all_gather_tensor(reference_chosen_logps)
@@ -1376,10 +1376,10 @@ class DPOTrainer(Trainer):
         metrics[f"{prefix}losses/dpo"] = unscaled_dpo_losses.cpu()
         metrics[f"{prefix}losses/sft"] = unscaled_sft_loss.cpu()
         metrics[f"{prefix}losses/total"] = losses.cpu()
-        metrics[f"{prefix}rewards/chosen"] = chosen_rewards.mean().cpu()
-        metrics[f"{prefix}rewards/rejected"] = rejected_rewards.mean().cpu()
-        metrics[f"{prefix}rewards/accuracies"] = reward_accuracies.mean().cpu()
-        metrics[f"{prefix}rewards/margins"] = (chosen_rewards - rejected_rewards).mean().cpu()
+        # metrics[f"{prefix}rewards/chosen"] = chosen_rewards.mean().cpu()
+        # metrics[f"{prefix}rewards/rejected"] = rejected_rewards.mean().cpu()
+        # metrics[f"{prefix}rewards/accuracies"] = reward_accuracies.mean().cpu()
+        # metrics[f"{prefix}rewards/margins"] = (chosen_rewards - rejected_rewards).mean().cpu()
         # policy logps
         metrics[f"{prefix}logps/rejected"] = policy_rejected_logps.detach().mean().cpu()
         metrics[f"{prefix}logps/chosen"] = policy_chosen_logps.detach().mean().cpu()
