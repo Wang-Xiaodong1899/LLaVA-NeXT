@@ -1132,6 +1132,9 @@ class DPOTrainer(Trainer):
         # XXX margin loss, 0.1 * 
         # margin_logps = 0.5 * torch.clamp(policy_rejected_logps-policy_chosen_logps, min=0).to(self.accelerator.device)
         
+        # XXX if use a learnable margin
+        
+        # logits = pi_logratios - ref_logratios + self.model.reward_margin
         logits = pi_logratios - ref_logratios
         
         # print(f"pi log ratios: {pi_logratios}")
@@ -1348,10 +1351,22 @@ class DPOTrainer(Trainer):
             reward_accuracies = torch.tensor(0.)
             chosen_rewards, rejected_rewards = torch.tensor(0.), torch.tensor(0.)
         
-        # consider sft loss
-        unscaled_sft_loss = self.get_sft_loss(policy_chosen_logits, chosen_labels)
-        # XXX also consider rejected (if rejected is good)
-        # unscaled_sft_loss = unscaled_sft_loss + self.get_sft_loss(policy_rejected_logits, rejected_labels)
+        # XXX random chosen a sft loss
+        
+        # Get the loss for the chosen samples
+        unscaled_sft_loss_chosen = self.get_sft_loss(policy_chosen_logits, chosen_labels)
+        # Get the loss for the rejected samples
+        unscaled_sft_loss_rejected = self.get_sft_loss(policy_rejected_logits, rejected_labels)
+
+        # Randomly select which loss to optimize
+        if torch.rand(1).item() > 0.5:
+            # Optimize the chosen loss
+            unscaled_sft_loss = unscaled_sft_loss_chosen
+        else:
+            # Optimize the rejected loss
+            unscaled_sft_loss = unscaled_sft_loss_rejected
+
+        # Scale the selected loss and compute the final loss
         sft_loss = unscaled_sft_loss * self.gamma
 
         if self.gamma > 0:
@@ -1373,9 +1388,9 @@ class DPOTrainer(Trainer):
             return tensor
 
         # gather chosen_rewards across devices
-        chosen_rewards = all_gather_tensor(chosen_rewards)
-        rejected_rewards = all_gather_tensor(rejected_rewards)
-        reward_accuracies = all_gather_tensor(reward_accuracies)
+        # chosen_rewards = all_gather_tensor(chosen_rewards)
+        # rejected_rewards = all_gather_tensor(rejected_rewards)
+        # reward_accuracies = all_gather_tensor(reward_accuracies)
         policy_chosen_logps = all_gather_tensor(policy_chosen_logps)
         policy_rejected_logps = all_gather_tensor(policy_rejected_logps)
         reference_chosen_logps = all_gather_tensor(reference_chosen_logps)
@@ -1385,6 +1400,8 @@ class DPOTrainer(Trainer):
         metrics[f"{prefix}losses/dpo"] = unscaled_dpo_losses.cpu()
         metrics[f"{prefix}losses/sft"] = unscaled_sft_loss.cpu()
         metrics[f"{prefix}losses/total"] = losses.cpu()
+        # # XXX test
+        # metrics[f"{prefix}rewards/auto_margin"] = self.model.reward_margin.cpu()
         metrics[f"{prefix}rewards/chosen"] = chosen_rewards.mean().cpu()
         metrics[f"{prefix}rewards/rejected"] = rejected_rewards.mean().cpu()
         metrics[f"{prefix}rewards/accuracies"] = reward_accuracies.mean().cpu()
