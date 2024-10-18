@@ -69,7 +69,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
-    --num_train_epochs 1 \
+    --num_train_epochs 3 \
     --per_device_train_batch_size 2 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 2 \
