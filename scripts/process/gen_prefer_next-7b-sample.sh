@@ -35,8 +35,8 @@ fi
 python scripts/process/self_generate_preference_sample.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /volsparse1/wxd/data/self-gen/video_next-7b-DPO-iter1-sample-K1/$SAVE_DIR \
-    --output_name next-7b-DPO-iter1_f16_K1_${START}_${END} \
+    --output_dir /volsparse1/wxd/data/self-gen/video_next-7b-sample-K1/$SAVE_DIR \
+    --output_name next-7b-f16_K1_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
@@ -55,4 +55,5 @@ python scripts/process/self_generate_preference_sample.py \
 # CUDA_VISIBLE_DEVICES=1 bash scripts/process/gen_prefer_next-7b-sample.sh /workspace/wxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 16 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 224
 
 # DPO-1
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample.sh /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava_dpo_17k_flash-attn/checkpoint-3000/ vicuna_v1 16 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 224
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample.sh /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava-next-vicuna-dpo-iter1/checkpoint-3000 vicuna_v1 16 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 224
+CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_next-7b-sample.sh /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava-next-vicuna-dpo-iter1/checkpoint-3000 vicuna_v1 16 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 6000 8000 224
