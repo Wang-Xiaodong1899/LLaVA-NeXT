@@ -672,7 +672,7 @@ class LLaVAIPOTrainer(IPOTrainer):
                 self.model.config.save_pretrained(output_dir)
                 torch.save(weight_to_save, os.path.join(output_dir, f"mm_projector.bin"))
         else:
-            # super(LLaVADPOTrainer, self)._save_checkpoint(model, trial, metrics)
+            # super(LLaVAIPOTrainer, self)._save_checkpoint(model, trial, metrics)
             # print(type(model))
             # from transformers.modeling_utils import unwrap_model
             # print(type(unwrap_model(model)))
@@ -688,13 +688,13 @@ class LLaVAIPOTrainer(IPOTrainer):
                 unwrapped_model = unwrap_model(model)
                 self.save_my_lora_ckpt(output_dir, self.args, unwrapped_model)
             else:
-                super(LLaVADPOTrainer, self)._save_checkpoint(model, trial, metrics)
+                super(LLaVAIPOTrainer, self)._save_checkpoint(model, trial, metrics)
 
     def _save(self, output_dir: Optional[str] = None, state_dict=None):
         if getattr(self.args, "tune_mm_mlp_adapter", False):
             pass
         else:
-            super(LLaVADPOTrainer, self)._save(output_dir, state_dict)
+            super(LLaVAIPOTrainer, self)._save(output_dir, state_dict)
 
 
 class LLaVACDPOTrainer(CDPOTrainer):
