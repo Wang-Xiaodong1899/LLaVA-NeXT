@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_vicuna_8k_flash-attn_next-7b-ov-random-sft-debug
+export WANDB_NAME=llava_vicuna_8k_flash-attn_next-7b-ov-random-sft-avg_logp
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -43,7 +43,7 @@ PROMPT_VERSION="vicuna_v1"
 #torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
-    llava/train/train_dpo.py \
+    llava/train/train_dpo_avg.py \
     --deepspeed scripts/zero2.json \
     --model_name_or_path ${ROOT}/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \

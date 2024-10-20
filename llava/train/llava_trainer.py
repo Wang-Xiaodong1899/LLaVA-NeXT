@@ -10,7 +10,7 @@ from torch.utils.data import Dataset, Sampler, DataLoader
 import random
 
 
-from trl.trainer import DPOTrainer, CDPOTrainer
+from trl.trainer import DPOTrainer, CDPOTrainer, IPOTrainer
 from trl.trainer.utils import DPODataCollatorWithPadding
 
 from transformers import Trainer
@@ -550,6 +550,80 @@ class RankSampler(Sampler):
         return self.dataset_length // self.batch_size
 
 class LLaVADPOTrainer(DPOTrainer):
+    def _get_train_sampler(self) -> Optional[torch.utils.data.Sampler]:
+        if self.train_dataset is None or not has_length(self.train_dataset):
+            return None
+        # import pdb; pdb.set_trace()
+        if self.args.group_by_modality_length:
+            lengths = self.train_dataset.modality_lengths
+            return LengthGroupedSampler(
+                # self.args.train_batch_size * self.args.gradient_accumulation_steps, # TODO: seems that we should not have gradient_accumulation_steps
+                self.args.train_batch_size,
+                world_size=self.args.world_size,
+                lengths=lengths,
+                group_by_modality=True,
+            )
+        elif self.args.rank_samples:
+            lengths = self.train_dataset.modality_lengths
+            return LengthGroupedSampler(
+                # self.args.train_batch_size * self.args.gradient_accumulation_steps, # TODO: seems that we should not have gradient_accumulation_steps
+                self.args.train_batch_size,
+                world_size=self.args.world_size,
+                lengths=lengths,
+                group_by_modality=False,
+                group_by_logp=True,
+            )
+        else:
+            return super()._get_train_sampler()
+
+    def _save_checkpoint(self, model, trial, metrics=None):
+        if getattr(self.args, "tune_mm_mlp_adapter", False) or (
+            hasattr(self.args, "mm_tunable_parts") and (len(self.args.mm_tunable_parts.split(",")) == 1 and ("mm_mlp_adapter" in self.args.mm_tunable_parts or "mm_vision_resampler" in self.args.mm_tunable_parts))
+        ):
+            from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
+
+            checkpoint_folder = f"{PREFIX_CHECKPOINT_DIR}-{self.state.global_step}"
+
+            run_dir = self._get_output_dir(trial=trial)
+            output_dir = os.path.join(run_dir, checkpoint_folder)
+
+            # Only save Adapter
+            keys_to_match = ["mm_projector", "vision_resampler"]
+            if getattr(self.args, "use_im_start_end", False):
+                keys_to_match.extend(["embed_tokens", "embed_in"])
+
+            weight_to_save = get_mm_adapter_state_maybe_zero_3(self.model.named_parameters(), keys_to_match)
+
+            if self.args.local_rank == 0 or self.args.local_rank == -1:
+                self.model.config.save_pretrained(output_dir)
+                torch.save(weight_to_save, os.path.join(output_dir, f"mm_projector.bin"))
+        else:
+            # super(LLaVADPOTrainer, self)._save_checkpoint(model, trial, metrics)
+            # print(type(model))
+            # from transformers.modeling_utils import unwrap_model
+            # print(type(unwrap_model(model)))
+            # print(unwrap_model(model).config)
+            if self.args.lora_enable:
+                from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
+
+                checkpoint_folder = f"{PREFIX_CHECKPOINT_DIR}-{self.state.global_step}"
+                run_dir = self._get_output_dir(trial=trial)
+                output_dir = os.path.join(run_dir, checkpoint_folder)
+                from transformers.modeling_utils import unwrap_model
+
+                unwrapped_model = unwrap_model(model)
+                self.save_my_lora_ckpt(output_dir, self.args, unwrapped_model)
+            else:
+                super(LLaVADPOTrainer, self)._save_checkpoint(model, trial, metrics)
+
+    def _save(self, output_dir: Optional[str] = None, state_dict=None):
+        if getattr(self.args, "tune_mm_mlp_adapter", False):
+            pass
+        else:
+            super(LLaVADPOTrainer, self)._save(output_dir, state_dict)
+
+
+class LLaVAIPOTrainer(IPOTrainer):
     def _get_train_sampler(self) -> Optional[torch.utils.data.Sampler]:
         if self.train_dataset is None or not has_length(self.train_dataset):
             return None
