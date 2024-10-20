@@ -1311,12 +1311,12 @@ class DPODataCollator(DPODataCollatorWithPadding):
                 #     padded_batch[k] = padded_batch[k].flip(dims=[1])
             else:
                 padded_batch[k] = [ex[k] for ex in batch]
-        for k in ["chosen_input_ids", "rejected_input_ids"]:
+        for k in ["chosen_input_ids", "rejected_input_ids", "answer_input_ids"]:
             attn_k = k.replace("input_ids", "attention_mask")
             padded_batch[attn_k] = padded_batch[k].ne(self.tokenizer.pad_token_id)
         return padded_batch
 
-    def tokenize_batch_element(self, prompt: str, chosen: str, rejected: str, has_image: bool = True) -> Dict:
+    def tokenize_batch_element(self, prompt: str, chosen: str, rejected: str, has_image: bool = True, answer=None) -> Dict:
         """Tokenize a single batch element.
 
         At this stage, we don't convert to PyTorch tensors yet; we just handle the truncation
@@ -1337,13 +1337,19 @@ class DPODataCollator(DPODataCollatorWithPadding):
 
         rejected_data_dict = preprocess([rejected_sources], self.tokenizer, has_image=has_image)
         # rejected_data_dict['attention_mask'] = rejected_data_dict["input_ids"].ne(self.tokenizer.pad_token_id)
+        
+        answer_sources = make_conv(prompt, answer)
+        answer_data_dict = preprocess([answer_sources], self.tokenizer, has_image=has_image)
 
         chosen_data_dict = {k: v[0] for k, v in chosen_data_dict.items()}
         rejected_data_dict = {k: v[0] for k, v in rejected_data_dict.items()}
+        
+        answer_data_dict = {k: v[0] for k, v in answer_data_dict.items()}
 
         for k, toks in {
             "chosen": chosen_data_dict,
             "rejected": rejected_data_dict,
+            "answer": answer_data_dict,
         }.items():
             for type_key, tokens in toks.items():
                 if type_key == "token_type_ids":
@@ -1359,11 +1365,12 @@ class DPODataCollator(DPODataCollatorWithPadding):
             prompt = feature["prompt"]
             chosen = feature["chosen"]
             rejected = feature["rejected"]
+            answer = feature["answer"]
             has_image = feature["has_image"]
             # Xs.append(feature[has_X])
             # keys.append(has_X)
 
-            batch_element = self.tokenize_batch_element(prompt, chosen, rejected, has_image=has_image)
+            batch_element = self.tokenize_batch_element(prompt, chosen, rejected, has_image=has_image, answer=answer)
             tokenized_batch.append(batch_element)
 
         # return collated batch

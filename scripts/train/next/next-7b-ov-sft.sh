@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_vicuna_8k_flash-attn_next-7b-ov-random-sft-avg_logp
+export WANDB_NAME=llava_vicuna_8k_flash-attn_next-7b-ov-random-sft-avg_logp-add-gt
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -52,6 +52,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_folder xxx \
     --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \
     --freeze_mm_mlp_adapter True \
+    --mm_tunable_parts="mm_mlp_adapter" \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \

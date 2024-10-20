@@ -1086,6 +1086,24 @@ class IPOTrainer(Trainer):
                     ),
                     dim=0,
                 ).to(device=device)
+        
+        # XXX add answer
+        for k in batch:
+            if k.startswith("answer") and isinstance(batch[k], torch.Tensor):
+                if "labels" in k or is_encoder_decoder:
+                    pad_value = label_pad_token_id
+                elif k.endswith("_input_ids"):
+                    pad_value = padding_value
+                elif k.endswith("_attention_mask"):
+                    pad_value = 0
+                concatenated_key = k.replace("answer", "concatenated")
+                concatenated_batch[concatenated_key] = torch.cat(
+                    (
+                        concatenated_batch[concatenated_key],
+                        pad_to_length(batch[k], max_length, pad_value=pad_value),
+                    ),
+                    dim=0,
+                ).to(device=device)
         if is_encoder_decoder:
             concatenated_batch["concatenated_input_ids"] = batch["prompt_input_ids"].repeat(2, 1).to(device=device)
             concatenated_batch["concatenated_attention_mask"] = batch["prompt_attention_mask"].repeat(2, 1).to(device=device)
@@ -1094,9 +1112,9 @@ class IPOTrainer(Trainer):
         #     batch['images'][0] * 2,
         #     batch['images'][1] * 2
         # ]
-        concatenated_batch["concatenated_images"] = batch["images"] * 2
-        concatenated_batch["image_sizes"] = batch["image_sizes"] * 2
-        concatenated_batch["modalities"] = batch["modalities"] * 2
+        concatenated_batch["concatenated_images"] = batch["images"] * 3
+        concatenated_batch["image_sizes"] = batch["image_sizes"] * 3
+        concatenated_batch["modalities"] = batch["modalities"] * 3
         return concatenated_batch
 
     def dpo_loss(
@@ -1271,7 +1289,8 @@ class IPOTrainer(Trainer):
         )
 
         chosen_logps = all_logps[:len_chosen]
-        rejected_logps = all_logps[len_chosen:]
+        rejected_logps = all_logps[len_chosen:2*len_chosen]
+        answer_logps = all_logps[-len_chosen:]
 
         # don't count image embeds logits
         # loss_mask = new_labels != -100
@@ -1284,12 +1303,14 @@ class IPOTrainer(Trainer):
         # rejected_logits = sum(rejected_logits)/len_chosen
 
         chosen_logits = all_logits[:len_chosen]
-        rejected_logits = all_logits[len_chosen:]
+        rejected_logits = all_logits[len_chosen:2*len_chosen]
+        answer_logits = all_logits[-len_chosen:]
 
         chosen_labels = new_labels[:len_chosen]
-        rejected_labels = new_labels[len_chosen:]
+        rejected_labels = new_labels[len_chosen:2*len_chosen]
+        answer_labels = new_labels[-len_chosen:]
 
-        return (chosen_logps, rejected_logps, chosen_logits, rejected_logits, chosen_labels, rejected_labels)
+        return (chosen_logps, rejected_logps, chosen_logits, rejected_logits, chosen_labels, rejected_labels, answer_logps, answer_logits, answer_labels)
 
     def get_batch_loss_metrics(
         self,
@@ -1310,6 +1331,9 @@ class IPOTrainer(Trainer):
             policy_rejected_logits,
             chosen_labels,
             rejected_labels,
+            policy_answer_logps,
+            policy_answer_logits,
+            policy_answer_labels,
         ) = self.concatenated_forward(model, batch)
 
         # if reference_chosen_logps and reference_rejected_logps in batch use them, otherwise use the reference model
@@ -1323,16 +1347,22 @@ class IPOTrainer(Trainer):
                         (
                             reference_chosen_logps,
                             reference_rejected_logps,
+                            _, _, _, _,
+                            reference_answer_logps,
+                            _, _
                         ) = self.concatenated_forward(
                             self.model, batch
-                        )[:2]
+                        )
                 else:
                     (
                         reference_chosen_logps,
                         reference_rejected_logps,
+                        _, _, _, _,
+                        reference_answer_logps,
+                        _, _
                     ) = self.concatenated_forward(
                         self.ref_model, batch
-                    )[:2]
+                    )
         if self.dpo_alpha > 0:
             reference_chosen_logps = reference_chosen_logps.to(policy_chosen_logps.dtype)
             reference_rejected_logps = reference_rejected_logps.to(policy_chosen_logps.dtype)
@@ -1393,8 +1423,13 @@ class IPOTrainer(Trainer):
         # reward_accuracies = all_gather_tensor(reward_accuracies)
         policy_chosen_logps = all_gather_tensor(policy_chosen_logps)
         policy_rejected_logps = all_gather_tensor(policy_rejected_logps)
+        
+        policy_answer_logps = all_gather_tensor(policy_answer_logps) # add
+        
         reference_chosen_logps = all_gather_tensor(reference_chosen_logps)
         reference_rejected_logps = all_gather_tensor(reference_rejected_logps)
+        
+        reference_answer_logps = all_gather_tensor(reference_answer_logps) # add
 
         prefix = "eval_" if train_eval == "eval" else ""
         metrics[f"{prefix}losses/dpo"] = unscaled_dpo_losses.cpu()
@@ -1409,12 +1444,14 @@ class IPOTrainer(Trainer):
         # policy logps
         metrics[f"{prefix}logps/rejected"] = policy_rejected_logps.detach().mean().cpu()
         metrics[f"{prefix}logps/chosen"] = policy_chosen_logps.detach().mean().cpu()
+        metrics[f"{prefix}logps/answer"] = policy_answer_logps.detach().mean().cpu() # add
         # policy logits (exclude image tokens)
         # metrics[f"{prefix}logits/rejected"] =policy_rejected_logits
         # metrics[f"{prefix}logits/chosen"] = policy_chosen_logits
         # reference logps
         metrics[f"{prefix}ref_logps/rejected"] = reference_rejected_logps.mean().cpu()
         metrics[f"{prefix}ref_logps/chosen"] = reference_chosen_logps.mean().cpu()
+        metrics[f"{prefix}ref_logps/answer"] = reference_answer_logps.mean().cpu() # add
 
         # metrics all pick .4 digits
         # for k in metrics:
