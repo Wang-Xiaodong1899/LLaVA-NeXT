@@ -1055,9 +1055,9 @@ class IPOTrainer(Trainer):
         concatenated_batch = {}
 
         if is_encoder_decoder:
-            max_length = max(batch["chosen_labels"].shape[1], batch["rejected_labels"].shape[1])
+            max_length = max(batch["chosen_labels"].shape[1], batch["rejected_labels"].shape[1], batch["answer_labels"].shape[1])
         else:
-            max_length = max(batch["chosen_input_ids"].shape[1], batch["rejected_input_ids"].shape[1])
+            max_length = max(batch["chosen_input_ids"].shape[1], batch["rejected_input_ids"].shape[1], batch["answer_input_ids"].shape[1])
 
         for k in batch:
             # import pdb; pdb.set_trace()
