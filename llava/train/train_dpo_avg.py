@@ -190,7 +190,7 @@ class TrainingArguments(transformers.TrainingArguments):
     gamma: float = field(default=1.0)
     generate_during_eval: bool = field(default=False)
     precompute_ref_log_probs: bool = field(default=False)
-    loss_type: str = "IPO"
+    loss_type: str = "ipo"
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):
