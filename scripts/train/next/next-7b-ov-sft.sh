@@ -15,7 +15,7 @@ export WANDB_PROJECT=llava-next-jf-4A100
 export WANDB_NAME=llava_vicuna_8k_flash-attn_next-7b-ov-random-sft-avg_logp-add-gt
 
 # gpu_ids=0
-gpu_ids=0
+gpu_ids=3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"

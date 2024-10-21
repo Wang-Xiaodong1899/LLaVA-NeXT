@@ -1313,7 +1313,7 @@ class DPODataCollator(DPODataCollatorWithPadding):
                 padded_batch[k] = [ex[k] for ex in batch]
         print(padded_batch.keys())
         for k, item in padded_batch.items():
-            print(f"{k}: {len(item)}")
+            print(f"{k}: {item.shape}")
         for k in ["chosen_input_ids", "rejected_input_ids", "answer_input_ids"]:
             attn_k = k.replace("input_ids", "attention_mask")
             padded_batch[attn_k] = padded_batch[k].ne(self.tokenizer.pad_token_id)
