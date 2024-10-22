@@ -1166,16 +1166,16 @@ class DPOTrainer(Trainer):
                 0,
             )
         else:
-            raise ValueError(f"Unknown loss type: {self.loss_type}. Should be one of ['sigmoid', 'hinge', 'ipo', 'kto_pair']")
+            # add minor DPO
+            if self.loss_type == "minor_dpo":
+                chosen_rewards_ = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device))
+                rejected_rewards_ = self.beta * F.relu(policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device))
+                losses = -F.logsigmoid(chosen_rewards_ - rejected_rewards_)
+            else:
+                raise ValueError(f"Unknown loss type: {self.loss_type}. Should be one of ['sigmoid', 'hinge', 'ipo', 'kto_pair']")
         
         losses = losses
         
-        # add minor DPO
-        if self.loss_type == "minor_dpo":
-            chosen_rewards_ = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device))
-            rejected_rewards_ = self.beta * F.relu(policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device))
-            losses = -F.logsigmoid(chosen_rewards_ - rejected_rewards_)
-
         chosen_rewards = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device)).detach()
         rejected_rewards = self.beta * (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device)).detach()
 
