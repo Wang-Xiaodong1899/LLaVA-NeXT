@@ -1191,17 +1191,17 @@ class IPOTrainer(Trainer):
         # rejected_rewards = self.beta * (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device)).detach()
         
         # XXX define specific reward for IPO
-        chosen_rewards = (policy_chosen_logps - reference_chosen_logps)
-        rejected_rewards = (policy_rejected_logps - reference_rejected_logps)
+        chosen_rewards = (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device))
+        rejected_rewards = (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device))
         
-        logits = chosen_rewards - rejected_rewards
-        
-        
-        chosen_rewards = self.beta * chosen_rewards
-        rejected_rewards = self.beta * rejected_rewards
-        
+        # logits = chosen_rewards - rejected_rewards
 
-        return losses, chosen_rewards, rejected_rewards
+        # losses = (logits - 1 / (2 * self.beta)) ** 2
+        
+        # chosen_rewards = self.beta * chosen_rewards
+        # rejected_rewards = self.beta * rejected_rewards
+
+        return chosen_rewards, rejected_rewards
 
     @staticmethod
     def get_batch_logps(
@@ -1377,12 +1377,24 @@ class IPOTrainer(Trainer):
             reference_chosen_logps = reference_chosen_logps.to(policy_chosen_logps.dtype)
             reference_rejected_logps = reference_rejected_logps.to(policy_chosen_logps.dtype)
             # import pdb; pdb.set_trace()
-            unscaled_dpo_losses, chosen_rewards, rejected_rewards = self.dpo_loss(
+            # unscaled_dpo_losses
+            chosen_rewards, rejected_rewards = self.dpo_loss(
                 policy_chosen_logps,
                 policy_rejected_logps,
                 reference_chosen_logps,
                 reference_rejected_logps,
             )
+
+            chosen_rewards = (chosen_rewards + batch["chosen_bert_score"]) / 2
+            rejected_rewards = (rejected_rewards + batch["rejected_bert_score"]) / 2
+            logits = chosen_rewards - rejected_rewards
+            unscaled_dpo_losses = (logits - 1 / (2 * self.beta)) ** 2
+
+            # IPO loss
+
+            chosen_rewards = self.beta * chosen_rewards
+            rejected_rewards = self.beta * rejected_rewards
+
             unscaled_dpo_losses = unscaled_dpo_losses.mean()
             dpo_losses = unscaled_dpo_losses * self.dpo_alpha
         else:
