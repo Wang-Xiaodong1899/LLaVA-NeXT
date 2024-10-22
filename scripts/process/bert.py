@@ -20,9 +20,9 @@ model = BertModel.from_pretrained('google-bert/bert-base-uncased').cuda()
 
 def infer(gt, chosen, rejected):
 
-    inputs_gt = tokenizer(gt, return_tensors='pt', max_length=128, truncation=True, padding=True)
-    inputs_chosen = tokenizer(chosen, return_tensors='pt', max_length=128, truncation=True, padding=True)
-    inputs_rejected = tokenizer(rejected, return_tensors='pt', max_length=128, truncation=True, padding=True)
+    inputs_gt = tokenizer(gt, return_tensors='pt', max_length=128, truncation=True, padding=True).cuda()
+    inputs_chosen = tokenizer(chosen, return_tensors='pt', max_length=128, truncation=True, padding=True).cuda()
+    inputs_rejected = tokenizer(rejected, return_tensors='pt', max_length=128, truncation=True, padding=True).cuda()
 
 
     with torch.no_grad():
@@ -31,9 +31,9 @@ def infer(gt, chosen, rejected):
         outputs_rejected = model(**inputs_rejected)
 
 
-    gt_embedding = outputs_gt.last_hidden_state[:, 0, :].numpy()
-    chosen_embedding = outputs_chosen.last_hidden_state[:, 0, :].numpy()
-    rejected_embedding = outputs_rejected.last_hidden_state[:, 0, :].numpy()
+    gt_embedding = outputs_gt.last_hidden_state[:, 0, :].cpu().numpy()
+    chosen_embedding = outputs_chosen.last_hidden_state[:, 0, :].cpu().numpy()
+    rejected_embedding = outputs_rejected.last_hidden_state[:, 0, :].cpu().numpy()
 
 
     bert_similarity_gt_chosen = cosine_similarity(gt_embedding, chosen_embedding)[0][0]
