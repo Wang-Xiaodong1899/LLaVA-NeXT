@@ -1389,9 +1389,8 @@ class IPOTrainer(Trainer):
             rejected_rewards = (rejected_rewards + batch["rejected_bert_score"]) / 2
             logits = chosen_rewards - rejected_rewards
             unscaled_dpo_losses = (logits - 1 / (2 * self.beta)) ** 2
-            s1, s2 = batch["chosen_bert_score"], batch["rejected_bert_score"]
-            print(f"prior: {s1}, {s2}")
-
+            # s1, s2 = batch["chosen_bert_score"], batch["rejected_bert_score"]
+            # print(f"prior: {s1}, {s2}")
             # IPO loss
 
             chosen_rewards = self.beta * chosen_rewards
