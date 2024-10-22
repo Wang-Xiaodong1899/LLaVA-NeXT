@@ -15,14 +15,15 @@ with open(data_path, 'r', encoding='utf-8') as infile:
         entry = json.loads(line)
         data.append(entry)
 
+device = "cuda:0"
 tokenizer = BertTokenizer.from_pretrained('google-bert/bert-base-uncased')
-model = BertModel.from_pretrained('google-bert/bert-base-uncased').cuda()
+model = BertModel.from_pretrained('google-bert/bert-base-uncased').to(device)
 
 def infer(gt, chosen, rejected):
 
-    inputs_gt = tokenizer(gt, return_tensors='pt', max_length=128, truncation=True, padding=True).cuda()
-    inputs_chosen = tokenizer(chosen, return_tensors='pt', max_length=128, truncation=True, padding=True).cuda()
-    inputs_rejected = tokenizer(rejected, return_tensors='pt', max_length=128, truncation=True, padding=True).cuda()
+    inputs_gt = tokenizer(gt, return_tensors='pt', max_length=128, truncation=True, padding=True).to(device)
+    inputs_chosen = tokenizer(chosen, return_tensors='pt', max_length=128, truncation=True, padding=True).to(device)
+    inputs_rejected = tokenizer(rejected, return_tensors='pt', max_length=128, truncation=True, padding=True).to(device)
 
 
     with torch.no_grad():
