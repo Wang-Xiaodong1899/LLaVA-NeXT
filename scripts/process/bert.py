@@ -9,9 +9,9 @@ tokenizer = BertTokenizer.from_pretrained('google-bert/bert-base-uncased')
 model = BertModel.from_pretrained('google-bert/bert-base-uncased')
 
 # 定义GT, chosen, rejected句子
-gt = "A dodgeball game is being played in the video."
-chosen = "A game of dodgeball is being played in the video."
-rejected = "The game being played in the video is dodgeball, a team sport typically played in a large indoor or outdoor court."
+gt = "The players are maneuvering around the court to avoid being hit by the balls."
+chosen = "The players are actively moving around the court, throwing and dodging balls."
+rejected = "The players appear to be taking evasive action to avoid being hit by the balls. They are positioning themselves strategically and moving to maintain a safe distance from the balls as they are thrown or hit."
 
 # 对GT, chosen, rejected句子进行BERT编码
 inputs_gt = tokenizer(gt, return_tensors='pt', max_length=128, truncation=True, padding=True)
