@@ -16,7 +16,7 @@ with open(data_path, 'r', encoding='utf-8') as infile:
         data.append(entry)
 
 tokenizer = BertTokenizer.from_pretrained('google-bert/bert-base-uncased')
-model = BertModel.from_pretrained('google-bert/bert-base-uncased')
+model = BertModel.from_pretrained('google-bert/bert-base-uncased').cuda()
 
 def infer(gt, chosen, rejected):
 
