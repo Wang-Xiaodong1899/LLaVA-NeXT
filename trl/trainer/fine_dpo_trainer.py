@@ -1186,10 +1186,20 @@ class IPOTrainer(Trainer):
         else:
             raise ValueError(f"Unknown loss type: {self.loss_type}. Should be one of ['sigmoid', 'hinge', 'ipo', 'kto_pair']")
         
-        losses = losses
-
-        chosen_rewards = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device)).detach()
-        rejected_rewards = self.beta * (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device)).detach()
+        # losses = losses
+        # chosen_rewards = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device)).detach()
+        # rejected_rewards = self.beta * (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device)).detach()
+        
+        # XXX define specific reward for IPO
+        chosen_rewards = (policy_chosen_logps - reference_chosen_logps)
+        rejected_rewards = (policy_rejected_logps - reference_rejected_logps)
+        
+        logits = chosen_rewards - rejected_rewards
+        
+        
+        chosen_rewards = self.beta * chosen_rewards
+        rejected_rewards = self.beta * rejected_rewards
+        
 
         return losses, chosen_rewards, rejected_rewards
 

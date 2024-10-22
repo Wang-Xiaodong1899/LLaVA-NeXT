@@ -1414,6 +1414,10 @@ class DPODataCollator(DPODataCollatorWithPadding):
 
             # padded_batch["reference_chosen_logps"] = torch.tensor(reference_chosen_logps)
             # padded_batch["reference_rejected_logps"] = torch.tensor(reference_rejected_logps)
+            
+            # TODO add prior reward info
+            padded_batch["chosen_bert_score"] = feature["chosen_bert_score"]
+            padded_batch["rejected_bert_score"] = feature["rejected_bert_score"]
 
         return padded_batch
 
