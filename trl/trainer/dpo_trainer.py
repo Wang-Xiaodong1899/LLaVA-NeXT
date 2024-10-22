@@ -493,7 +493,7 @@ class DPOTrainer(Trainer):
         beta: float = 0.1,
         gamma: float = 0.1,
         label_smoothing: float = 0,
-        loss_type: Literal["sigmoid", "hinge", "ipo", "kto_pair"] = "sigmoid",
+        loss_type: Literal["sigmoid", "hinge", "ipo", "kto_pair", "minor_dpo"] = "sigmoid",
         args: Optional[TrainingArguments] = None,
         data_collator: Optional[DataCollator] = None,
         label_pad_token_id: int = -100,
@@ -1169,6 +1169,12 @@ class DPOTrainer(Trainer):
             raise ValueError(f"Unknown loss type: {self.loss_type}. Should be one of ['sigmoid', 'hinge', 'ipo', 'kto_pair']")
         
         losses = losses
+        
+        # add minor DPO
+        if self.loss_type == "minor_dpo":
+            chosen_rewards_ = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device))
+            rejected_rewards_ = self.beta * F.relu(policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device))
+            losses = -F.logsigmoid(chosen_rewards_ - rejected_rewards_)
 
         chosen_rewards = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device)).detach()
         rejected_rewards = self.beta * (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device)).detach()
