@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_mmdpo_17k_flash-attn_iter2-prior
+export WANDB_NAME=llava_mmdpo_17k_flash-attn_iter2-ov-prior-2
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -47,7 +47,8 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava-next-vicuna-dpo-iter1/checkpoint-3000 \
     --version $PROMPT_VERSION \
     --loss_type margin_dpo_prior \
-    --dpo_alpha 1.0 --beta 0.5 --gamma 0 \
+    --bt_beta 0.3 \
+    --dpo_alpha 1.0 --beta 0.01 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \

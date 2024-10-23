@@ -522,7 +522,7 @@ class IPOTrainer(Trainer):
         model_adapter_name: Optional[str] = None,
         ref_adapter_name: Optional[str] = None,
         reference_free: bool = False,
-        bt_beta: float = 1.1
+        bt_beta: float = 0.3
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
