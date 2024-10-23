@@ -493,7 +493,7 @@ class IPOTrainer(Trainer):
         beta: float = 0.1,
         gamma: float = 0.1,
         label_smoothing: float = 0,
-        loss_type: Literal["sigmoid", "hinge", "ipo", "kto_pair"] = "sigmoid",
+        loss_type: Literal["sigmoid", "hinge", "ipo", "kto_pair", "minor_dpo", "minor_dpo_prior", "ipo_prior"] = "sigmoid",
         args: Optional[TrainingArguments] = None,
         data_collator: Optional[DataCollator] = None,
         label_pad_token_id: int = -100,
@@ -1184,7 +1184,10 @@ class IPOTrainer(Trainer):
                 0,
             )
         else:
-            raise ValueError(f"Unknown loss type: {self.loss_type}. Should be one of ['sigmoid', 'hinge', 'ipo', 'kto_pair']")
+            if "minor_dpo" in self.loss_type or "prior" in self.loss_type:
+                pass
+            else:
+                raise ValueError(f"Unknown loss type: {self.loss_type}. Should be one of ['sigmoid', 'hinge', 'ipo', 'kto_pair']")
         
         # losses = losses
         # chosen_rewards = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device)).detach()
@@ -1384,9 +1387,14 @@ class IPOTrainer(Trainer):
                 reference_chosen_logps,
                 reference_rejected_logps,
             )
-
-            chosen_rewards = (chosen_rewards + batch["chosen_bert_score"]) / 2
-            rejected_rewards = (rejected_rewards + batch["rejected_bert_score"]) / 2
+            
+            if "prior" in self.loss_type:
+                chosen_rewards = (chosen_rewards + batch["chosen_bert_score"]) / 2
+                rejected_rewards = (rejected_rewards + batch["rejected_bert_score"]) / 2
+            
+            if "minor_dpo" in self.loss_type:
+                rejected_rewards = F.relu(rejected_rewards)
+            
             logits = chosen_rewards - rejected_rewards
             unscaled_dpo_losses = (logits - 1 / (2 * self.beta)) ** 2
             # s1, s2 = batch["chosen_bert_score"], batch["rejected_bert_score"]
