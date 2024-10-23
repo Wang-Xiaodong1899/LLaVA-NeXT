@@ -21,6 +21,7 @@ from copy import deepcopy
 from functools import wraps
 from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
 
+import math
 import numpy as np
 import torch
 import torch.nn as nn
@@ -1396,7 +1397,7 @@ class IPOTrainer(Trainer):
                     rejected_rewards = (rejected_rewards + batch["rejected_bert_score"]) / 2
 
                 diff_score = (batch["chosen_bert_score"] - batch["rejected_bert_score"]) * 10
-                diff_score = 1.0 / (1.0 + torch.exp(-self.bt_beta * diff_score))
+                diff_score = 1.0 / (1.0 + math.exp(-self.bt_beta * diff_score))
 
             if "minor_dpo" in self.loss_type:
                 rejected_rewards = F.relu(rejected_rewards)
