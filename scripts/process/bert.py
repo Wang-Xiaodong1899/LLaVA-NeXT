@@ -7,7 +7,7 @@ import torch
 from tqdm import tqdm
 
 
-data_path="/volsparse1/wxd/data/shareVideoGPTV/ov-72b-f32_next-7b-DPO-iter1-sample-K1_0_8000.jsonl"
+data_path="/workspace/wxd/LLaVA-NeXT/data/shareVideoGPTV/aug_f4_add_chosen_0_8000.jsonl"
 
 data = []
 with open(data_path, 'r', encoding='utf-8') as infile:
@@ -88,7 +88,7 @@ for idx, item in tqdm(enumerate(data)):
     data[idx]["chosen_bert_score"] = chosen_score
     data[idx]["rejected_bert_score"] = rejected_score
 
-output_file="/volsparse1/wxd/data/shareVideoGPTV/ov-72b-f32_next-7b-DPO-iter1-sample-K1_0_8000_bert.jsonl"
+output_file="/workspace/wxd/LLaVA-NeXT/data/shareVideoGPTV/aug_f4_add_chosen_0_8000_bert.jsonl"
 with open(output_file, 'w', encoding='utf-8') as outfile:
     for line in data:
         json.dump(line, outfile)  # Write the JSON entry to the file
