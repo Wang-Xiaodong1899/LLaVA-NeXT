@@ -493,7 +493,7 @@ class IPOTrainer(Trainer):
         beta: float = 0.1,
         gamma: float = 0.1,
         label_smoothing: float = 0,
-        loss_type: Literal["sigmoid", "hinge", "ipo", "kto_pair", "minor_dpo", "minor_dpo_prior", "ipo_prior"] = "sigmoid",
+        loss_type: str = "sigmoid",
         args: Optional[TrainingArguments] = None,
         data_collator: Optional[DataCollator] = None,
         label_pad_token_id: int = -100,
@@ -521,6 +521,7 @@ class IPOTrainer(Trainer):
         model_adapter_name: Optional[str] = None,
         ref_adapter_name: Optional[str] = None,
         reference_free: bool = False,
+        bt_beta: float = 1.1
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -640,6 +641,7 @@ class IPOTrainer(Trainer):
         self.gamma = gamma
         self.label_smoothing = label_smoothing
         self.loss_type = loss_type
+        self.bt_beta = bt_beta
 
         self._stored_metrics = defaultdict(lambda: defaultdict(list))
 
@@ -1296,7 +1298,7 @@ class IPOTrainer(Trainer):
         all_logps = self.get_batch_logps(
             all_logits,
             new_labels,
-            average_log_prob=True, # average is Ture when use fine_dpo
+            average_log_prob="ipo" in self.loss_type, # average is Ture when use ipo
             is_encoder_decoder=self.is_encoder_decoder,
             label_pad_token_id=self.label_pad_token_id,
         )
@@ -1389,17 +1391,39 @@ class IPOTrainer(Trainer):
             )
             
             if "prior" in self.loss_type:
-                chosen_rewards = (chosen_rewards + batch["chosen_bert_score"]) / 2
-                rejected_rewards = (rejected_rewards + batch["rejected_bert_score"]) / 2
-            
+                if "add" in self.loss_type:
+                    chosen_rewards = (chosen_rewards + batch["chosen_bert_score"]) / 2
+                    rejected_rewards = (rejected_rewards + batch["rejected_bert_score"]) / 2
+
+                diff_score = (batch["chosen_bert_score"] - batch["rejected_bert_score"]) * 10
+                diff_score = 1.0 / (1.0 + torch.exp(-self.bt_beta * diff_score))
+
             if "minor_dpo" in self.loss_type:
                 rejected_rewards = F.relu(rejected_rewards)
             
-            logits = chosen_rewards - rejected_rewards
-            unscaled_dpo_losses = (logits - 1 / (2 * self.beta)) ** 2
+            if "ipo" in self.loss_type:
+                logits = chosen_rewards - rejected_rewards
+                unscaled_dpo_losses = (logits - 1 / (2 * self.beta)) ** 2
+            elif "dpo" in self.loss_type:
+                policy_chosen_logps = policy_chosen_logps.to(self.accelerator.device)
+                policy_rejected_logps = policy_rejected_logps.to(self.accelerator.device)
+                pi_logratios = policy_chosen_logps - policy_rejected_logps
+                ref_logratios = reference_chosen_logps - reference_rejected_logps
+                logits = pi_logratios - ref_logratios
+                
+                if "margin" in self.loss_type:
+                    p_chosen = torch.tensor(diff_score).to(self.accelerator.device)
+                    losses = (
+                        -F.logsigmoid(self.beta * logits) * p_chosen
+                        - F.logsigmoid(-self.beta * logits) * (1 - p_chosen)
+                    )
+                else:
+                    losses = -F.logsigmoid(self.beta * logits) * (1 - self.label_smoothing) - F.logsigmoid(-self.beta * logits) * self.label_smoothing
             # s1, s2 = batch["chosen_bert_score"], batch["rejected_bert_score"]
             # print(f"prior: {s1}, {s2}")
             # IPO loss
+
+            unscaled_dpo_losses = losses
 
             chosen_rewards = self.beta * chosen_rewards
             rejected_rewards = self.beta * rejected_rewards
