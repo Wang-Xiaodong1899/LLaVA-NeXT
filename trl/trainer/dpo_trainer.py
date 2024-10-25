@@ -493,7 +493,7 @@ class DPOTrainer(Trainer):
         beta: float = 0.1,
         gamma: float = 0.1,
         label_smoothing: float = 0,
-        loss_type: Literal["sigmoid", "hinge", "ipo", "kto_pair", "minor_dpo"] = "sigmoid",
+        loss_type: str = "sigmoid",
         args: Optional[TrainingArguments] = None,
         data_collator: Optional[DataCollator] = None,
         label_pad_token_id: int = -100,
@@ -1165,6 +1165,12 @@ class DPOTrainer(Trainer):
                 ),
                 0,
             )
+        elif self.loss_type == "simpo":
+            constant_gamma = torch.tensor(0.5).to(pi_logratios.device)
+            logits = pi_logratios - constant_gamma
+            losses = -F.logsigmoid(self.beta * logits)
+            reference_chosen_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
+            reference_rejected_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
         else:
             # add minor DPO
             if self.loss_type == "minor_dpo":
@@ -1271,7 +1277,7 @@ class DPOTrainer(Trainer):
         all_logps = self.get_batch_logps(
             all_logits,
             new_labels,
-            average_log_prob=self.loss_type == "ipo",
+            average_log_prob=self.loss_type in ["ipo", "simpo"],
             is_encoder_decoder=self.is_encoder_decoder,
             label_pad_token_id=self.label_pad_token_id,
         )
