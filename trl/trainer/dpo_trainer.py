@@ -493,7 +493,7 @@ class DPOTrainer(Trainer):
         beta: float = 0.1,
         gamma: float = 0.1,
         label_smoothing: float = 0,
-        loss_type: Literal["sigmoid", "hinge", "ipo", "kto_pair"] = "sigmoid",
+        loss_type: str = "sigmoid",
         args: Optional[TrainingArguments] = None,
         data_collator: Optional[DataCollator] = None,
         label_pad_token_id: int = -100,
@@ -750,11 +750,12 @@ class DPOTrainer(Trainer):
             all_reference_chosen_logps = torch.cat(reference_chosen_logps).float().numpy()
             all_reference_rejected_logps = torch.cat(reference_rejected_logps).float().numpy()
 
+            # NOTE save logps
             # np.save("/volsparse1/wxd/reference_chosen_logps_34B-DPO_0.npy", all_reference_chosen_logps)
             # np.save("/volsparse1/wxd/reference_rejected_logps_34B-DPO_0.npy", all_reference_rejected_logps)
             
-            np.save("/volsparse1/wxd/reference_chosen_logps_ov-72b-0_8000.npy", all_reference_chosen_logps)
-            np.save("/volsparse1/wxd/reference_rejected_logps_ov-72b-0_8000.npy", all_reference_rejected_logps)
+            np.save("/volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_16_stride_1/ov-7b_f16_K5_0_2000_k2_k3_logp_chosen.npy", all_reference_chosen_logps)
+            np.save("/volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_16_stride_1/ov-7b_f16_K5_0_2000_k2_k3_logp_rejected.npy", all_reference_rejected_logps)
 
             # save to json
             # DPODataset(tokenizer=tokenizer, data_path=data_args.data_path, data_args=data_args)
@@ -1126,7 +1127,16 @@ class DPOTrainer(Trainer):
 
         pi_logratios = pi_logratios.to(self.accelerator.device)
         ref_logratios = ref_logratios.to(self.accelerator.device)
+        
+        # XXX logits = pi_logratios - ref_logratios + 5
+        # XXX margin loss, 0.1 * 
+        # margin_logps = 0.5 * torch.clamp(policy_rejected_logps-policy_chosen_logps, min=0).to(self.accelerator.device)
+        
+        # XXX if use a learnable margin
+        
+        # logits = pi_logratios - ref_logratios + self.model.reward_margin
         logits = pi_logratios - ref_logratios
+        
         # print(f"pi log ratios: {pi_logratios}")
         # print(f"ref log ratios: {ref_logratios}")
         # print(f"logits: {logits}")
@@ -1155,9 +1165,23 @@ class DPOTrainer(Trainer):
                 ),
                 0,
             )
+        elif self.loss_type == "simpo":
+            constant_gamma = torch.tensor(0.5).to(pi_logratios.device)
+            logits = pi_logratios
+            losses = -F.logsigmoid(self.beta * logits - constant_gamma)
+            reference_chosen_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
+            reference_rejected_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
         else:
-            raise ValueError(f"Unknown loss type: {self.loss_type}. Should be one of ['sigmoid', 'hinge', 'ipo', 'kto_pair']")
-
+            # add minor DPO
+            if self.loss_type == "minor_dpo":
+                chosen_rewards_ = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device))
+                rejected_rewards_ = self.beta * F.relu(policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device))
+                losses = -F.logsigmoid(chosen_rewards_ - rejected_rewards_)
+            else:
+                raise ValueError(f"Unknown loss type: {self.loss_type}. Should be one of ['sigmoid', 'hinge', 'ipo', 'kto_pair']")
+        
+        losses = losses
+        
         chosen_rewards = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device)).detach()
         rejected_rewards = self.beta * (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device)).detach()
 
@@ -1253,7 +1277,7 @@ class DPOTrainer(Trainer):
         all_logps = self.get_batch_logps(
             all_logits,
             new_labels,
-            average_log_prob=self.loss_type == "ipo",
+            average_log_prob=self.loss_type in ["ipo", "simpo"],
             is_encoder_decoder=self.is_encoder_decoder,
             label_pad_token_id=self.label_pad_token_id,
         )
@@ -1339,10 +1363,22 @@ class DPOTrainer(Trainer):
             reward_accuracies = torch.tensor(0.)
             chosen_rewards, rejected_rewards = torch.tensor(0.), torch.tensor(0.)
         
-        # consider sft loss
-        unscaled_sft_loss = self.get_sft_loss(policy_chosen_logits, chosen_labels)
-        # XXX also consider rejected (if rejected is good)
-        # unscaled_sft_loss = unscaled_sft_loss + self.get_sft_loss(policy_rejected_logits, rejected_labels)
+        # XXX random chosen a sft loss
+        
+        # Get the loss for the chosen samples
+        unscaled_sft_loss_chosen = self.get_sft_loss(policy_chosen_logits, chosen_labels)
+        # Get the loss for the rejected samples
+        unscaled_sft_loss_rejected = self.get_sft_loss(policy_rejected_logits, rejected_labels)
+
+        # Randomly select which loss to optimize
+        if torch.rand(1).item() > 0.5:
+            # Optimize the chosen loss
+            unscaled_sft_loss = unscaled_sft_loss_chosen
+        else:
+            # Optimize the rejected loss
+            unscaled_sft_loss = unscaled_sft_loss_rejected
+
+        # Scale the selected loss and compute the final loss
         sft_loss = unscaled_sft_loss * self.gamma
 
         if self.gamma > 0:
@@ -1376,10 +1412,12 @@ class DPOTrainer(Trainer):
         metrics[f"{prefix}losses/dpo"] = unscaled_dpo_losses.cpu()
         metrics[f"{prefix}losses/sft"] = unscaled_sft_loss.cpu()
         metrics[f"{prefix}losses/total"] = losses.cpu()
-        # metrics[f"{prefix}rewards/chosen"] = chosen_rewards.mean().cpu()
-        # metrics[f"{prefix}rewards/rejected"] = rejected_rewards.mean().cpu()
-        # metrics[f"{prefix}rewards/accuracies"] = reward_accuracies.mean().cpu()
-        # metrics[f"{prefix}rewards/margins"] = (chosen_rewards - rejected_rewards).mean().cpu()
+        # # XXX test
+        # metrics[f"{prefix}rewards/auto_margin"] = self.model.reward_margin.cpu()
+        metrics[f"{prefix}rewards/chosen"] = chosen_rewards.mean().cpu()
+        metrics[f"{prefix}rewards/rejected"] = rejected_rewards.mean().cpu()
+        metrics[f"{prefix}rewards/accuracies"] = reward_accuracies.mean().cpu()
+        metrics[f"{prefix}rewards/margins"] = (chosen_rewards - rejected_rewards).mean().cpu()
         # policy logps
         metrics[f"{prefix}logps/rejected"] = policy_rejected_logps.detach().mean().cpu()
         metrics[f"{prefix}logps/chosen"] = policy_chosen_logps.detach().mean().cpu()
