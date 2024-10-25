@@ -1167,8 +1167,7 @@ class DPOTrainer(Trainer):
             )
         elif self.loss_type == "simpo":
             constant_gamma = torch.tensor(0.5).to(pi_logratios.device)
-            logits = pi_logratios - constant_gamma
-            losses = -F.logsigmoid(self.beta * logits)
+            losses = -F.logsigmoid(self.beta * logits - constant_gamma)
             reference_chosen_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
             reference_rejected_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
         else:
