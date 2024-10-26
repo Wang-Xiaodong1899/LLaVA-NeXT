@@ -1186,19 +1186,25 @@ class IPOTrainer(Trainer):
                 ),
                 0,
             )
+        elif self.loss_type == "simpo":
+            constant_gamma = torch.tensor(0.5).to(pi_logratios.device)
+            logits = pi_logratios
+            losses = -F.logsigmoid(self.beta * logits - constant_gamma)
+            reference_chosen_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
+            reference_rejected_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
         else:
             if "minor_dpo" in self.loss_type or "prior" in self.loss_type:
                 pass
             else:
                 raise ValueError(f"Unknown loss type: {self.loss_type}. Should be one of ['sigmoid', 'hinge', 'ipo', 'kto_pair']")
         
-        # losses = losses
-        # chosen_rewards = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device)).detach()
-        # rejected_rewards = self.beta * (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device)).detach()
+        losses = losses
+        chosen_rewards = self.beta * (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device)).detach()
+        rejected_rewards = self.beta * (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device)).detach()
         
         # XXX define specific reward for IPO
-        chosen_rewards = (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device))
-        rejected_rewards = (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device))
+        # chosen_rewards = (policy_chosen_logps.to(self.accelerator.device) - reference_chosen_logps.to(self.accelerator.device))
+        # rejected_rewards = (policy_rejected_logps.to(self.accelerator.device) - reference_rejected_logps.to(self.accelerator.device))
         
         # logits = chosen_rewards - rejected_rewards
 
@@ -1207,7 +1213,7 @@ class IPOTrainer(Trainer):
         # chosen_rewards = self.beta * chosen_rewards
         # rejected_rewards = self.beta * rejected_rewards
 
-        return chosen_rewards, rejected_rewards
+        return losses, chosen_rewards, rejected_rewards
 
     @staticmethod
     def get_batch_logps(
@@ -1299,7 +1305,7 @@ class IPOTrainer(Trainer):
         all_logps = self.get_batch_logps(
             all_logits,
             new_labels,
-            average_log_prob="ipo" in self.loss_type, # average is Ture when use ipo
+            average_log_prob=self.loss_type in ["ipo", "simpo"],
             is_encoder_decoder=self.is_encoder_decoder,
             label_pad_token_id=self.label_pad_token_id,
         )
@@ -1384,7 +1390,7 @@ class IPOTrainer(Trainer):
             reference_rejected_logps = reference_rejected_logps.to(policy_chosen_logps.dtype)
             # import pdb; pdb.set_trace()
             # unscaled_dpo_losses
-            chosen_rewards, rejected_rewards = self.dpo_loss(
+            losses, chosen_rewards, rejected_rewards = self.dpo_loss(
                 policy_chosen_logps,
                 policy_rejected_logps,
                 reference_chosen_logps,
@@ -1426,8 +1432,8 @@ class IPOTrainer(Trainer):
 
             unscaled_dpo_losses = losses
 
-            chosen_rewards = self.beta * chosen_rewards
-            rejected_rewards = self.beta * rejected_rewards
+            # chosen_rewards = self.beta * chosen_rewards
+            # rejected_rewards = self.beta * rejected_rewards
 
             unscaled_dpo_losses = unscaled_dpo_losses.mean()
             dpo_losses = unscaled_dpo_losses * self.dpo_alpha
@@ -1442,15 +1448,16 @@ class IPOTrainer(Trainer):
         # Get the loss for the chosen samples
         unscaled_sft_loss_chosen = self.get_sft_loss(policy_chosen_logits, chosen_labels)
         # Get the loss for the rejected samples
-        unscaled_sft_loss_rejected = self.get_sft_loss(policy_rejected_logits, rejected_labels)
+        # unscaled_sft_loss_rejected = self.get_sft_loss(policy_rejected_logits, rejected_labels)
 
         # Randomly select which loss to optimize
-        if torch.rand(1).item() > 0.5:
-            # Optimize the chosen loss
-            unscaled_sft_loss = unscaled_sft_loss_chosen
-        else:
-            # Optimize the rejected loss
-            unscaled_sft_loss = unscaled_sft_loss_rejected
+        # if torch.rand(1).item() > 0.5:
+        #     # Optimize the chosen loss
+        #     unscaled_sft_loss = unscaled_sft_loss_chosen
+        # else:
+        #     # Optimize the rejected loss
+        #     unscaled_sft_loss = unscaled_sft_loss_rejected
+        unscaled_sft_loss = unscaled_sft_loss_chosen
 
         # Scale the selected loss and compute the final loss
         sft_loss = unscaled_sft_loss * self.gamma
