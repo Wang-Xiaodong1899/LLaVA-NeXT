@@ -29,7 +29,7 @@ data_path=/volsparse1/wxd/data/self-gen/inject-prior/llava-onevision-qwen2-7b-ov
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
-port=19002
+port=19006
 
 VISION_MODEL_VERSION="google/siglip-so400m-patch14-384"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
