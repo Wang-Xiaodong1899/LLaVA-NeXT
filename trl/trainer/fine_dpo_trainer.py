@@ -1187,7 +1187,7 @@ class IPOTrainer(Trainer):
                 0,
             )
         elif self.loss_type == "simpo":
-            constant_gamma = torch.tensor(0.5).to(pi_logratios.device)
+            constant_gamma = torch.tensor(1.5).to(pi_logratios.device)
             logits = pi_logratios
             losses = -F.logsigmoid(self.beta * logits - constant_gamma)
             reference_chosen_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
@@ -1363,9 +1363,20 @@ class IPOTrainer(Trainer):
             reference_chosen_logps = batch["reference_chosen_logps"]
             reference_rejected_logps = batch["reference_rejected_logps"]
         else:
-            with torch.no_grad():
-                if self.ref_model is None:
-                    with self.null_ref_context():
+            if self.loss_type != "simpo":
+                with torch.no_grad():
+                    if self.ref_model is None:
+                        with self.null_ref_context():
+                            (
+                                reference_chosen_logps,
+                                reference_rejected_logps,
+                                _, _, _, _,
+                                reference_answer_logps,
+                                _, _
+                            ) = self.concatenated_forward(
+                                self.model, batch
+                            )
+                    else:
                         (
                             reference_chosen_logps,
                             reference_rejected_logps,
@@ -1373,21 +1384,16 @@ class IPOTrainer(Trainer):
                             reference_answer_logps,
                             _, _
                         ) = self.concatenated_forward(
-                            self.model, batch
+                            self.ref_model, batch
                         )
-                else:
-                    (
-                        reference_chosen_logps,
-                        reference_rejected_logps,
-                        _, _, _, _,
-                        reference_answer_logps,
-                        _, _
-                    ) = self.concatenated_forward(
-                        self.ref_model, batch
-                    )
         if self.dpo_alpha > 0:
-            reference_chosen_logps = reference_chosen_logps.to(policy_chosen_logps.dtype)
-            reference_rejected_logps = reference_rejected_logps.to(policy_chosen_logps.dtype)
+            if self.loss_type != "simpo":
+                reference_chosen_logps = reference_chosen_logps.to(policy_chosen_logps.dtype)
+                reference_rejected_logps = reference_rejected_logps.to(policy_chosen_logps.dtype)
+            else:
+                self.reference_free = True
+                reference_chosen_logps= torch.tensor([0.])
+                reference_rejected_logps = torch.tensor([0.])
             # import pdb; pdb.set_trace()
             # unscaled_dpo_losses
             losses, chosen_rewards, rejected_rewards = self.dpo_loss(
@@ -1489,10 +1495,10 @@ class IPOTrainer(Trainer):
         
         policy_answer_logps = all_gather_tensor(policy_answer_logps) # add
         
-        reference_chosen_logps = all_gather_tensor(reference_chosen_logps)
-        reference_rejected_logps = all_gather_tensor(reference_rejected_logps)
+        # reference_chosen_logps = all_gather_tensor(reference_chosen_logps)
+        # reference_rejected_logps = all_gather_tensor(reference_rejected_logps)
         
-        reference_answer_logps = all_gather_tensor(reference_answer_logps) # add
+        # reference_answer_logps = all_gather_tensor(reference_answer_logps) # add
 
         prefix = "eval_" if train_eval == "eval" else ""
         metrics[f"{prefix}losses/dpo"] = unscaled_dpo_losses.cpu()
@@ -1512,9 +1518,9 @@ class IPOTrainer(Trainer):
         # metrics[f"{prefix}logits/rejected"] =policy_rejected_logits
         # metrics[f"{prefix}logits/chosen"] = policy_chosen_logits
         # reference logps
-        metrics[f"{prefix}ref_logps/rejected"] = reference_rejected_logps.mean().cpu()
-        metrics[f"{prefix}ref_logps/chosen"] = reference_chosen_logps.mean().cpu()
-        metrics[f"{prefix}ref_logps/answer"] = reference_answer_logps.mean().cpu() # add
+        # metrics[f"{prefix}ref_logps/rejected"] = reference_rejected_logps.mean().cpu()
+        # metrics[f"{prefix}ref_logps/chosen"] = reference_chosen_logps.mean().cpu()
+        # metrics[f"{prefix}ref_logps/answer"] = reference_answer_logps.mean().cpu() # add
 
         # metrics all pick .4 digits
         # for k in metrics:
