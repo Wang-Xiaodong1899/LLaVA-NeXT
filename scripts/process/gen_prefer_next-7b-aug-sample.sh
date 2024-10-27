@@ -37,7 +37,7 @@ python scripts/process/self_generate_preference_aug_sample.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
     --output_dir /volsparse1/wxd/data/self-gen/video_next-7b-aug-sample/$SAVE_DIR \
-    --output_name next-7b_f4_sample_${START}_${END} \
+    --output_name next-7b_aug_f4_sample_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
