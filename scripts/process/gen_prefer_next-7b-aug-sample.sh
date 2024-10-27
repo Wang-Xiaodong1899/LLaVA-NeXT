@@ -33,7 +33,6 @@ else
 fi
     
 python scripts/process/self_generate_preference_aug_sample.py \
-    --skip_chosen true \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
     --output_dir /volsparse1/wxd/data/self-gen/video_next-7b-aug-sample/$SAVE_DIR \

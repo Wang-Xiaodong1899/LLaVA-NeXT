@@ -81,7 +81,7 @@ def parse_args():
     parser.add_argument("--jsonl-file", type=str, default="/volsparse1/wxd/data/llava_hound/chatgpt_qa_900k.jsonl")
     parser.add_argument("--start", type=int, default=0)
     parser.add_argument("--end", type=int, default=2000)
-    parser.add_argument("--skip-chosen", type=bool, default=False)
+    parser.add_argument("--skip-chosen", type=bool, default=True)
     parser.add_argument("--image_resolution", type=int, default=224) 
     
     return parser.parse_args()
