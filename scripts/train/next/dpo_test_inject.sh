@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_vicuna_dpo_inject_8k
+export WANDB_NAME=llava_vicuna_dpo_inject_aug_8k
 
 gpu_ids=0,1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
@@ -23,7 +23,7 @@ output_dir=/volsparse2/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=${ROOT}/data/shareVideoGPTV/Next-7b_f16_0_8000.jsonl
+data_path=${ROOT}/data/shareVideoGPTV/Next-7b_f16_7b-aug_0_8000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.

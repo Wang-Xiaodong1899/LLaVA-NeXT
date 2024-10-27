@@ -1187,7 +1187,7 @@ class IPOTrainer(Trainer):
                 0,
             )
         elif self.loss_type == "simpo":
-            constant_gamma = torch.tensor(1.5).to(pi_logratios.device)
+            constant_gamma = torch.tensor(0.5).to(pi_logratios.device)
             logits = pi_logratios
             losses = -F.logsigmoid(self.beta * logits - constant_gamma)
             reference_chosen_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
