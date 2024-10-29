@@ -1282,16 +1282,17 @@ class IPOTrainer(Trainer):
         )
 
         # # inference logps only
-        model = model.to(self.accelerator.device).to(torch.bfloat16)
+        tmp_dtype = torch.float16 if self.args.fp16 else torch.bfloat16
+        model = model.to(self.accelerator.device).to(tmp_dtype)
         len_chosen = batch["chosen_labels"].shape[0]
 
         new_batch = []
         for item in concatenated_batch["concatenated_images"]:
-            new_batch.append(item.to(torch.bfloat16))
+            new_batch.append(item.to(tmp_dtype))
         concatenated_batch.pop("concatenated_images")
         concatenated_batch["concatenated_images"] = torch.stack(new_batch, dim=0)
 
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         all_logits, new_labels = model(
             concatenated_batch["concatenated_input_ids"],
             attention_mask=concatenated_batch["concatenated_attention_mask"],
@@ -1346,7 +1347,7 @@ class IPOTrainer(Trainer):
         2. all gather metrics
         """
         metrics = {}
-
+        import pdb; pdb.set_trace()
         (
             policy_chosen_logps,
             policy_rejected_logps,
@@ -1544,6 +1545,7 @@ class IPOTrainer(Trainer):
         compute_loss_context_manager = torch.cuda.amp.autocast if self._peft_has_been_casted_to_bf16 else nullcontext
         import pdb; pdb.set_trace()
         with compute_loss_context_manager():
+            # all fp16
             loss, metrics = self.get_batch_loss_metrics(model, inputs, train_eval="train")
 
         # force log the metrics
