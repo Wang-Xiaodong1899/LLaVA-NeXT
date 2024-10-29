@@ -1542,7 +1542,7 @@ class IPOTrainer(Trainer):
             )
 
         compute_loss_context_manager = torch.cuda.amp.autocast if self._peft_has_been_casted_to_bf16 else nullcontext
-
+        import pdb; pdb.set_trace()
         with compute_loss_context_manager():
             loss, metrics = self.get_batch_loss_metrics(model, inputs, train_eval="train")
 
