@@ -12,9 +12,9 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-jf-4A100
-export WANDB_NAME=llava_qwen_simpo_inject_prior_aug-f1
+export WANDB_NAME=llava_qwen_simpo_inject_prior_aug-f1-debug
 
-gpu_ids=0,1,2,3
+gpu_ids=0
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
