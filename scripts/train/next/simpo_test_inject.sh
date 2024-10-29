@@ -14,7 +14,7 @@ ROOT=$2
 export WANDB_PROJECT=llava-next-jf-4A100
 export WANDB_NAME=llava_vicuna_simpo_inject_8k_aug_8k_norm
 
-gpu_ids=0,1,2,3
+gpu_ids=1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
@@ -28,7 +28,7 @@ data_path=${ROOT}/data/shareVideoGPTV/Next-7b_f16_7b-aug_0_8000.jsonl
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
-port=19002
+port=19006
 
 VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
@@ -50,6 +50,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \
+    --mm_tunable_parts="mm_mlp_adapter" \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
