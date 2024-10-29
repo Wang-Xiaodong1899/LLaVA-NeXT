@@ -690,7 +690,7 @@ class IPOTrainer(Trainer):
     def _prepare_deepspeed(self, model: PreTrainedModelWrapper):
         # Adapted from accelerate: https://github.com/huggingface/accelerate/blob/739b135f8367becb67ffaada12fe76e3aa60fefd/src/accelerate/accelerator.py#L1473
         deepspeed_plugin = self.accelerator.state.deepspeed_plugin
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         config_kwargs = deepcopy(deepspeed_plugin.deepspeed_config)
 
         if model is not None:
@@ -1292,7 +1292,7 @@ class IPOTrainer(Trainer):
         concatenated_batch.pop("concatenated_images")
         concatenated_batch["concatenated_images"] = torch.stack(new_batch, dim=0)
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         all_logits, new_labels = model(
             concatenated_batch["concatenated_input_ids"],
             attention_mask=concatenated_batch["concatenated_attention_mask"],
@@ -1347,7 +1347,7 @@ class IPOTrainer(Trainer):
         2. all gather metrics
         """
         metrics = {}
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         (
             policy_chosen_logps,
             policy_rejected_logps,
@@ -1543,7 +1543,7 @@ class IPOTrainer(Trainer):
             )
 
         compute_loss_context_manager = torch.cuda.amp.autocast if self._peft_has_been_casted_to_bf16 else nullcontext
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         with compute_loss_context_manager():
             # all fp16
             loss, metrics = self.get_batch_loss_metrics(model, inputs, train_eval="train")

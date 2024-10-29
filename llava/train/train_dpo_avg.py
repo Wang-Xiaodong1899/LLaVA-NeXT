@@ -1885,7 +1885,7 @@ def train(attn_implementation=None):
         label_pad_token_id=IGNORE_INDEX,
         pad_token_id=tokenizer.pad_token_id,
     )
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     trainer = LLaVAIPOTrainer(
         model,
         ref_model,
