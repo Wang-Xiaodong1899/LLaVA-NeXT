@@ -28,7 +28,7 @@ data_path=${ROOT}/data/shareVideoGPTV/Next-7b_f16_7b-aug_0_8000.jsonl
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
-port=19006
+port=19008
 
 VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
