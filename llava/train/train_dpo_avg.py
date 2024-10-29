@@ -1588,7 +1588,7 @@ def get_model(model_args, training_args, bnb_model_from_pretrained_args):
                     low_cpu_mem_usage=False,
                     **customized_kwargs,
                 )
-                
+                import pdb;pdb.set_trace()
 
             if "zero3" in training_args.deepspeed:
                 rank0_print("#### Initialize reference model #####")
