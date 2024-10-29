@@ -62,7 +62,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_aspect_ratio anyres_max_9 \
     --image_grid_pinpoints "(1x1),...,(6x6)" \
     --mm_patch_merge_type spatial_unpad \
-    --fp16 True \
+    --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 1 \
@@ -78,7 +78,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --warmup_ratio 0.1 \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
-    --tf32 False \
+    --tf32 True \
     --model_max_length 3584 \
     --gradient_checkpointing True \
     --dataloader_num_workers 16 \
