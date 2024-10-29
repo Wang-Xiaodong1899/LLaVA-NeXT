@@ -1578,6 +1578,8 @@ def get_model(model_args, training_args, bnb_model_from_pretrained_args):
 
                 deepspeed.utils.set_z3_leaf_modules(model, [Qwen2MoeSparseMoeBlock])
             else:
+                rank0_print("#### INFO Initialize policy model HERE #####")
+                import pdb;pdb.set_trace()
                 model = LlavaQwenForCausalLM.from_pretrained(
                     model_args.model_name_or_path,
                     cache_dir=training_args.cache_dir,
@@ -1586,7 +1588,7 @@ def get_model(model_args, training_args, bnb_model_from_pretrained_args):
                     low_cpu_mem_usage=False,
                     **customized_kwargs,
                 )
-                rank0_print("#### INFO Initialize policy model HERE #####")
+                
 
             if "zero3" in training_args.deepspeed:
                 rank0_print("#### Initialize reference model #####")
