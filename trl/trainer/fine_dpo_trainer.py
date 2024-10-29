@@ -690,7 +690,7 @@ class IPOTrainer(Trainer):
     def _prepare_deepspeed(self, model: PreTrainedModelWrapper):
         # Adapted from accelerate: https://github.com/huggingface/accelerate/blob/739b135f8367becb67ffaada12fe76e3aa60fefd/src/accelerate/accelerator.py#L1473
         deepspeed_plugin = self.accelerator.state.deepspeed_plugin
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         config_kwargs = deepcopy(deepspeed_plugin.deepspeed_config)
 
         if model is not None:
