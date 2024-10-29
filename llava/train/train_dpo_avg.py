@@ -1554,15 +1554,19 @@ def get_model(model_args, training_args, bnb_model_from_pretrained_args):
                     rank0_print(f"Loaded mm projector weights from {model.config.pretrain_mm_mlp_adapter}. Incompatible keys: {incompatible_keys}")
 
             if "zero3" in training_args.deepspeed:
-                rank0_print("#### Initialize reference model #####")
-                ref_model = LlavaLlamaForCausalLM.from_pretrained(
-                    model_args.model_name_or_path,
-                    cache_dir=training_args.cache_dir,
-                    attn_implementation=training_args.attn_implementation,
-                    torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
-                    low_cpu_mem_usage=False,
-                    **customized_kwargs,
-                )
+                if training_args.loss_type == "simpo":
+                    rank0_print("#### SimPO make reference model None #####")
+                    ref_model = None
+                else:
+                    rank0_print("#### Initialize reference model #####")
+                    ref_model = LlavaLlamaForCausalLM.from_pretrained(
+                        model_args.model_name_or_path,
+                        cache_dir=training_args.cache_dir,
+                        attn_implementation=training_args.attn_implementation,
+                        torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
+                        low_cpu_mem_usage=False,
+                        **customized_kwargs,
+                    )
 
         elif "qwen" in model_args.model_name_or_path.lower() or "quyen" in model_args.model_name_or_path.lower():
             if "moe" in model_args.model_name_or_path.lower():
@@ -1588,15 +1592,19 @@ def get_model(model_args, training_args, bnb_model_from_pretrained_args):
                 )
 
             if "zero3" in training_args.deepspeed:
-                rank0_print("#### Initialize reference model #####")
-                ref_model = LlavaQwenForCausalLM.from_pretrained(
-                    model_args.model_name_or_path,
-                    cache_dir=training_args.cache_dir,
-                    attn_implementation=training_args.attn_implementation,
-                    torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
-                    low_cpu_mem_usage=False,
-                    **customized_kwargs,
-                )
+                if training_args.loss_type == "simpo":
+                    rank0_print("#### SimPO make reference model None #####")
+                    ref_model = None
+                else:
+                    rank0_print("#### Initialize reference model #####")
+                    ref_model = LlavaQwenForCausalLM.from_pretrained(
+                        model_args.model_name_or_path,
+                        cache_dir=training_args.cache_dir,
+                        attn_implementation=training_args.attn_implementation,
+                        torch_dtype=(torch.bfloat16 if training_args.bf16 else None),
+                        low_cpu_mem_usage=False,
+                        **customized_kwargs,
+                    )
 
         elif "gemma" in model_args.model_name_or_path.lower():
             model = LlavaGemmaForCausalLM.from_pretrained(
