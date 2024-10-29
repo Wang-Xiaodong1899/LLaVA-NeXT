@@ -32,11 +32,11 @@ else
     SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}
 fi
     
-python scripts/process/self_generate_preference_aug_sample.py \
+python scripts/process/self_generate_preference_sample_inject_aug.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /home/user/wangxd/LLaVA-NeXT/data/self-gen/inject-prior-1/$SAVE_DIR \
-    --output_name ov-7b_f1_${START}_${END} \
+    --output_dir /home/user/wangxd/LLaVA-NeXT/data/self-gen/simpo-iter1-inject_prior_aug-sample-1029/$SAVE_DIR \
+    --output_name next-7b-simpo-iter1_inject_prior_aug_f1_sample_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
@@ -52,4 +52,4 @@ python scripts/process/self_generate_preference_aug_sample.py \
 
 
 # one-vision
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_ov-7b-aug-sample.sh /home/user/wangxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 1 1 bilinear one_token True /home/user/wangxd/LLaVA-NeXT/data/shareVideoGPTV/QA/ /home/user/wangxd/LLaVA-NeXT/data/llava_hound/filtered_video_id.jsonl 0 4000 384
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /data/wangxd/ckpt/llava_vicuna_simpo_inject_8k_aug_8k/checkpoint-300 vicuna_v1 1 2 average no_token True /home/user/wangxd/LLaVA-NeXT/data/shareVideoGPTV/QA/ /home/user/wangxd/LLaVA-NeXT/data/llava_hound/filtered_video_id.jsonl 8000 12000 224

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-base_url="https://huggingface.co/datasets/lmms-lab/Video-MME/resolve/main/videos_chunked_"
+base_url="https://hf-mirror.com/datasets/lmms-lab/Video-MME/resolve/main/videos_chunked_"
 
 # NOTE if can't connect to https://huggingface.co
 # change to base_url="https://hf-mirror.com/datasets/lmms-lab/Video-MME/resolve/main/videos_chunked_"
