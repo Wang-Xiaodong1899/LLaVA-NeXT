@@ -185,7 +185,7 @@ class LlavaMetaForCausalLM(ABC):
         return image_feature
 
     def encode_images(self, images):
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         image_features = self.get_model().get_vision_tower()(images.to(self.dtype))
         # image_features = self.get_model().vision_resampler(image_features, images=images)
         image_features = self.get_model().mm_projector(image_features)
