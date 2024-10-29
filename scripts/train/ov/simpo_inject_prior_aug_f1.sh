@@ -14,7 +14,7 @@ ROOT=$2
 export WANDB_PROJECT=llava-ov-jf-4A100
 export WANDB_NAME=llava_qwen_simpo_inject_prior_aug-f1-debug
 
-gpu_ids=0
+gpu_ids=0,1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
@@ -49,7 +49,6 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_folder xxx \
     --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \
     --freeze_mm_mlp_adapter True \
-    --mm_tunable_parts="mm_mlp_adapter" \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
