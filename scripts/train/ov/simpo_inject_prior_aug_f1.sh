@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-jf-4A100
-export WANDB_NAME=llava_qwen_simpo_inject_prior_aug-f1-debug
+export WANDB_NAME=llava_qwen_simpo_inject_prior_aug-f1-train
 
 gpu_ids=0,1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
