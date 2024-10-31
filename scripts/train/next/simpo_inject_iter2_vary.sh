@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_vicuna_simpo_inject_8k_aug_8k_iter2_margin_1
+export WANDB_NAME=llava_vicuna_simpo_inject_8k_aug_8k_iter2_margin_d1
 
 gpu_ids=0,1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
@@ -47,7 +47,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --version $PROMPT_VERSION \
     --loss_type simpo \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0 \
-    --simpo_margin 1.0 \
+    --simpo_margin 0.1 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \
