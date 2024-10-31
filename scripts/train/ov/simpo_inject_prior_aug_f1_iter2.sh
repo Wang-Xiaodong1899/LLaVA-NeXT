@@ -44,7 +44,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path /volsparse2/wxd/ckpt/llava-ov-jf-4A100/llava_qwen_simpo_inject_prior_aug-f1-debug/llava_qwen_simpo_inject_prior_aug-f1-1029/checkpoint-200/ \
     --version $PROMPT_VERSION \
     --loss_type simpo \
-    --dpo_alpha 1.0 --beta 0.5 --gamma 0 \
+    --dpo_alpha 1.0 --beta 2.0 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \
