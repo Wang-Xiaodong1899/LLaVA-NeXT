@@ -522,7 +522,8 @@ class IPOTrainer(Trainer):
         model_adapter_name: Optional[str] = None,
         ref_adapter_name: Optional[str] = None,
         reference_free: bool = False,
-        bt_beta: float = 0.3
+        bt_beta: float = 0.3,
+        simpo_margin: float = 0.5,
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -561,6 +562,7 @@ class IPOTrainer(Trainer):
         self.model_adapter_name = model_adapter_name
         self.ref_adapter_name = ref_adapter_name
         self.reference_free = reference_free
+        self.simpo_margin = simpo_margin
 
         if ref_model:
             self.ref_model = ref_model
@@ -1188,7 +1190,7 @@ class IPOTrainer(Trainer):
                 0,
             )
         elif self.loss_type == "simpo":
-            constant_gamma = torch.tensor(0.5).to(pi_logratios.device)
+            constant_gamma = torch.tensor(self.simpo_margin).to(pi_logratios.device)
             logits = pi_logratios
             losses = -F.logsigmoid(self.beta * logits - constant_gamma)
             reference_chosen_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)

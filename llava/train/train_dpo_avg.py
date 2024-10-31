@@ -191,7 +191,8 @@ class TrainingArguments(transformers.TrainingArguments):
     generate_during_eval: bool = field(default=False)
     precompute_ref_log_probs: bool = field(default=False)
     loss_type: str = "ipo"
-    bt_beta: float = "0.3"
+    bt_beta: float = 0.3
+    simpo_margin: float = 0.5
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):
@@ -1901,7 +1902,8 @@ def train(attn_implementation=None):
         generate_during_eval=False,  # training_args.generate_during_eval,
         precompute_ref_log_probs=training_args.precompute_ref_log_probs,
         loss_type=training_args.loss_type, # avg for IPO
-        bt_beta=training_args.bt_beta
+        bt_beta=training_args.bt_beta,
+        simpo_margin=training_args.simpo_margin
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
