@@ -35,7 +35,7 @@ fi
 python scripts/process/self_generate_preference_aug_sample.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /volsparse1/wxd/data/self-gen/video_next-7b-aug-sample-1101/$SAVE_DIR \
+    --output_dir /volsparse1/wxd/data/self-gen/inject-prior-1101/$SAVE_DIR \
     --output_name next-7b_aug_f2_sample_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
@@ -52,4 +52,4 @@ python scripts/process/self_generate_preference_aug_sample.py \
 
 
 # one-vision
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-aug-sample.sh /workspace/wxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 2 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 0 4000 224
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-aug-sample.sh /volsparse1/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 2 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 0 4000 224
