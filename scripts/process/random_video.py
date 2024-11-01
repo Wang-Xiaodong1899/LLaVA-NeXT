@@ -17,7 +17,7 @@ for idx, item in enumerate(matched_data):
     if item['video'] in video_dict:
         video_dict[item['video']].append(idx)
     else:
-        video_dict = [idx]
+        video_dict[item['video']] = [idx]
 
 import random
 random.seed(24)
