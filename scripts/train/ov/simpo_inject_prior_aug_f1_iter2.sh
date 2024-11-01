@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-jf-4A100
-export WANDB_NAME=llava_qwen_simpo_inject_prior_aug-f1-iter2-beta-2d5
+export WANDB_NAME=llava_qwen_simpo_inject_prior_aug-f1-iter2-beta-5
 
 gpu_ids=0,1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
@@ -44,7 +44,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path /volsparse2/wxd/ckpt/llava-ov-jf-4A100/llava_qwen_simpo_inject_prior_aug-f1-debug/llava_qwen_simpo_inject_prior_aug-f1-1029/checkpoint-200/ \
     --version $PROMPT_VERSION \
     --loss_type simpo \
-    --dpo_alpha 1.0 --beta 2.5 --gamma 0 \
+    --dpo_alpha 1.0 --beta 5 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /volsparse2/wxd/data/shareVideoGPTV/llava_hound/QA \
