@@ -1,7 +1,7 @@
 import json
 import os
 
-target_directory = '/volsparse1/wxd/data/llava_hound'
+target_directory = '/volsparse1/wxd/data/llava_hound/shareVideoGPTV/'
 # Change the current working directory
 os.chdir(target_directory)
 
@@ -23,7 +23,7 @@ with open(jsonl_file_path, 'r') as jsonl_file:
             matched_data.append(entry)  # Add matching entry to the list
 
 # Write the matching entries to a new JSONL file
-with open('filtered_video_id.jsonl', 'w') as output_file:
+with open('/volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_1101.jsonl', 'w') as output_file:
     for item in matched_data:
         json.dump(item, output_file)  # Write the JSON entry to the file
         output_file.write('\n')  # Add a newline after each entry
