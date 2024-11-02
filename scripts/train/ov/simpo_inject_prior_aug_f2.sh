@@ -41,13 +41,13 @@ PROMPT_VERSION="qwen_1_5"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_avg.py \
     --deepspeed scripts/zero3.json \
-    --model_name_or_path /volsparse1/wxd/models/qwen/llava-onevision-qwen2-7b-ov \
+    --model_name_or_path /volsparse2/wxd/models/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
     --loss_type simpo \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \
+    --video_folder /data/llava_hound/shareVideoGPTV/QA \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
