@@ -26,7 +26,7 @@ import numpy as np
 
 video_path = "/volsparse1/wxd/data/Video-MME/data/axGscDVdHWg.mp4"
 image_processor = None
-max_frames=32
+max_frames=16
 image_resolution=336
 video_framerate=1
 s=None
