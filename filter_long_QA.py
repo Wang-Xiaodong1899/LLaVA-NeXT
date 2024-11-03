@@ -10,7 +10,7 @@ with open(qa_path, 'r', encoding='utf-8') as infile:
         video_id.append(entry['video'])
 
 exist_video_id = []
-with open(qa_path, 'r', encoding='utf-8') as infile:
+with open(id_path, 'r', encoding='utf-8') as infile:
     for line in infile:
         entry = json.loads(line)
         exist_video_id.append(entry['folder_name'])
