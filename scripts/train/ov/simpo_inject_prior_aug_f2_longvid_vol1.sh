@@ -11,45 +11,43 @@ lr=${1:-"5e-7"}
 ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_vicuna_simpo_inject_aug_f2_12k_1_longvid
+export WANDB_PROJECT=llava-ov-jf-4A100
+export WANDB_NAME=llava_qwen_simpo_inject_prior_aug-f2-8k-longvid
 
 gpu_ids=0,1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/volsparse2/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/volsparse1/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/data/llava_hound/shareVideoGPTV/next-7b-long-video-inject_prior_aug_f2_sample_0_8000.jsonl
+data_path=${ROOT}/data/shareVideoGPTV/ov-7b-long-video-inject_prior_aug_f2_sample_0_8000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
-port=19009
+port=19006
 
-VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
+VISION_MODEL_VERSION="google/siglip-so400m-patch14-384"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
-############### Pretrain ################
-
-# Stage 2
-PROMPT_VERSION="vicuna_v1"
+# DPO Stage
+PROMPT_VERSION="qwen_1_5"
 
 #torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_avg.py \
-    --deepspeed scripts/zero2.json \
-    --model_name_or_path /volsparse2/wxd/models/vicuna/LLaVA-NeXT-Video-7B/ \
+    --deepspeed scripts/zero3.json \
+    --model_name_or_path /volsparse1/wxd/models/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
     --loss_type simpo \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /data/llava_hound/shareVideoGPTV/QA \
+    --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
@@ -57,19 +55,18 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --mm_vision_select_layer -2 \
     --mm_use_im_start_end False \
     --mm_use_im_patch_token False \
-    --mm_spatial_pool_stride 2 \
-    --mm_newline_position "no_token" \
-    --mm_resampler_type "spatial_pool" \
-    --mm_spatial_pool_out_channels 1024 \
+    --mm_spatial_pool_mode "bilinear" \
+    --mm_newline_position "one_token" \
+    --mm_resampler_type null \
     --group_by_modality_length True \
-    --image_aspect_ratio anyres \
-    --image_grid_pinpoints "[(336, 672), (672, 336), (672, 672), (1008, 336), (336, 1008)]" \
+    --image_aspect_ratio anyres_max_9 \
+    --image_grid_pinpoints "(1x1),...,(6x6)" \
     --mm_patch_merge_type spatial_unpad \
     --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 2 \
+    --per_device_train_batch_size 1 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 2 \
     --evaluation_strategy "no" \
@@ -82,7 +79,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
     --tf32 True \
-    --model_max_length 4096 \
+    --model_max_length 3584 \
     --gradient_checkpointing True \
     --dataloader_num_workers 16 \
     --lazy_preprocess True \
@@ -91,5 +88,5 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --torch_compile_backend "inductor" \
     --dataloader_drop_last True \
     --attn_implementation flash_attention_2 \
-    --image_split_resolution 224 \
-    --image_crop_resolution 224
+    --image_split_resolution 384 \
+    --image_crop_resolution 384
