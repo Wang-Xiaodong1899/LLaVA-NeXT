@@ -35,8 +35,8 @@ fi
 python scripts/process/self_generate_preference_sample_inject_aug.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /volsparse1/wxd/data/self-gen/inject-1103-long-video/$SAVE_DIR \
-    --output_name next-7b-long-video-inject_prior_aug_f2_sample_${START}_${END} \
+    --output_dir /volsparse1/wxd/data/self-gen/inject-1106-next-iter2/$SAVE_DIR \
+    --output_name next-7b-iter2-inject_prior_aug_f1_sample_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
@@ -52,4 +52,7 @@ python scripts/process/self_generate_preference_sample_inject_aug.py \
 
 
 # one-vision
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse1/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 2 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 0 4000 224
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse1/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 2 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_long_video_id_1103.jsonl 0 2000 224
+
+# iter-2
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse2/wxd/ckpt/llava-next-jf-4A100/llava_vicuna_simpo_inject_8k_aug_8k_fix vicuna_v1 1 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 0 2000 224
