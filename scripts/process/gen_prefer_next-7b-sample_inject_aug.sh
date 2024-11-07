@@ -35,8 +35,8 @@ fi
 python scripts/process/self_generate_preference_sample_inject_aug.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /volsparse1/wxd/data/self-gen/inject-1106-next-iter2/$SAVE_DIR \
-    --output_name next-7b-iter2-inject_prior_aug_f1_sample_${START}_${END} \
+    --output_dir /volsparse1/wxd/data/self-gen/inject-1107-next/$SAVE_DIR \
+    --output_name next-7b-inject_prior_aug_f1_sample_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
@@ -44,7 +44,7 @@ python scripts/process/self_generate_preference_sample_inject_aug.py \
     --overwrite ${OVERWRITE} \
     --mm_spatial_pool_stride ${POOL_STRIDE:-4} \
     --for_get_frames_num $FRAMES \
-    --normal_frames 16 \
+    --normal_frames 32 \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
@@ -52,7 +52,7 @@ python scripts/process/self_generate_preference_sample_inject_aug.py \
 
 
 # one-vision
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse1/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 2 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_long_video_id_1103.jsonl 0 2000 224
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse1/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 3 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_long_video_id_1103.jsonl 0 2000 224
 
 # iter-2
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse2/wxd/ckpt/llava-next-jf-4A100/llava_vicuna_simpo_inject_8k_aug_8k_fix vicuna_v1 1 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 0 2000 224
+# CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse2/wxd/ckpt/llava-next-jf-4A100/llava_vicuna_simpo_inject_8k_aug_8k_fix vicuna_v1 1 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 6000 8000 224
