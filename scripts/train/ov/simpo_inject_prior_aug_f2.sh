@@ -56,7 +56,6 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --mm_use_im_start_end False \
     --mm_use_im_patch_token False \
     --mm_spatial_pool_mode "bilinear" \
-    --mm_spatial_pool_stride 3 \
     --mm_newline_position "one_token" \
     --mm_resampler_type null \
     --group_by_modality_length True \
