@@ -35,8 +35,8 @@ fi
 python scripts/process/self_generate_preference_sample_inject_aug.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /data/self-gen/inject-1105-ov-iter2/$SAVE_DIR \
-    --output_name ov-7b-iter2-inject_prior_aug_f2_sample_${START}_${END} \
+    --output_dir /volsparse1/wxd/data/self-gen/inject-1107-ov/$SAVE_DIR \
+    --output_name ov-7b-inject_prior_aug_f2_sample_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
@@ -44,7 +44,7 @@ python scripts/process/self_generate_preference_sample_inject_aug.py \
     --overwrite ${OVERWRITE} \
     --mm_spatial_pool_stride ${POOL_STRIDE:-4} \
     --for_get_frames_num $FRAMES \
-    --normal_frames 16 \
+    --normal_frames 32 \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
@@ -54,6 +54,8 @@ python scripts/process/self_generate_preference_sample_inject_aug.py \
 # one-vision
 # CUDA_VISIBLE_DEVICES=1 bash scripts/process/gen_prefer_ov-7b-sample_inject_aug.sh /volsparse1/wxd/models/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 2 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 0 4000 384
 
-# CUDA_VISIBLE_DEVICES=1 bash scripts/process/gen_prefer_ov-7b-sample_inject_aug.sh /volsparse2/wxd/models/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 2 1 bilinear one_token True /data/llava_hound/shareVideoGPTV/QA /data/llava_hound/shareVideoGPTV/filtered_long_video_id_1103.jsonl 0 2000 384
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_ov-7b-sample_inject_aug.sh /volsparse2/wxd/models/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 2 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_long_video_id_1103.jsonl 0 2000 384
+
+
 
 # CUDA_VISIBLE_DEVICES=1 bash scripts/process/gen_prefer_ov-7b-sample_inject_aug.sh /volsparse1/wxd/ckpt/llava-ov-jf-4A100/llava_qwen_simpo_inject_prior_aug-f2-8k-longvid/checkpoint-250/ qwen_1_5 2 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 8000 10000 384
