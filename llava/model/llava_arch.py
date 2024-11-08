@@ -30,6 +30,7 @@ from llava.mm_utils import get_anyres_image_grid_shape
 from llava.utils import rank0_print, rank_print
 import random
 
+from typing import Union
 
 class LlavaMetaModel:
 
@@ -193,7 +194,7 @@ class LlavaMetaForCausalLM(ABC):
         return image_features
     
     # TODO
-    def exp_map0(x: torch.Tensor, curv: float | torch.Tensor = 1.0, eps: float = 1e-8) -> torch.Tensor:
+    def exp_map0(x: torch.Tensor, curv: Union[float, torch.Tensor] = 1.0, eps: float = 1e-8) -> torch.Tensor:
         """
         Map points from the tangent space at the vertex of hyperboloid, on to the
         hyperboloid. This mapping is done using the exponential map of Lorentz model.
