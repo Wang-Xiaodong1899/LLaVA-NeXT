@@ -1,7 +1,6 @@
 # Requirements for standalone dependencies
 shortuuid
 httpx==0.24.0
-einops
 ftfy
 
 # Requirements for training dependencies
