@@ -575,7 +575,7 @@ class IPOTrainer(Trainer):
             # else:
             #     self.ref_model = create_reference_model(model)
             # XXX no refer_model
-            ref_model = None
+            self.ref_model = None
 
         if tokenizer is None:
             raise ValueError("tokenizer must be specified to tokenize a DPO dataset.")
