@@ -35,7 +35,7 @@ fi
 python scripts/process/self_generate_preference_sample_inject_aug.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /volsparse1/wxd/data/self-gen/inject-1107-ov/$SAVE_DIR \
+    --output_dir /volsparse1/wxd/data/self-gen/inject-1107-ov-bilinear2/$SAVE_DIR \
     --output_name ov-7b-inject_prior_aug_f2_sample_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
