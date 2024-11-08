@@ -32,7 +32,7 @@ else
     SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}
 fi
     
-python scripts/process/self_generate_preference_sample_inject_aug.py \
+python3 scripts/process/self_generate_preference_sample_inject_aug.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
     --output_dir /volsparse1/wxd/data/self-gen/inject-1107-ov-bilinear2/$SAVE_DIR \
