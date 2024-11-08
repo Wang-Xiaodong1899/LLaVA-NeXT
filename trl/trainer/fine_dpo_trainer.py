@@ -570,10 +570,12 @@ class IPOTrainer(Trainer):
             # The `model` with adapters turned off will be used as the reference model
             self.ref_model = None
         else:
-            if is_deepspeed_zero3_enabled():
-                self.ref_model = AutoModelForCausalLM.from_pretrained(model)
-            else:
-                self.ref_model = create_reference_model(model)
+            # if is_deepspeed_zero3_enabled():
+            #     self.ref_model = AutoModelForCausalLM.from_pretrained(model)
+            # else:
+            #     self.ref_model = create_reference_model(model)
+            # XXX no refer_model
+            ref_model = None
 
         if tokenizer is None:
             raise ValueError("tokenizer must be specified to tokenize a DPO dataset.")
@@ -681,13 +683,15 @@ class IPOTrainer(Trainer):
                 raise ValueError("You cannot use `precompute_ref_log_probs=True` with Deepspeed ZeRO-3. Please set `precompute_ref_log_probs=False`.")
 
         if self.ref_model is None:
-            if not (self.is_peft_model or self.precompute_ref_log_probs):
-                raise ValueError("No reference model and model is not a Peft model. Try setting `precompute_ref_log_probs=True`")
+            # if not (self.is_peft_model or self.precompute_ref_log_probs):
+            #     raise ValueError("No reference model and model is not a Peft model. Try setting `precompute_ref_log_probs=True`")
+            pass # XXX no error
         else:
             if self.is_deepspeed_enabled:
-                self.ref_model = self._prepare_deepspeed(self.ref_model)
-            else:
-                self.ref_model = self.accelerator.prepare_model(self.ref_model, evaluation_mode=True)
+                #     self.ref_model = self._prepare_deepspeed(self.ref_model)
+                # else:
+                #     self.ref_model = self.accelerator.prepare_model(self.ref_model, evaluation_mode=True)
+                self.ref_model = None
 
     def _prepare_deepspeed(self, model: PreTrainedModelWrapper):
         # Adapted from accelerate: https://github.com/huggingface/accelerate/blob/739b135f8367becb67ffaada12fe76e3aa60fefd/src/accelerate/accelerator.py#L1473

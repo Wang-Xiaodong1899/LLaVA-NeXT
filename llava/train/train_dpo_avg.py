@@ -1594,14 +1594,15 @@ def get_model(model_args, training_args, bnb_model_from_pretrained_args):
 
             if "zero3" in training_args.deepspeed:
                 rank0_print("#### Initialize reference model #####")
-                ref_model = LlavaQwenForCausalLM.from_pretrained(
-                    model_args.model_name_or_path,
-                    cache_dir=training_args.cache_dir,
-                    attn_implementation=training_args.attn_implementation,
-                    torch_dtype=(torch.bfloat16 if training_args.bf16 else torch.float16),
-                    low_cpu_mem_usage=False,
-                    **customized_kwargs,
-                )
+                # ref_model = LlavaQwenForCausalLM.from_pretrained(
+                #     model_args.model_name_or_path,
+                #     cache_dir=training_args.cache_dir,
+                #     attn_implementation=training_args.attn_implementation,
+                #     torch_dtype=(torch.bfloat16 if training_args.bf16 else torch.float16),
+                #     low_cpu_mem_usage=False,
+                #     **customized_kwargs,
+                # )
+                ref_model = None
 
         elif "gemma" in model_args.model_name_or_path.lower():
             model = LlavaGemmaForCausalLM.from_pretrained(
