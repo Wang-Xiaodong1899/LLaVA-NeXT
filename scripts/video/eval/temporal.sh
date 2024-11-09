@@ -9,7 +9,7 @@ STRIDE=${4:-2}
 
 bash scripts/video/eval/video_temporal.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
 
-python llava/eval/evaluate/evaluate_benchmark_4_temporal.py \
+python3 llava/eval/evaluate/evaluate_benchmark_4_temporal.py \
     --pred_path results/answer-video-temporal-${SAVE_NAME}.jsonl \
     --output_dir results/temporal_${SAVE_NAME}_0613 \
     --output_json results/review-video-temporal-${SAVE_NAME}_0613.jsonl \

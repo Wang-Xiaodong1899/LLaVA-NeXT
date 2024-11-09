@@ -7,7 +7,7 @@ STRIDE=${4:-2}
 
 bash scripts/video/eval/video_generic.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
 
-# python llava/eval/evaluate/evaluate_benchmark_1_correctness.py \
+# python3 llava/eval/evaluate/evaluate_benchmark_1_correctness.py \
 #     --pred_path results/answer-video-generic-${SAVE_NAME}.jsonl \
 #     --output_dir results/correctness_${SAVE_NAME}_0613 \
 #     --output_json results/review-video-correctness-${SAVE_NAME}_0613.jsonl \
@@ -15,7 +15,7 @@ bash scripts/video/eval/video_generic.sh $CKPT vicuna_v1 $FRAMES $STRIDE average
 #     --num_tasks 1
 
 # # orientation
-python llava/eval/evaluate/evaluate_benchmark_2_detailed_orientation.py \
+python3 llava/eval/evaluate/evaluate_benchmark_2_detailed_orientation.py \
     --pred_path results/answer-video-generic-${SAVE_NAME}.jsonl \
     --output_dir results/detailed_orientation_${SAVE_NAME}_0613 \
     --output_json results/review-video-detailed_orientation-${SAVE_NAME}_0613.jsonl \
@@ -23,7 +23,7 @@ python llava/eval/evaluate/evaluate_benchmark_2_detailed_orientation.py \
     --num_tasks 1
 
 # context
-python llava/eval/evaluate/evaluate_benchmark_3_context.py \
+python3 llava/eval/evaluate/evaluate_benchmark_3_context.py \
     --pred_path results/answer-video-generic-${SAVE_NAME}.jsonl \
     --output_dir results/context_${SAVE_NAME}_0613 \
     --output_json results/review-video-context-${SAVE_NAME}_0613.jsonl \

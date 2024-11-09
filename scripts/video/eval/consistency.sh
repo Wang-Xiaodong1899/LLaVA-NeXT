@@ -8,7 +8,7 @@ STRIDE=${4:-2}
 
 bash scripts/video/eval/video_consistency.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
 
-python llava/eval/evaluate/evaluate_benchmark_5_consistency.py \
+python3 llava/eval/evaluate/evaluate_benchmark_5_consistency.py \
     --pred_path results/answer-video-consistency-${SAVE_NAME}.jsonl \
     --output_dir results/consistency_${SAVE_NAME}_0613 \
     --output_json results/review-video-consistency-${SAVE_NAME}_0613.jsonl \
