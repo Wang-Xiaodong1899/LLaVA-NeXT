@@ -7,7 +7,7 @@ os.chdir(target_directory)
 
 # Define the path to the JSONL file and the QA folder
 jsonl_file_path = '/volsparse1/wxd/data/llava_hound/chatgpt_qa_900k.jsonl'  # Replace with your JSONL file path
-qa_folder_path = 'QA'  # Replace with your QA folder path
+qa_folder_path = 'QA2'  # Replace with your QA folder path
 
 # Get the names of all subfolders in the QA folder
 video_folders = set(os.listdir(qa_folder_path))
@@ -23,7 +23,7 @@ with open(jsonl_file_path, 'r') as jsonl_file:
             matched_data.append(entry)  # Add matching entry to the list
 
 # Write the matching entries to a new JSONL file
-with open('/volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_1101.jsonl', 'w') as output_file:
+with open('/volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_1110.jsonl', 'w') as output_file:
     for item in matched_data:
         json.dump(item, output_file)  # Write the JSON entry to the file
         output_file.write('\n')  # Add a newline after each entry

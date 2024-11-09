@@ -12,7 +12,7 @@ os.chdir(target_directory)
 # File path and data folder
 jsonl_file = 'chatgpt_qa_900k.jsonl'
 data_folder = 'data'
-qa_folder = 'QA'
+qa_folder = 'QA2'
 
 # Create QA folder if it doesn't exist
 os.makedirs(qa_folder, exist_ok=True)
