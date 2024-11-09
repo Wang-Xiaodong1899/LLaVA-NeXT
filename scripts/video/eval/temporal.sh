@@ -3,7 +3,7 @@
 CKPT=$1
 SAVE_NAME=$2
 FRAMES=$3
-STRIDE=$4
+STRIDE=${4:-2}
 
 #eval_frame: 16 (align with finetuning)
 
