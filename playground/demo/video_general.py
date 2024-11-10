@@ -41,8 +41,8 @@ def get_chunk(lst, n, k):
     chunks = split_list(lst, n)
     return chunks[k]
 
-
-def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, image_resolution=336, video_framerate=1, s=None, e=None):
+# 384, 336
+def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, image_resolution=384, video_framerate=1, s=None, e=None):
     # speed up video decode via decord.
     video_mask = np.zeros(max_frames, dtype=np.int64)
     max_video_length = max_frames
