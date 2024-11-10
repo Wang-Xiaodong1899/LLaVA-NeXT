@@ -144,9 +144,10 @@ def main():
 
     output_dir = args.output_dir
     
-    if os.path.exists(output_dir):
-        pass
-    else:
+    # if os.path.exists(output_dir):
+    #     pass
+    # else:
+    if True:
         # Generate output directory if not exists.
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
