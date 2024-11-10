@@ -197,7 +197,7 @@ def main():
         if file_name.endswith(".json"):
             file_path = os.path.join(output_dir, file_name)
             with open(file_path, "r") as json_file:
-                content = json.load(json_file)
+                content = json.loads(json_file.read())
                 combined_contents[file_name[:-5]] = content
 
     # Write combined content to a json file
