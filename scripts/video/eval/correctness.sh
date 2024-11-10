@@ -5,7 +5,7 @@ SAVE_NAME=$2
 FRAMES=$3
 STRIDE=${4:-2}
 
-bash scripts/video/eval/video_generic.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
+# bash scripts/video/eval/video_generic.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
 
 python3 llava/eval/evaluate/evaluate_benchmark_1_correctness.py \
     --pred_path results/answer-video-generic-${SAVE_NAME}.jsonl \
