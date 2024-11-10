@@ -115,10 +115,11 @@ def main():
     args = parse_args()
 
     file = args.pred_path
-    try:
-        pred_contents = json.load(file)
-    except:
-        pred_contents = read_jsonl(file)
+    # try:
+        # pred_contents = json.load(file)
+    # except:
+    
+    pred_contents = read_jsonl(file)
 
     # Dictionary to store the count of occurrences for each video_id
     video_id_counts = {}
