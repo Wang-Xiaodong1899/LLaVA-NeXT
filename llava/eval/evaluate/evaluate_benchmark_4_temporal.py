@@ -40,8 +40,11 @@ def parse_args():
 # )
 import openai
 
-openai.base_url = "https://api.ai-gaochao.cn/v1/"
-openai.api_key = "sk-UYqwq36Z0hmfyaWJ69F675A344D645D79c9dB863Ae870eAd"
+openai.base_url = "https://openrouter.ai/api/v1"
+openai.api_key = "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"
+
+# openai.base_url = "https://api.ai-gaochao.cn/v1/"
+# openai.api_key = "sk-UYqwq36Z0hmfyaWJ69F675A344D645D79c9dB863Ae870eAd"
 
 def annotate(prediction_set, caption_files, output_dir):
     """
