@@ -87,7 +87,8 @@ def annotate(prediction_set, caption_files, output_dir):
                     }
                 ]
             )
-            print(completion.model)
+            # print(completion.model)
+            print(completion)
             # Convert response to a Python dictionary.
             response_message = completion.choices[0].message.content
             response_dict = ast.literal_eval(response_message)
