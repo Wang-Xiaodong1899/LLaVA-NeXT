@@ -196,8 +196,8 @@ def main():
     for file_name in os.listdir(output_dir):
         if file_name.endswith(".json"):
             file_path = os.path.join(output_dir, file_name)
-            with open(file_path, "r") as json_file:
-                content = json.loads(json_file.read())
+            with open(file_path, "r", encoding='utf-8', errors='ignore') as json_file:
+                content = json.load(json_file)
                 combined_contents[file_name[:-5]] = content
 
     # Write combined content to a json file
