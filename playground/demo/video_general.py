@@ -45,7 +45,7 @@ def get_chunk(lst, n, k):
 def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, image_resolution=336, video_framerate=1, s=None, e=None):
     # speed up video decode via decord.
     video_mask = np.zeros(max_frames, dtype=np.int64)
-    max_video_length = 0
+    max_video_length = max_frames
 
     # T x 3 x H x W
     video = np.zeros((max_frames, 3, image_resolution, image_resolution), dtype=np.float64)
@@ -78,14 +78,17 @@ def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, 
         t_stride = int(round(float(fps) / sample_fps))
 
         all_pos = list(range(f_start, f_end + 1, t_stride))
-        
-        # print(f'all pos {len(all_pos)}')
         if len(all_pos) > max_frames:
             sample_pos = [all_pos[_] for _ in np.linspace(0, len(all_pos) - 1, num=max_frames, dtype=int)]
         else:
             sample_pos = all_pos
 
         patch_images = [Image.fromarray(f) for f in vreader.get_batch(sample_pos).asnumpy()]
+
+        # repeat to max_frames
+        sample_indices = np.linspace(0, len(patch_images)-1, max_frames, dtype=int)
+        all_patch_images = [patch_images[index] for index in sample_indices]
+        patch_images = all_patch_images
 
         patch_images = torch.stack([image_processor.preprocess(img, return_tensors='pt')['pixel_values'][0] for img in patch_images])
         slice_len = patch_images.shape[0]
@@ -97,7 +100,7 @@ def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, 
             pass
         else:
             video[:slice_len, ...] = patch_images
-        # print(f'len of patch_images: {len(patch_images)}')
+        print(f'slice_len: {slice_len}') # 32
         return patch_images, slice_len
     else:
         print("video path: {} error.".format(video_path))
