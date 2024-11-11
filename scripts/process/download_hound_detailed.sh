@@ -2,7 +2,7 @@
 
 # Set base URL and target directory
 base_url="https://huggingface.co/datasets/ShareGPTVideo/train_video_and_instruction/resolve/main/train_600k"
-target_dir="/volsparse1/wxd/data/llava_hound/caption"
+target_dir="/data/llava_hound/caption"
 
 # Create the target directory if it doesn't exist
 mkdir -p "${target_dir}"
