@@ -35,8 +35,8 @@ fi
 python3 scripts/process/self_generate_preference_sample_inject_aug.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /volsparse1/wxd/data/self-gen/inject-1108-ov-iter1-250-longvid/$SAVE_DIR \
-    --output_name ov-7b-iter1-250-inject_prior_aug_f2_sample_${START}_${END} \
+    --output_dir /volsparse1/wxd/data/self-gen/inject-1112-caption-ov/$SAVE_DIR \
+    --output_name caption-ov-inject_prior_aug_f2_sample_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
@@ -59,3 +59,6 @@ python3 scripts/process/self_generate_preference_sample_inject_aug.py \
 
 
 # CUDA_VISIBLE_DEVICES=1 bash scripts/process/gen_prefer_ov-7b-sample_inject_aug.sh /volsparse1/wxd/ckpt/llava-ov-jf-4A100/llava_qwen_simpo_inject_prior_aug-f2-8k-longvid/checkpoint-250/ qwen_1_5 2 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_long_video_id_1103.jsonl 8000 8700 384
+
+# caption data
+# CUDA_VISIBLE_DEVICES=1 bash scripts/process/gen_prefer_ov-7b-sample_inject_aug.sh /volsparse1/wxd/models/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 2 1 bilinear one_token True /data/llava_hound/caption/data/ /data/llava_hound/caption/filtered_caption_video_id_1112.jsonl 0 2000 384
