@@ -11,12 +11,12 @@ STRIDE=${4:-2}
 # ov
 # bash scripts/video/eval/video_generic.sh $CKPT qwen_1_5 $FRAMES $STRIDE bilinear one_token True $SAVE_NAME
 
-python3 llava/eval/evaluate/evaluate_benchmark_1_correctness.py \
-    --pred_path results/answer-video-generic-${SAVE_NAME}.jsonl \
-    --output_dir results/correctness_${SAVE_NAME}_0613 \
-    --output_json results/review-video-correctness-${SAVE_NAME}_0613.jsonl \
-    --api_key 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 \
-    --num_tasks 1
+# python3 llava/eval/evaluate/evaluate_benchmark_1_correctness.py \
+#     --pred_path results/answer-video-generic-${SAVE_NAME}.jsonl \
+#     --output_dir results/correctness_${SAVE_NAME}_0613 \
+#     --output_json results/review-video-correctness-${SAVE_NAME}_0613.jsonl \
+#     --api_key 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 \
+#     --num_tasks 1
 
 # # orientation
 python3 llava/eval/evaluate/evaluate_benchmark_2_detailed_orientation.py \
