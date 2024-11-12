@@ -168,7 +168,7 @@ def main():
             print(f"incomplete_files: {len(incomplete_files)}")
 
             # Break the loop when there are no incomplete files
-            if len(incomplete_files) <= 2:
+            if len(incomplete_files) <= 3:
                 break
             if len(incomplete_files) <= num_tasks:
                 num_tasks = 1
