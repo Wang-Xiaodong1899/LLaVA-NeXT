@@ -28,7 +28,7 @@ def parse_args():
 from openai import OpenAI
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key='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',
+    api_key=os.getenv("API_KEY"),
 )
 # # client = OpenAI(
 # #     base_url="https://api.ai-gaochao.cn/v1/",
