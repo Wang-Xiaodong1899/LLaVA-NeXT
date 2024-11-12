@@ -10,7 +10,7 @@ STRIDE=${4:-2}
 # bash scripts/video/eval/video_consistency.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
 
 # ov
-# bash scripts/video/eval/video_consistency.sh $CKPT qwen_1_5 $FRAMES $STRIDE bilinear one_token True $SAVE_NAME
+bash scripts/video/eval/video_consistency.sh $CKPT qwen_1_5 $FRAMES $STRIDE bilinear one_token True $SAVE_NAME
 
 python3 llava/eval/evaluate/evaluate_benchmark_5_consistency.py \
     --pred_path results/answer-video-consistency-${SAVE_NAME}.jsonl \
