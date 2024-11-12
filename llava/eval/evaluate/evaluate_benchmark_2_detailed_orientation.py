@@ -206,13 +206,16 @@ def main():
     score_sum = 0
     count = 0
     for key, result in combined_contents.items():
-        count += 1
-        score_match = result[0]['score']
-        score = int(score_match)
-        score_sum += score
+        try:
+            count += 1
+            score_match = result[0]['score']
+            score = int(score_match)
+            score_sum += score
+        except:
+            continue
     average_score = score_sum / count
 
-    print("Average score for detailed orientation:", average_score * 20)
+    print("Average score for detailed orientation:", average_score * 20, "count: ", count)
 
 
 if __name__ == "__main__":
