@@ -49,7 +49,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /data/shareVideoGPTV/dpo_train_data \
+    --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \
     --mm_tunable_parts="mm_mlp_adapter" \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
