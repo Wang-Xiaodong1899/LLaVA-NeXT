@@ -35,8 +35,8 @@ fi
 python3 scripts/process/self_generate_preference_sample_inject_aug.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /volsparse1/wxd/data/self-gen/inject-1109-next-iter1-stride3-400/$SAVE_DIR \
-    --output_name next-7b-iter1-stride3-400-inject_prior_aug_f2_stride3_sample_${START}_${END} \
+    --output_dir /volsparse1/wxd/data/self-gen/inject-1113-next-iter2-stride3-50/$SAVE_DIR \
+    --output_name next-7b-iter2-stride3-50-inject_prior_aug_f2_stride3_sample_${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
@@ -55,4 +55,7 @@ python3 scripts/process/self_generate_preference_sample_inject_aug.py \
 # CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse1/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 3 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_long_video_id_1103.jsonl 0 2000 224
 
 # iter-2
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse2/wxd/ckpt/llava-next-jf-4A100/llava_vicuna_simpo_inject_8k_aug_8k_f32_stride_3/checkpoint-400 vicuna_v1 2 3 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 8000 9000 224
+# CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse2/wxd/ckpt/llava-next-jf-4A100/llava_vicuna_simpo_inject_8k_aug_8k_f32_stride_3/checkpoint-400 vicuna_v1 2 3 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 11000 12000 224
+
+# iter-3
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse2/wxd/ckpt/llava-next-jf-4A100/llava_vicuna_simpo_inject_8k_aug_8k_f32_stride_3_iter2_4k_copy/checkpoint-50 vicuna_v1 2 3 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 12000 13000 224
