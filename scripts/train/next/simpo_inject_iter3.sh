@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_vicuna_simpo_inject_4k_iter3
+export WANDB_NAME=llava_vicuna_simpo_inject_4k_iter3_fix
 
 gpu_ids=0,1,2,3
 export CUDA_VISIBLE_DEVICES=$gpu_ids
@@ -51,13 +51,13 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_folder xxx \
     --video_folder /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA \
     --freeze_mm_mlp_adapter True \
-    --frames_upbound 16 \
+    --frames_upbound 32 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
     --mm_use_im_start_end False \
     --mm_use_im_patch_token False \
-    --mm_spatial_pool_stride 2 \
+    --mm_spatial_pool_stride 3 \
     --mm_newline_position "no_token" \
     --mm_resampler_type "spatial_pool" \
     --mm_spatial_pool_out_channels 1024 \
