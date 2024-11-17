@@ -21,9 +21,8 @@ for sample in tqdm(hf_data):
     conversations = sample['conversations']
     data_source = sample['data_source']
     
-    image = Image.open(io.BytesIO(image_data))
     image_path = os.path.join(image_dir, f"{image_id}.jpg")
-    image.save(image_path)
+    image_data.save(image_path)
     
 
     json_data.append({
