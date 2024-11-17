@@ -5,7 +5,7 @@ import io
 import datasets
 from tqdm import tqdm
 
-hf_data = datasets.load_dataset("parquet", data_files="/volsparse1/wxd/data/llava-onevision-data/llavar_gpt4_20k/train-00000-of-00002.parquet")['train']
+hf_data = datasets.load_dataset("parquet", data_files="/volsparse1/wxd/data/llava-onevision-data/llavar_gpt4_20k/train-00001-of-00002.parquet")['train']
 
 root = "/volsparse1/wxd/data/llava-onevision-data/"
 
@@ -33,7 +33,7 @@ for sample in tqdm(hf_data):
         'data_source': data_source
     })
 
-json_output_path = '/volsparse1/wxd/data/llava-onevision-data/llavar_gpt4_20k/part_1.json'
+json_output_path = '/volsparse1/wxd/data/llava-onevision-data/llavar_gpt4_20k/part_2.json'
 with open(json_output_path, 'w') as f:
     json.dump(json_data, f, indent=4)
 
