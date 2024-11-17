@@ -3,7 +3,7 @@ import json
 from PIL import Image
 import io
 import datasets
-
+from tqdm import tqdm
 
 hf_data = datasets.load_dataset("parquet", data_files="/volsparse1/wxd/data/llava-onevision-data/llavar_gpt4_20k/train-00000-of-00002.parquet")['train']
 
@@ -15,7 +15,7 @@ os.makedirs(image_dir, exist_ok=True)
 json_data = []
 
 
-for sample in hf_data:
+for sample in tqdm(hf_data):
     image_data = sample['image']
     image_id = sample['id']
     conversations = sample['conversations']
