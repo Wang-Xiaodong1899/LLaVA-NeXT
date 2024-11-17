@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 hf_data = datasets.load_dataset("parquet", data_files="/volsparse1/wxd/data/llava-onevision-data/llavar_gpt4_20k/train-00000-of-00002.parquet")['train']
 
+root = "/volsparse1/wxd/data/llava-onevision-data/"
 
 image_dir = 'llavar_gpt4_20k/images'
 os.makedirs(image_dir, exist_ok=True)
@@ -21,7 +22,7 @@ for sample in tqdm(hf_data):
     conversations = sample['conversations']
     data_source = sample['data_source']
     
-    image_path = os.path.join(image_dir, f"{image_id}.jpg")
+    image_path = os.path.join(root, image_dir, f"{image_id}.jpg")
     image_data.save(image_path)
     
 
