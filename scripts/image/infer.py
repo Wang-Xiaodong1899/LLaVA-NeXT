@@ -53,8 +53,9 @@ cont = model.generate(
     input_ids,
     images=image_tensor,
     image_sizes=image_sizes,
-    do_sample=True, 
-    max_new_tokens=256,
+    do_sample=True,
+    temperature=0.3,
+    max_new_tokens=1024,
 )
 text_outputs = tokenizer.batch_decode(cont, skip_special_tokens=True)
 print(text_outputs[0])
