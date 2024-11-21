@@ -54,7 +54,7 @@ cont = model.generate(
     input_ids,
     images=image_tensor,
     image_sizes=image_sizes,
-    do_sample=True,
+    # do_sample=True,
     temperature=1.0,
     top_p=0.9,
     max_new_tokens=1024,
