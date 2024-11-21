@@ -24,7 +24,7 @@ from llava.constants import DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, D
 from llava.utils import rank0_print
 
 
-def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, load_4bit=False, device_map="auto", attn_implementation=None, customized_config=None, overwrite_config=None, **kwargs):
+def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, load_4bit=False, device_map="auto", torch_dtype="float16",attn_implementation="flash_attention_2", customized_config=None, overwrite_config=None, **kwargs):
     kwargs["device_map"] = device_map
 
     if load_8bit:
@@ -32,8 +32,12 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
     elif load_4bit:
         kwargs["load_in_4bit"] = True
         kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16, bnb_4bit_use_double_quant=True, bnb_4bit_quant_type="nf4")
-    else:
+    elif torch_dtype == "float16":
         kwargs["torch_dtype"] = torch.float16
+    elif torch_dtype == "bfloat16":
+        kwargs["torch_dtype"] = torch.bfloat16
+    else:
+        import pdb;pdb.set_trace()
 
     if customized_config is not None:
         kwargs["config"] = customized_config
@@ -247,19 +251,6 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
                         for k, v in overwrite_config.items():
                             setattr(llava_cfg, k, v)
                     model = LlavaLlamaForCausalLM.from_pretrained(model_path, low_cpu_mem_usage=True, attn_implementation=attn_implementation, config=llava_cfg, **kwargs)
-                    
-                    rank0_print(f"model_name: {model_name.lower()}")
-                    if "34b-dpo" in model_name.lower():
-                        
-                        # NOTE just for 34B-DPO
-                        if model.config.pretrain_mm_mlp_adapter is not None:
-                            mm_projector_weights = torch.load(model.config.pretrain_mm_mlp_adapter, map_location="cpu")
-
-                            def get_w(weights, keyword):
-                                return {k.split(keyword + ".")[1]: v for k, v in weights.items() if keyword in k}
-
-                            incompatible_keys = model.model.mm_projector.load_state_dict(get_w(mm_projector_weights, "mm_projector"), strict=False)
-                            rank0_print(f"Loaded mm projector weights from {model.config.pretrain_mm_mlp_adapter}. Incompatible keys: {incompatible_keys}")
                 except:
                     raise ValueError(f"Model {model_name} not supported")
 
@@ -288,8 +279,6 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
 
     rank0_print(f"Model Class: {model.__class__.__name__}")
     image_processor = None
-
-    print(f'is_multi_modal: {is_multimodal}')
 
     if "llava" in model_name.lower() or is_multimodal:
         mm_use_im_start_end = getattr(model.config, "mm_use_im_start_end", False)
