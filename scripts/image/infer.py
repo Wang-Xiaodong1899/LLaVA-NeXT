@@ -55,6 +55,7 @@ cont = model.generate(
     image_sizes=image_sizes,
     do_sample=True,
     temperature=0.3,
+    top_p=1.0,
     max_new_tokens=1024,
 )
 text_outputs = tokenizer.batch_decode(cont, skip_special_tokens=True)
