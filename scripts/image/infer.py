@@ -32,7 +32,7 @@ model.eval()
 
 
 # url = "./scripts/image/waterview.jpg"
-url = "COCO_train2014_000000106644.jpg"
+url = "COCO_train2014_000000372250.jpg"
 image = Image.open(url).convert("RGB")
 print("image processor: ", image_processor)
 image_tensor = process_images([image], image_processor, model.config)
