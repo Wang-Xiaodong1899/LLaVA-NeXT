@@ -24,7 +24,7 @@ output_dir=/volsparse2/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/data/shareVideoGPTV/ov-si_0_2000.jsonl
+data_path=/data/shareVideoGPTV/ov-si_0_2000_dpo.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
