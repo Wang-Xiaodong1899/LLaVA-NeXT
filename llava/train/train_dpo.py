@@ -1068,9 +1068,9 @@ class DPODataset(Dataset):
         image_folder = self.data_args.image_folder
         processor = self.data_args.image_processor
         # print(f"\n\nInspecting the image path, folder = {image_folder}, image={image_file}\n\n")
-        from PIL.JpegImagePlugin import JpegImageFile
-        if isinstance(image_file, JpegImageFile):
-            image = image_file
+        # from PIL.JpegImagePlugin import JpegImageFile
+        if not isinstance(image_file, str):
+            image = image_file.convert("RGB")
         else:
             try:
                 image = Image.open(os.path.join(image_folder, image_file)).convert("RGB")
