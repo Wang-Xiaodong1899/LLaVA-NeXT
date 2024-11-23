@@ -1373,7 +1373,7 @@ class DPODataCollator(DPODataCollatorWithPadding):
         tokenized_batch = []
         Xs, keys = [], []
         for feature in features:
-            prompt = feature["prompt"]
+            prompt = feature["prompt"] if "prompt" in feature else feature["question"]
             chosen = feature["chosen"]
             rejected = feature["rejected"]
             has_image = feature["has_image"]
