@@ -46,7 +46,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0 \
     --data_path=$data_path \
-    --image_folder xxx \
+    --image_folder /data/RLAIF-V \
     --video_folder xxx \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \

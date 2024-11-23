@@ -1012,6 +1012,7 @@ class DPODataset(Dataset):
             if 'parquet' in files[0]:
                 # all parquet datasets
                 import datasets
+                files = [os.path.join(data_args.image_folder, file) for file in files]
                 self.list_data_dict = datasets.load_dataset("parquet", data_files = files)["train"]
         else:
             data_args.dataset_paths = [data_path]
