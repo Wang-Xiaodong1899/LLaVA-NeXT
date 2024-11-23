@@ -1007,6 +1007,12 @@ class DPODataset(Dataset):
 
                     rank0_print(f"Loaded {len(cur_data_dict)} samples from {json_path}")
                     self.list_data_dict.extend(cur_data_dict)
+        elif os.path.isdir(data_path):
+            files = os.listdir(data_path)
+            if 'parquet' in files[0]:
+                # all parquet datasets
+                import datasets
+                self.list_data_dict = datasets.load_dataset("parquet", data_files = files)["train"]
         else:
             data_args.dataset_paths = [data_path]
             rank0_print(f"Loading {data_path}")
@@ -1061,11 +1067,15 @@ class DPODataset(Dataset):
         image_folder = self.data_args.image_folder
         processor = self.data_args.image_processor
         # print(f"\n\nInspecting the image path, folder = {image_folder}, image={image_file}\n\n")
-        try:
-            image = Image.open(os.path.join(image_folder, image_file)).convert("RGB")
-        except Exception as exn:
-            print(f"Failed to open image {image_file}. Exception:", exn)
-            raise exn
+        from PIL.JpegImagePlugin import JpegImageFile
+        if isinstance(image_file, JpegImageFile):
+            image = image_file
+        else:
+            try:
+                image = Image.open(os.path.join(image_folder, image_file)).convert("RGB")
+            except Exception as exn:
+                print(f"Failed to open image {image_file}. Exception:", exn)
+                raise exn
 
         image_size = image.size
         if self.data_args.image_aspect_ratio == "highres":
