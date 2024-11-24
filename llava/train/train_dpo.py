@@ -82,6 +82,13 @@ def load_jsonl(file_path):
             data.append(json.loads(line))
     return data
 
+def bytes_to_PIL_image(img_buffer):
+    import io
+    img_io = io.BytesIO(img_buffer)
+    img_io.seek(0)
+    image = Image.open(img_io).convert('RGB')
+    return image
+
 
 @dataclass
 class ModelArguments:
@@ -1013,7 +1020,7 @@ class DPODataset(Dataset):
                 # all parquet datasets
                 import datasets
                 files = [os.path.join(data_args.image_folder, file) for file in files]
-                self.list_data_dict = datasets.load_dataset("parquet", data_files = files)["train"]
+                self.list_data_dict = datasets.load_dataset("parquet", data_files = files)["train"].cast_column("image", datasets.Image(decode=False))
         else:
             data_args.dataset_paths = [data_path]
             rank0_print(f"Loading {data_path}")
@@ -1070,8 +1077,9 @@ class DPODataset(Dataset):
         # print(f"\n\nInspecting the image path, folder = {image_folder}, image={image_file}\n\n")
         # from PIL.JpegImagePlugin import JpegImageFile
         if not isinstance(image_file, str):
-            print(image_file)
-            image = image_file.convert("RGB")
+            # print(image_file)
+            # image = image_file.convert("RGB")
+            image = bytes_to_PIL_image(image_file['bytes'])
         else:
             try:
                 image = Image.open(os.path.join(image_folder, image_file)).convert("RGB")
