@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-jf-4A100
-export WANDB_NAME=llava_qwen_dpo_RLAIFV
+export WANDB_NAME=llava_qwen_dpo_RLAIFV-fix
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
