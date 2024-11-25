@@ -50,7 +50,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --data_path scripts/train/ov/llava_rlhf_image.yaml \
     --image_folder /data/mscoco/train2014 \
     --video_folder xxx \
-    --mm_tunable_parts="mm_vision_tower,mm_mlp_adapter" \
+    --mm_tunable_parts="mm_vision_tower,mm_mlp_adapter,mm_language_model" \
     --mm_vision_tower_lr=1e-6 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
