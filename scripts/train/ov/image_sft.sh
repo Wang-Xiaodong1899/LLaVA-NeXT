@@ -44,7 +44,7 @@ port=19006
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NNODES}" --node_rank="${RANK}" --master_addr="${ADDR}" --master_port="${PORT}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_mem.py \
-    --deepspeed scripts/zero3.json \
+    --deepspeed scripts/zero2.json \
     --model_name_or_path /volsparse2/wxd/models/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
     --data_path scripts/train/ov/llava_rlhf_image.yaml \
@@ -65,12 +65,12 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 2 \
+    --per_device_train_batch_size 1 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1000 \
+    --save_steps 2000 \
     --save_total_limit 1 \
     --learning_rate 1e-5 \
     --weight_decay 0. \
@@ -78,9 +78,9 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --lr_scheduler_type "cosine" \
     --logging_steps 1 \
     --tf32 True \
-    --model_max_length 32768 \
+    --model_max_length 8192 \
     --gradient_checkpointing True \
-    --dataloader_num_workers 16 \
+    --dataloader_num_workers 4 \
     --lazy_preprocess True \
     --report_to wandb \
     --torch_compile True \
