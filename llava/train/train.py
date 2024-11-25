@@ -1015,6 +1015,13 @@ class LazySupervisedDataset(Dataset):
 
                     rank0_print(f"Loaded {len(cur_data_dict)} samples from {json_path}")
                     self.list_data_dict.extend(cur_data_dict)
+        elif os.path.isdir(data_path):
+            files = os.listdir(data_path)
+            if 'parquet' in files[0]:
+                # all parquet datasets
+                import datasets
+                files = [os.path.join(data_args.image_folder, file) for file in files]
+                self.list_data_dict = datasets.load_dataset("parquet", data_files = files)["train"].cast_column("image", datasets.Image(decode=False))
         else:
             data_args.dataset_paths = [data_path]
             rank0_print(f"Loading {data_path}")
