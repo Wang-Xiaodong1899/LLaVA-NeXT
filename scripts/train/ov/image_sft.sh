@@ -31,7 +31,7 @@ PROMPT_VERSION="qwen_1_5"
 export WANDB_PROJECT=llava-ov-jf-4A100-sft
 export WANDB_NAME=llava_qwen_sft_ov_llava-rlhf
 
-output_dir=/volsparse1/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/volsparse3/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 gpu_ids=0,1,2,3
@@ -45,7 +45,7 @@ port=19006
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_mem.py \
     --deepspeed scripts/zero2.json \
-    --model_name_or_path /volsparse2/wxd/models/qwen/llava-onevision-qwen2-7b-ov \
+    --model_name_or_path /volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
     --data_path scripts/train/ov/llava_rlhf_image.yaml \
     --image_folder /data/mscoco/train2014 \
