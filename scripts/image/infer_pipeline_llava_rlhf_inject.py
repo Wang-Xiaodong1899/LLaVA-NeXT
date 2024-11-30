@@ -71,7 +71,7 @@ def inference_pipeline(start=0, end=10000):
             qs = prompt
             prefix = "Here are some hints: " + gt_answer + "\n" + "Please respond based on the given hints and image content." + "\n"
             
-            image = Image.open(os.path.join(COCO_ROOT, f"COCO_train2014_{image_path}"))
+            image = Image.open(os.path.join(COCO_ROOT, image_path))
 
             image_tensor = process_images([image], image_processor, model.config)
             image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
