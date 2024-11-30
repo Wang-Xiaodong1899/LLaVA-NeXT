@@ -19,8 +19,8 @@ import warnings
 warnings.filterwarnings("ignore")
 #pretrained = "/raid/phogpt_team/chitb/eval/MiniCPM-V/eval_mm/vlmevalkit/llava-onevision-qwen2-0.5b-finetune_multilingual_400K"
 #pretrained = "/raid/phogpt_team/chitb/checkpoint_spp/llava-onevision-qwen2-0.5b-si"
-model_path = "/volsparse2/wxd/models/qwen/llava-onevision-qwen2-7b-ov"
-# model_path = "/volsparse2/wxd/models/qwen/llava-onevision-qwen2-7b-si"
+model_path = "/volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-ov"
+# model_path = "/volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-si"
 model_name = get_model_name_from_path(model_path)
 device = "cuda:0"
 device_map = "auto"
