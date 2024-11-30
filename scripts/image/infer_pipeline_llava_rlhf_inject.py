@@ -102,10 +102,11 @@ def inference_pipeline(start=0, end=10000):
             
             json_line = {
                 'id': sample['id'],
-                'image': f"COCO_train2014_{sample['image']}",
+                'image': sample['image'],
                 'prompt': prompt,
                 'answer': gt_answer,
                 'chosen': text_outputs[0],
+                "rejeted": sample["rejected"]
             }
             f.write(json.dumps(json_line, ensure_ascii=False) + '\n')
             f.flush()
