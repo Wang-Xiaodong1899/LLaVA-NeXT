@@ -26,7 +26,7 @@ device = "cuda:0"
 device_map = "auto"
 model_base=None
 #model_base = None
-tokenizer, model, image_processor, max_length = load_pretrained_model(model_path=model_path, model_base=model_base, model_name=model_name, attn_implementation='sdpa')  # Add any other thing you want to pass in llava_model_args("???", model.device)
+tokenizer, model, image_processor, max_length = load_pretrained_model(model_path=model_path, model_base=model_base, model_name=model_name, attn_implementation='flash_attention_2')  # Add any other thing you want to pass in llava_model_args("???", model.device)
 #model = model.cuda()
 model.eval()
 
