@@ -109,8 +109,6 @@ def inference_pipeline(start=0, end=10000):
             }
             f.write(json.dumps(json_line, ensure_ascii=False) + '\n')
             f.flush()
-            
-            import pdb; pdb.set_trace()
 
     print(f'inference {start} to {end} done!')
 
