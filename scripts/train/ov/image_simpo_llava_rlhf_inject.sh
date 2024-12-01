@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-image-jf-4A100
-export WANDB_NAME=llava_qwen_simpo_llava-rlhf-two-turns
+export WANDB_NAME=llava_qwen_simpo_llava-rlhf-two-turns-all
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -25,7 +25,7 @@ mkdir -p $output_dir
 
 # DATA
 # data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_inject_all.jsonl
-data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_debate_1201_0_10000.jsonl
+data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_multi-turn_all.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -73,7 +73,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 2 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 250 \
+    --save_steps 500 \
     --save_total_limit 4 \
     --learning_rate $lr \
     --weight_decay 0. \
