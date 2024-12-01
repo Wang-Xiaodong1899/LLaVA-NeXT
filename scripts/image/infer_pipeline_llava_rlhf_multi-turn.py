@@ -130,7 +130,7 @@ You need to reflect the given information as best you can, optimize your respons
                 'answer': gt_answer,
                 'first': previous_return,
                 'chosen': model_return,
-                "rejeted": sample["rejected"]
+                "rejected": sample["rejected"]
             }
             f.write(json.dumps(json_line, ensure_ascii=False) + '\n')
             f.flush()
