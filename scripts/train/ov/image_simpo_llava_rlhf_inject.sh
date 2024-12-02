@@ -26,7 +26,7 @@ mkdir -p $output_dir
 # DATA
 # data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_inject_all.jsonl
 # data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_multi-turn_all.jsonl
-data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_debate-chosen_aug-s224-rejected.jsonl
+data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_debate-chosen_aug-s224-rejected-1.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
