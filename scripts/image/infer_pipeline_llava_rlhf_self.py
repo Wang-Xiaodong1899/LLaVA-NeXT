@@ -67,7 +67,7 @@ def inference_pipeline(start=0, end=10000, aug=1):
 
     new_samples = []
     
-    with open(f'/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_aug_{start}_{end}.jsonl', 'w', encoding='utf-8') as f:
+    with open(f'/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_aug_s224_{start}_{end}.jsonl', 'w', encoding='utf-8') as f:
         for idx, sample in tqdm(enumerate(llava_rlhf_data[start: end])):
             image_path = sample["image"] # 000000XXX.jpg
             image_id = sample["id"]
@@ -89,7 +89,7 @@ def inference_pipeline(start=0, end=10000, aug=1):
             image = Image.open(os.path.join(COCO_ROOT, image_path))
             
             aug_tranform = transforms.Compose([
-                transforms.RandomResizedCrop((image.size[1], image.size[0]), scale=(0.08, 0.3)),
+                transforms.RandomResizedCrop(224, scale=(0.08, 0.3)),
                 transforms.RandomApply([
                     transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
                 ], p=0.8),
