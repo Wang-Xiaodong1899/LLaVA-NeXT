@@ -137,8 +137,7 @@ def inference_pipeline(start=0, end=10000, aug=1):
                 'image': sample['image'],
                 'prompt': prompt,
                 'answer': gt_answer,
-                'chosen': text_outputs[0],
-                "rejected": sample["rejected"]
+                "rejected": text_outputs[0]
             }
             f.write(json.dumps(json_line, ensure_ascii=False) + '\n')
             f.flush()
