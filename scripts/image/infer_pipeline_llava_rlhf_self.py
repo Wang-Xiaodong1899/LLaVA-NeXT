@@ -123,9 +123,10 @@ def inference_pipeline(start=0, end=10000, aug=1):
                 input_ids,
                 images=image_tensor,
                 image_sizes=image_sizes,
-                do_sample=False, 
+                do_sample=True, 
                 max_new_tokens=1024,
-                temperature=0.3,
+                temperature=2.0,
+                top_p=1.0,
                 use_cache=True,
             )
             text_outputs = tokenizer.batch_decode(cont, skip_special_tokens=True)
