@@ -103,7 +103,7 @@ def inference_pipeline(start=0, end=10000, aug=1):
             if aug:
                 image = aug_image
             
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
 
             image_tensor = process_images([image], image_processor, model.config)
             image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
