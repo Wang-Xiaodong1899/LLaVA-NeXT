@@ -51,6 +51,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --data_path=$data_path \
     --image_folder /data/mscoco/train2014 \
     --video_folder xxx \
+    --mm_tunable_parts="mm_language_model" \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
