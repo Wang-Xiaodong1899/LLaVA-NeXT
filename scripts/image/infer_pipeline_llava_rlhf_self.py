@@ -67,7 +67,7 @@ def inference_pipeline(start=0, end=10000, aug=1):
 
     new_samples = []
     
-    with open(f'/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_aug_s224_p0.9_{start}_{end}.jsonl', 'w', encoding='utf-8') as f:
+    with open(f'/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_aug_s224_p0.8_{start}_{end}.jsonl', 'w', encoding='utf-8') as f:
         for idx, sample in tqdm(enumerate(llava_rlhf_data[start: end])):
             image_path = sample["image"] # 000000XXX.jpg
             image_id = sample["id"]
@@ -126,7 +126,7 @@ def inference_pipeline(start=0, end=10000, aug=1):
                 do_sample=True, 
                 max_new_tokens=1024,
                 temperature=2.0,
-                top_p=0.9,
+                top_p=0.8,
                 use_cache=True,
             )
             text_outputs = tokenizer.batch_decode(cont, skip_special_tokens=True)
