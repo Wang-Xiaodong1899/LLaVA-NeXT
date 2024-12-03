@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-image-jf-4A100
-export WANDB_NAME=llava_qwen_simpo_llava-rlhf-debate-chosen_aug-rejected-sample
+export WANDB_NAME=llava_qwen_simpo_llava-rlhf-debate-chosen_aug-rejected-sample-p0.6
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -26,7 +26,7 @@ mkdir -p $output_dir
 # DATA
 # data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_inject_all.jsonl
 # data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_multi-turn_all.jsonl
-data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_debate-chosen_aug-s224-rejected-sample.jsonl
+data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_aug_s224_p0.6_0_10000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
