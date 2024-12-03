@@ -12,10 +12,10 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-image-jf-4A100
-export WANDB_NAME=llava_qwen_simpo_llava-rlhf-debate-chosen_aug-rejected-sample
+export WANDB_NAME=llava_qwen_simpo_llava-rlhf-debate-chosen_aug-rejected-ptest
 
 # gpu_ids=0
-gpu_ids=0,1,2,3
+gpu_ids=0
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
@@ -43,7 +43,7 @@ PROMPT_VERSION="qwen_1_5"
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_avg.py \
-    --deepspeed scripts/zero3.json \
+    --deepspeed scripts/zero2.json \
     --model_name_or_path /volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
     --loss_type simpo \
@@ -71,7 +71,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --num_train_epochs 1 \
     --per_device_train_batch_size 1 \
     --per_device_eval_batch_size 1 \
-    --gradient_accumulation_steps 2 \
+    --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 100 \
