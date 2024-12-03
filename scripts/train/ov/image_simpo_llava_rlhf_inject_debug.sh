@@ -15,7 +15,7 @@ export WANDB_PROJECT=llava-ov-image-jf-4A100
 export WANDB_NAME=llava_qwen_simpo_llava-rlhf-debate-chosen_aug-rejected-ptest
 
 # gpu_ids=0
-gpu_ids=0
+gpu_ids=0,1
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
