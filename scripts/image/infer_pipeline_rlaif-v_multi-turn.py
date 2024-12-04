@@ -1,0 +1,141 @@
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from llava.model.builder import load_pretrained_model
+from llava.mm_utils import get_model_name_from_path, process_images, tokenizer_image_token
+from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN, IGNORE_INDEX
+from llava.conversation import conv_templates, SeparatorStyle
+
+from PIL import Image
+import requests
+import copy
+import torch
+
+import sys
+import warnings
+
+warnings.filterwarnings("ignore")
+
+import os
+import json
+from PIL import Image
+import io
+import datasets
+from tqdm import tqdm
+import re
+
+import fire
+
+
+# *************** load model *************
+model_path="/volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-ov"
+model_name = get_model_name_from_path(model_path)
+device = "cuda:0"
+device_map = "auto"
+model_base=None
+tokenizer, model, image_processor, max_length = load_pretrained_model(model_path=model_path, model_base=model_base, model_name=model_name, attn_implementation='flash_attention_2')
+
+model = model.to(device)
+model.eval()
+
+print('model loaded!')
+    
+def inference_pipeline(start=0, end=6000):
+    # ************* read dataset *************
+    data = []
+    with open("/volsparse3/wxd/data/RLHF-V-Dataset/RLHF-V-Dataset.jsonl", 'r', encoding='utf-8') as jsonl_file:
+        for line in jsonl_file:
+            entry = json.loads(line)  # Parse the JSON line into a dictionary
+            data.append(entry)  # Add matching entry to the list
+
+    ROOT = "/volsparse3/wxd/data/RLHF-V-Dataset/images"
+
+    new_samples = []
+    
+    with open(f'/volsparse3/wxd/data/RLHF-V-Dataset/rlhf-v_for_dpo_ov_debate_1205_{start}_{end}.jsonl', 'w', encoding='utf-8') as f:
+        for idx, sample in tqdm(enumerate(data[start: end])):
+            model_return = None
+            for turn in range(2):
+                image_path = sample["image_path"] # 000000XXX.jpg
+                image_id = sample["idx"]
+                prompt = sample["prompt"]
+                question = prompt
+
+                chosen = sample["chosen"] # human correct as GT
+                gt_answer = chosen
+                rejected = sample["rejected"]
+                
+                question = question.replace('<image>', '').replace('\n', '')
+                
+                prompt = prompt.replace('<image>', '').replace('\n', '')
+                qs = prompt
+
+                if turn == 0:
+                    prefix = "Here are some hints: " + "\n\n" + gt_answer + "\n\n" + "Please respond based on the given hints and image content." + "\n\n"
+                elif turn == 1:
+                    prefix = f"""
+Your previous reply to me was:
+{model_return}. This response can continue to be improved.
+
+Now, please align your response with the information below:
+{gt_answer}
+
+You need to reflect the given information as best you can, optimize your response, and enrich your answer. I'll ask you the question again:
+
+"""
+                
+                image = Image.open(os.path.join(ROOT, image_path))
+
+                image_tensor = process_images([image], image_processor, model.config)
+                image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
+                # print("Image tensor: ", image_tensor[0].shape)
+                conv_template = "qwen_1_5"
+                question = prefix + DEFAULT_IMAGE_TOKEN + f"\n{qs}" 
+                conv = copy.deepcopy(conv_templates[conv_template])
+                conv.append_message(conv.roles[0], question)
+                conv.append_message(conv.roles[1], None)
+                prompt_question = conv.get_prompt()
+                # print("PROMPT: ", prompt_question)
+                input_ids = tokenizer_image_token(prompt_question, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).to(device)
+                image_sizes = [image.size]
+                # print(image_sizes)
+
+                cont = model.generate(
+                    input_ids,
+                    images=image_tensor,
+                    image_sizes=image_sizes,
+                    do_sample=False, 
+                    max_new_tokens=1024,
+                    temperature=0.3,
+                    use_cache=True,
+                )
+                text_outputs = tokenizer.batch_decode(cont, skip_special_tokens=True)
+                previous_return = model_return if model_return else ""
+                # print("******************************************************\n")
+                # print(previous_return)
+                # print("******************************************************\n")
+                model_return = text_outputs[0]
+                # print(model_return)
+                # print("******************************************************\n")
+
+                # print(text_outputs[0])
+            # import pdb; pdb.set_trace()
+            
+            json_line = {
+                'idx': sample['idx'],
+                'image_path': sample['image_path'],
+                'prompt': prompt,
+                'answer': sample['chosen'],
+                'first': previous_return,
+                'chosen': model_return,
+                "rejected": sample["rejected"]
+            }
+            f.write(json.dumps(json_line, ensure_ascii=False) + '\n')
+            f.flush()
+
+    print(f'inference {start} to {end} done!')
+
+if __name__ == "__main__":
+    fire.Fire(inference_pipeline)
