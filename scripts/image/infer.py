@@ -32,14 +32,14 @@ model.eval()
 
 
 # url = "./scripts/image/waterview.jpg"
-url = "COCO_train2014_000000372250.jpg"
+url = "table.jpg"
 image = Image.open(url).convert("RGB")
 print("image processor: ", image_processor)
 image_tensor = process_images([image], image_processor, model.config)
 image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
 print("Image tensor: ", image_tensor[0].shape)
 conv_template = "qwen_1_5"  # Make sure you use correct chat template for different models
-question = DEFAULT_IMAGE_TOKEN + "\nWhat are the habits of elephants?" 
+question = DEFAULT_IMAGE_TOKEN + "\nUse a general concept to express the picture" 
 conv = copy.deepcopy(conv_templates[conv_template])
 conv.append_message(conv.roles[0], question)
 conv.append_message(conv.roles[1], None)
