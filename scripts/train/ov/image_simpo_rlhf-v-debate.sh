@@ -24,7 +24,7 @@ output_dir=/volsparse3/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/volsparse3/wxd/data/RLHF-V-Dataset/rlhf-v_for_dpo_ov_debate_1205_0_6000.jsonl
+data_path=/volsparse3/wxd/data/RLHF-V-Dataset/rlhf-v_for_dpo_ov_debate_1205_0_6000_fix.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
