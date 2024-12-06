@@ -20,11 +20,11 @@ export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/volsparse1/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/volsparse3/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/volsparse1/wxd/data/llava-onevision-data/llava_rlhf_for_dpo.json
+data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo.json
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -42,7 +42,7 @@ PROMPT_VERSION="qwen_1_5"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo.py \
     --deepspeed scripts/zero3.json \
-    --model_name_or_path /volsparse2/wxd/models/qwen/llava-onevision-qwen2-7b-ov \
+    --model_name_or_path /volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
