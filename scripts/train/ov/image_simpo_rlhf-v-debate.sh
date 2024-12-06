@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-image-jf-4A100
-export WANDB_NAME=llava_qwen_simpo_RLHF-V-debate-sft
+export WANDB_NAME=llava_qwen_simpo_RLHF-V-debate-sft-1
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -73,7 +73,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 2 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 100 \
+    --save_steps 200 \
     --save_total_limit 4 \
     --learning_rate $lr \
     --weight_decay 0. \
