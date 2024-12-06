@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-image-jf-4A100
-export WANDB_NAME=llava_qwen_simpo_llava-rlhf-multi-turn-sft
+export WANDB_NAME=llava_qwen_simpo_llava-rlhf-multi-turn-sft-1
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -47,7 +47,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path /volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
     --loss_type simpo \
-    --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
+    --dpo_alpha 1.0 --beta 2.0 --gamma 0.1 \
     --data_path=$data_path \
     --image_folder /data/mscoco/train2014 \
     --video_folder xxx \
