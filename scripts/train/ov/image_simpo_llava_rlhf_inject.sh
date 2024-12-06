@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-ov-image-jf-4A100
-export WANDB_NAME=llava_qwen_simpo_llava-rlhf-inject
+export WANDB_NAME=llava_qwen_simpo_llava-rlhf-multi-turn-sft
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -24,8 +24,8 @@ output_dir=/volsparse3/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_inject_all_fix.jsonl
-# data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_multi-turn_all.jsonl
+# data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_inject_all_fix.jsonl
+data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_multi-turn_all.jsonl
 # data_path=/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_debate-chosen_aug-s224-rejected-sample0.6.jsonl
 
 # sudo chmod +x -R .
@@ -47,7 +47,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path /volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-ov \
     --version $PROMPT_VERSION \
     --loss_type simpo \
-    --dpo_alpha 1.0 --beta 2.0 --gamma 0 \
+    --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
     --data_path=$data_path \
     --image_folder /data/mscoco/train2014 \
     --video_folder xxx \
@@ -75,7 +75,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 2 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 250 \
+    --save_steps 200 \
     --save_total_limit 4 \
     --learning_rate $lr \
     --weight_decay 0. \
