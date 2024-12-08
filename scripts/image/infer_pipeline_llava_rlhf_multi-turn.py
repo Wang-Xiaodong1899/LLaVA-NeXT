@@ -30,7 +30,7 @@ import fire
 
 
 # *************** load model *************
-model_path="/volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-ov"
+model_path="/volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-si"
 model_name = get_model_name_from_path(model_path)
 device = "cuda:0"
 device_map = "auto"
@@ -52,7 +52,7 @@ def inference_pipeline(start=0, end=10000):
 
     new_samples = []
     
-    with open(f'/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_debate_1201_{start}_{end}.jsonl', 'w', encoding='utf-8') as f:
+    with open(f'/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov-si_debate_1208_{start}_{end}.jsonl', 'w', encoding='utf-8') as f:
         for idx, sample in tqdm(enumerate(llava_rlhf_data[start: end])):
             model_return = None
             for turn in range(2):
