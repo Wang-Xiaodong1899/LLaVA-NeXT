@@ -45,7 +45,7 @@ class GaussianBlur(object):
 
 
 # *************** load model *************
-model_path="/volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-ov"
+model_path="/volsparse3/wxd/models/qwen/llava-onevision-qwen2-7b-si"
 model_name = get_model_name_from_path(model_path)
 device = "cuda:0"
 device_map = "auto"
@@ -67,7 +67,7 @@ def inference_pipeline(start=0, end=10000, aug=1):
 
     new_samples = []
     
-    with open(f'/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_ov_aug_s224_p0.6_{start}_{end}.jsonl', 'w', encoding='utf-8') as f:
+    with open(f'/volsparse3/wxd/data/llava-onevision-data/llava_rlhf_for_dpo_si_aug_s224_p0.6_{start}_{end}.jsonl', 'w', encoding='utf-8') as f:
         for idx, sample in tqdm(enumerate(llava_rlhf_data[start: end])):
             image_path = sample["image"] # 000000XXX.jpg
             image_id = sample["id"]
