@@ -24,7 +24,7 @@ output_dir=/volsparse3/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=${ROOT}/data/shareVideoGPTV/sft_dpo_17k.jsonl
+data_path=/volsparse3/wxd/data/shareVideoGPTV/sft_dpo_17k.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -68,7 +68,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
-    --num_train_epochs 3 \
+    --num_train_epochs 1 \
     --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
