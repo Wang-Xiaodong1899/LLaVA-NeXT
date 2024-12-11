@@ -261,10 +261,13 @@ def run_inference(args):
         sample_set['id'] = item["id"]
         
         
-        question = next(convo['value'] for convo in item['conversations'] if convo['from'] == 'human')
-        answer = next(convo['value'] for convo in item['conversations'] if convo['from'] == 'gpt')
+        # question = next(convo['value'] for convo in item['conversations'] if convo['from'] == 'human')
+        # answer = next(convo['value'] for convo in item['conversations'] if convo['from'] == 'gpt')
         
-        question = question.replace("<video>\n", "")
+        # question = question.replace("<video>\n", "")
+        answer = item["answer"]
+        
+        question = item["prompt"]
 
         sample_set["prompt"] = question
         sample_set["answer"] = answer

@@ -35,8 +35,8 @@ fi
 python3 scripts/process/self_generate_preference_debate.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /volsparse3/wxd/data/self-gen/inject-1113-next-iter2-stride3-50/$SAVE_DIR \
-    --output_name next-7b-iter2-stride3-50-inject_prior_aug_f2_stride3_sample_${START}_${END} \
+    --output_dir /volsparse3/wxd/data/self-gen/debate-hound-1211/$SAVE_DIR \
+    --output_name next-7b-f16-s2-${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
@@ -44,18 +44,12 @@ python3 scripts/process/self_generate_preference_debate.py \
     --overwrite ${OVERWRITE} \
     --mm_spatial_pool_stride ${POOL_STRIDE:-4} \
     --for_get_frames_num $FRAMES \
-    --normal_frames 32 \
+    --normal_frames 16 \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
     --image_resolution $RESOLUTION \
 
 
-# one-vision
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse1/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 3 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_long_video_id_1103.jsonl 0 2000 224
-
-# iter-2
-# CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse2/wxd/ckpt/llava-next-jf-4A100/llava_vicuna_simpo_inject_8k_aug_8k_f32_stride_3/checkpoint-400 vicuna_v1 2 3 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 11000 12000 224
-
-# iter-3
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_inject_aug.sh /volsparse2/wxd/ckpt/llava-next-jf-4A100/llava_vicuna_simpo_inject_8k_aug_8k_f32_stride_3_iter2_4k_copy/checkpoint-50 vicuna_v1 2 3 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/shareVideoGPTV/filtered_video_id_random_1_1101.jsonl 12000 13000 224
+# Next
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /volsparse3/wxd/data/shareVideoGPTV/dpo_train_data /volsparse3/wxd/data/shareVideoGPTV/sft_dpo_17k.jsonl 0 4000 224
