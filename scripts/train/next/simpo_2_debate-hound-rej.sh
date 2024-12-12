@@ -46,10 +46,11 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --deepspeed scripts/zero2.json \
     --model_name_or_path /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
+    --loss_type simpo \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /volsparse3/wxd/data/shareVideoGPTV/dpo_train_data \
+    --video_folder /workspace/wxd/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
@@ -68,13 +69,13 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
-    --num_train_epochs 2 \
+    --num_train_epochs 1 \
     --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 200 \
+    --save_steps 500 \
     --save_total_limit 4 \
     --learning_rate $lr \
     --weight_decay 0. \
