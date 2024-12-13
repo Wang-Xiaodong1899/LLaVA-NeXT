@@ -84,3 +84,7 @@ llava-next/*
 
 # results
 results
+test_images
+test_images_2
+*.jsonl
+*.json
