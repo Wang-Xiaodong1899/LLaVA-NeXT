@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/workspace/wxd/LLaVA-NeXT/"
+ROOT_DIR="/root/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."

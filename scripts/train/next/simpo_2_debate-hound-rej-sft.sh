@@ -11,7 +11,7 @@ lr=${1:-"5e-7"}
 ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next-jf-4A100
+export WANDB_PROJECT=llava-next-4A800
 export WANDB_NAME=llava_simpo_8k_debate-hound-rej-sft
 
 # gpu_ids=0
@@ -20,18 +20,18 @@ export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/volsparse3/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/root/autodl-tmp/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/volsparse3/wxd/data/shareVideoGPTV/next-7b-f16-s2-hound-rej-0_8000.jsonl
+data_path=/root/autodl-tmp/data/shareVideoGPTV/next-7b-f16-s2-hound-rej-0_8000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
 port=19001
 
-VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
+VISION_MODEL_VERSION="/root/autodl-tmp/models/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
@@ -44,15 +44,17 @@ PROMPT_VERSION="vicuna_v1"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_avg.py \
     --deepspeed scripts/zero2.json \
-    --model_name_or_path /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B \
+    --model_name_or_path /vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
+    --loss_type simpo \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
+    --simpo_margin 1.0 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /volsparse3/wxd/data/shareVideoGPTV/dpo_train_data \
+    --video_folder /root/autodl-tmp/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
-    --vision_tower ${VISION_MODEL_VERSION} \
+    --vision_tower /root/autodl-tmp/models/clip-vit-large-patch14-336 \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
     --mm_use_im_start_end False \
@@ -68,7 +70,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
-    --num_train_epochs 2 \
+    --num_train_epochs 1 \
     --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \

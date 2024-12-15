@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-4A800
-export WANDB_NAME=llava_simpo_8k_debate-hound-rej
+export WANDB_NAME=llava_dpo-hound-gt-as-chosen
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -24,7 +24,7 @@ output_dir=/root/autodl-tmp/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/root/autodl-tmp/data/shareVideoGPTV/next-7b-f16-s2-hound-rej-0_8000.jsonl
+data_path=/root/autodl-tmp/data/shareVideoGPTV/sft_dpo_17k_gt_as_chosen.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -42,13 +42,11 @@ PROMPT_VERSION="vicuna_v1"
 #torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
-    llava/train/train_dpo_avg.py \
+    llava/train/train_dpo.py \
     --deepspeed scripts/zero2.json \
     --model_name_or_path /vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
-    --loss_type simpo \
-    --dpo_alpha 1.0 --beta 2.0 --gamma 0 \
-    --simpo_margin 1.0 \
+    --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /root/autodl-tmp/data/shareVideoGPTV/dpo_train_data \
@@ -76,7 +74,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 200 \
+    --save_steps 500 \
     --save_total_limit 4 \
     --learning_rate $lr \
     --weight_decay 0. \
