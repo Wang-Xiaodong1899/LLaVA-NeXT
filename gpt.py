@@ -21,6 +21,7 @@ completion = client.chat.completions.create(
                 ]
             )
             # Convert response to a Python dictionary.
+print(completion)
 response_message = completion.choices[0].message.content
 print(response_message)
 print(completion.model)
