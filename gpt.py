@@ -6,7 +6,7 @@ client = OpenAI(
 )
 
 completion = client.chat.completions.create(
-                model="openai/gpt-3.5-turbo-0613",
+                model="openai/gpt-3.5-turbo",
                 messages=[
                     {
                         "role": "system",
@@ -21,7 +21,6 @@ completion = client.chat.completions.create(
                 ]
             )
             # Convert response to a Python dictionary.
-print(completion)
 response_message = completion.choices[0].message.content
 print(response_message)
 print(completion.model)
