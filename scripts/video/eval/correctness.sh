@@ -6,7 +6,7 @@ FRAMES=$3
 STRIDE=${4:-2}
 
 # vicuna
-bash scripts/video/eval/video_generic.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
+# bash scripts/video/eval/video_generic.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
 
 # ov
 # bash scripts/video/eval/video_generic.sh $CKPT qwen_1_5 $FRAMES $STRIDE bilinear one_token True $SAVE_NAME
