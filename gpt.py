@@ -45,7 +45,7 @@ response = requests.post(
 
 print(response)
 if response.status_code == 200:
-    content = response.json()["choices"][0]["message"]["content"]
+    content = response.json()
     print(content)
 else:
     print(f"Error: {response.status_code}, {response.text}")
