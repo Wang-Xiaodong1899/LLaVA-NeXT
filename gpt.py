@@ -24,10 +24,12 @@ import os
 import requests
 import json
 
+key = os.getenv("API_KEY")
+
 response = requests.post(
   url="https://openrouter.ai/api/v1/chat/completions",
   headers={
-    "Authorization": f"Bearer {os.getenv("API_KEY")}",
+    "Authorization": f"Bearer {key}",
   },
   data=json.dumps({
     "model": "openai/gpt-3.5-turbo-0613", # Optional
