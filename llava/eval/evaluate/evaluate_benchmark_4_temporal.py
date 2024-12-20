@@ -61,7 +61,7 @@ def annotate(prediction_set, caption_files, output_dir):
             # Compute the temporal understanding score
             # completion = openai.chat.completions.create(
             completion = client.chat.completions.create(
-                model="openai/gpt-3.5-turbo-0613",
+                model="gpt-3.5-turbo-0125",
                 messages=[
                     {
                         "role": "system",
