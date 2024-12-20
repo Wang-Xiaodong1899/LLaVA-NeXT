@@ -7,7 +7,7 @@ base_url="https://hf-mirror.com/datasets/lmms-lab/Video-MME/resolve/main/videos_
 # change to base_url="https://hf-mirror.com/datasets/lmms-lab/Video-MME/resolve/main/videos_chunked_"
 
 
-start=17
+start=1
 end=20
 
 

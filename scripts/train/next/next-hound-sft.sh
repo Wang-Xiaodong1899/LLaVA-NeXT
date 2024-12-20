@@ -4,6 +4,7 @@
 # # export NCCL_IB_HCA=${ARNOLD_RDMA_DEVICE}
 # export NCCL_SOCKET_IFNAME=eth0
 # export NCCL_DEBUG=INFO
+
 export NCCL_P2P_DISABLE=1
 export NCCL_IB_DISABLE=1
 
@@ -12,7 +13,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-8GPU
-export WANDB_NAME=llava_simpo_8k_debate-hound-ours-sft
+export WANDB_NAME=llava_hound_17k-sft
 
 # gpu_ids=0
 gpu_ids=0,1,2,3,4,5,6,7
@@ -24,7 +25,7 @@ output_dir=/root/private_data/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/root/private_data/data/data/shareVideoGPTV/next-7b-f16-s2-debate-aug-f2-s3-0_17000.jsonl
+data_path=/root/private_data/data/data/shareVideoGPTV/sft_dpo_17k_gt_as_chosen.jsonl 
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -47,8 +48,8 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path /root/private_data/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --loss_type simpo \
-    --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
-    --simpo_margin 1.0 \
+    --dpo_alpha 0.0 --beta 2.0 --gamma 1.0 \
+    --simpo_margin 0.0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /root/private_data/data/data/shareVideoGPTV/dpo_train_data \
