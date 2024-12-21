@@ -6,9 +6,12 @@ CKPT=$1
 SAVE_NAME=$2
 FRAMES=$3
 STRIDE=${4:-2}
+INFER=${5:-False}
 
 # vicuna
-# bash scripts/video/eval/video_generic.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
+if [ "$INFER" = True ]; then
+    bash scripts/video/eval/video_generic.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
+fi
 
 # ov
 # bash scripts/video/eval/video_generic.sh $CKPT qwen_1_5 $FRAMES $STRIDE bilinear one_token True $SAVE_NAME
