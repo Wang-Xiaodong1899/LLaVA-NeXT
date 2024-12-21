@@ -1,12 +1,14 @@
 #!/bin/bash
 
+# CUDA_VISIBLE_DEVICES=2 bash scripts/video/eval/correctness.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B NeXT-Video-7B-f16 16 2
+
 CKPT=$1
 SAVE_NAME=$2
 FRAMES=$3
 STRIDE=${4:-2}
 
 # vicuna
-bash scripts/video/eval/video_generic.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
+# bash scripts/video/eval/video_generic.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
 
 # ov
 # bash scripts/video/eval/video_generic.sh $CKPT qwen_1_5 $FRAMES $STRIDE bilinear one_token True $SAVE_NAME

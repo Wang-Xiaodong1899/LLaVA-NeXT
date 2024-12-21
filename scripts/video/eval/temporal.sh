@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# /volsparse3/wxd/ckpt/llava-next-jf-4A100/llava_simpo_8k_debate-hound-ours-sft/checkpoint-500
+
+# CUDA_VISIBLE_DEVICES=0 bash scripts/video/eval/temporal.sh /volsparse3/wxd/ckpt/llava-next-jf-4A100/llava_dpo_17k_flash-attn/checkpoint-1000 dpo-hound-17k-f16 16 2
 
 CKPT=$1
 SAVE_NAME=$2
@@ -10,7 +11,7 @@ STRIDE=${4:-2}
 #eval_frame: 16 (align with finetuning)
 
 # vicuna
-bash scripts/video/eval/video_temporal.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
+# bash scripts/video/eval/video_temporal.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
 
 # ov
 # bash scripts/video/eval/video_temporal.sh $CKPT qwen_1_5 $FRAMES $STRIDE bilinear one_token True $SAVE_NAME

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# /volsparse3/wxd/ckpt/llava-next-jf-4A100/llava_simpo_8k_debate-hound-ours-sft/checkpoint-500
+# CUDA_VISIBLE_DEVICES=1 bash scripts/video/eval/consistency.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B NeXT-Video-7B-f16 16 2
 
 
 CKPT=$1
@@ -10,7 +10,7 @@ STRIDE=${4:-2}
 #eval_frame: 16 (align with finetuning)
 
 # vicuna
-bash scripts/video/eval/video_consistency.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
+# bash scripts/video/eval/video_consistency.sh $CKPT vicuna_v1 $FRAMES $STRIDE average no_token True $SAVE_NAME
 
 # ov
 # bash scripts/video/eval/video_consistency.sh $CKPT qwen_1_5 $FRAMES $STRIDE bilinear one_token True $SAVE_NAME
