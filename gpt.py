@@ -1,7 +1,7 @@
 import os
 from openai import OpenAI
 client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
+    base_url="https://api.ai-gaochao.cn/v1/",
     api_key=os.getenv("API_KEY"),
 )
 
