@@ -18,7 +18,7 @@ STRIDE=${4:-2}
 
 python3 llava/eval/evaluate/evaluate_benchmark_4_temporal.py \
     --pred_path results/answer-video-temporal-${SAVE_NAME}.jsonl \
-    --output_dir results/temporal_${SAVE_NAME}_0613 \
-    --output_json results/review-video-temporal-${SAVE_NAME}_0613.jsonl \
+    --output_dir results/temporal_${SAVE_NAME}_0125 \
+    --output_json results/review-video-temporal-${SAVE_NAME}_0125.jsonl \
     --api_key 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 \
     --num_tasks 1
