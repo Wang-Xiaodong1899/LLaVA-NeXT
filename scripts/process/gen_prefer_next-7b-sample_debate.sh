@@ -35,7 +35,7 @@ fi
 python3 scripts/process/self_generate_preference_debate.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /volsparse3/wxd/data/self-gen/debate-hound-1211/$SAVE_DIR \
+    --output_dir /volsparse3/wxd/data/self-gen/debate-hound-caption-1222/$SAVE_DIR \
     --output_name next-7b-f16-s2-${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
@@ -53,3 +53,6 @@ python3 scripts/process/self_generate_preference_debate.py \
 
 # Next
 # CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /volsparse3/wxd/data/shareVideoGPTV/dpo_train_data /volsparse3/wxd/data/shareVideoGPTV/sft_dpo_17k.jsonl 0 4000 224
+
+# caption
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /data/llava_hound/train_300k_caption_video /data/llava_hound/video_240k_caption_15k_ge_16.jsonl 0 4000 224
