@@ -267,7 +267,7 @@ def run_inference(args):
         question = question.replace("<video>", "").replace("\n", "")
         # answer = item["answer"]
         
-        question = item["prompt"]
+        # question = item["prompt"]
 
         sample_set["prompt"] = question
         sample_set["answer"] = answer
