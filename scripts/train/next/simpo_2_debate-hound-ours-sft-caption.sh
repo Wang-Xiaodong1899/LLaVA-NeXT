@@ -50,7 +50,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /data/llava_hound/train_300k_caption_video \
+    --video_folder /data/llava_hound/shareVideoGPTV/train_300k_caption_video \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
