@@ -20,7 +20,7 @@ export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/volsparse3/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/volsparse3/wxd/ckpt/${WANDB_PROJECT}/vicuna/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
@@ -44,7 +44,7 @@ PROMPT_VERSION="vicuna_v1"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_avg.py \
     --deepspeed scripts/zero2.json \
-    --model_name_or_path /volsparse3/wxd/ckpt/llava-next-jf-4A100/llava_simpo_17k_debate-hound-ours-sft \
+    --model_name_or_path /volsparse3/wxd/ckpt/llava-next-jf-4A100/vicuna/llava_simpo_17k_debate-hound-ours-sft \
     --version $PROMPT_VERSION \
     --loss_type simpo \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
