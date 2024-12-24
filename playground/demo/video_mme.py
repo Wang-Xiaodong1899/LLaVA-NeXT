@@ -282,11 +282,11 @@ def run_inference(args):
                         # video tokens: 144*16=2304
                         video_hidden_states = hidden_states[:, video_index: video_index+2304,].cpu()
                         
-                        torch.save(video_hidden_states, f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/baseline/{question_id}_vid_tok_hs.pt")
+                        torch.save(video_hidden_states, f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/ours/{question_id}_vid_tok_hs.pt")
                         print(f"video_hidden_states shape: {video_hidden_states.shape}")
 
                         query_hidden_states = hidden_states[:, video_index+2304:,].cpu()
-                        torch.save(query_hidden_states, f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/baseline/{question_id}_qry_tok_hs.pt")
+                        torch.save(query_hidden_states, f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/ours/{question_id}_qry_tok_hs.pt")
                         print(f"query_hidden_states shape: {query_hidden_states.shape}")
                         continue
                         # 
