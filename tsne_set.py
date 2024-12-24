@@ -4,9 +4,11 @@ from tqdm import tqdm
 import torch
 from sklearn.manifold import TSNE
 
-tgt = "baseline"
+tgt = "ours"
 
 tgt_dir = f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/{tgt}"
+
+print(f"evel {tgt_dir}")
 
 files = os.listdir(tgt_dir)
 
