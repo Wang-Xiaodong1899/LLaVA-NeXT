@@ -14,10 +14,10 @@ querys = []
 for file in tqdm(files):
     if "qry_tok_hs.pt" in file:
         query_tokens = torch.load(os.path.join(tgt_dir, file))
-        querys.append(query_tokens[: -1, :])
+        querys.append(query_tokens[:, -1, :])
     elif "vid_tok_hs.pt" in file:
         video_tokens = torch.load(os.path.join(tgt_dir, file))
-        videos.append(video_tokens[: -1, :])
+        videos.append(video_tokens[:, -1, :])
 
 videos = torch.cat(videos, dim=0)
 querys = torch.cat(querys, dim=0)
