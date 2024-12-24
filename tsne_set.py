@@ -1,5 +1,6 @@
 import numpy as np, matplotlib.pyplot as plt
 import os
+from tqdm import tqdm
 import torch
 from sklearn.manifold import TSNE
 
@@ -10,7 +11,7 @@ files = os.listdir(tgt_dir)
 
 videos = []
 querys = []
-for file in files:
+for file in tqdm(files):
     if "qry_tok_hs.pt" in file:
         query_tokens = torch.load(os.path.join(tgt_dir, file))
         querys.append(query_tokens[0, -1, :])
