@@ -46,7 +46,6 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --deepspeed scripts/zero2.json \
     --model_name_or_path /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
-    --loss_type simpo \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
