@@ -4,8 +4,9 @@ from tqdm import tqdm
 import torch
 from sklearn.manifold import TSNE
 
+tgt = "baseline"
 
-tgt_dir = "/workspace/wxd/LLaVA-NeXT/VideoMME-visu/baseline"
+tgt_dir = f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/{tgt}"
 
 files = os.listdir(tgt_dir)
 
@@ -47,7 +48,7 @@ plt.scatter(x, y, c=colors,)
 plt.title('2D t-SNE Visualization', fontsize=16)
 plt.xlabel('X', fontsize=12)
 plt.ylabel('Y', fontsize=12)
-output_path = f"tsne_2d_set_ours_pp_{perplexity}.png"
+output_path = f"tsne_2d_set_{tgt}_pp_{perplexity}.png"
 plt.savefig(output_path, dpi=300, bbox_inches='tight')  # 高分辨率保存
 print(f"Saved in {output_path}")
 
