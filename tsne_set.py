@@ -33,36 +33,37 @@ array = tokens.numpy()
 
 print(array.shape)
 
-tsne = TSNE(n_components=3, perplexity=10, random_state=42)
+perplexity = 50
+tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42)
 
 mappings = tsne.fit_transform(array)
 
 
-# 2D scatter
-# x, y = mappings[:, 0], mappings[:, 1]
-# plt.figure(figsize=(10, 7))
-# plt.scatter(x, y, c=colors,)
+# NOTE 2D scatter
+x, y = mappings[:, 0], mappings[:, 1]
+plt.figure(figsize=(10, 7))
+plt.scatter(x, y, c=colors,)
 
-# plt.title('2D t-SNE Visualization', fontsize=16)
-# plt.xlabel('X', fontsize=12)
-# plt.ylabel('Y', fontsize=12)
-# output_path = "tsne_2d_set_ours.png"
-# plt.savefig(output_path, dpi=300, bbox_inches='tight')  # 高分辨率保存
-# print(f"Saved in {output_path}")
-
-
-# 3D scatter
-x, y, z = mappings[:, 0], mappings[:, 1], mappings[:, 2]
-fig = plt.figure(figsize=(10, 7))
-ax = fig.add_subplot(111, projection='3d')
-scatter = ax.scatter(x, y, z, c=colors, marker='o', alpha=0.5)
-
-ax.set_title('3D t-SNE Visualization', fontsize=16)
-ax.set_xlabel('X', fontsize=12)
-ax.set_ylabel('Y', fontsize=12)
-ax.set_zlabel('Z', fontsize=12)
-# plt.colorbar(scatter, ax=ax, shrink=0.5, aspect=10)
-
-output_path = "tsne_3d_set_baseline.png"
+plt.title('2D t-SNE Visualization', fontsize=16)
+plt.xlabel('X', fontsize=12)
+plt.ylabel('Y', fontsize=12)
+output_path = f"tsne_2d_set_ours_pp_{perplexity}.png"
 plt.savefig(output_path, dpi=300, bbox_inches='tight')  # 高分辨率保存
 print(f"Saved in {output_path}")
+
+
+# NOTE 3D scatter
+# x, y, z = mappings[:, 0], mappings[:, 1], mappings[:, 2]
+# fig = plt.figure(figsize=(10, 7))
+# ax = fig.add_subplot(111, projection='3d')
+# scatter = ax.scatter(x, y, z, c=colors, marker='o', alpha=0.5)
+
+# ax.set_title('3D t-SNE Visualization', fontsize=16)
+# ax.set_xlabel('X', fontsize=12)
+# ax.set_ylabel('Y', fontsize=12)
+# ax.set_zlabel('Z', fontsize=12)
+# # plt.colorbar(scatter, ax=ax, shrink=0.5, aspect=10)
+
+# output_path = "tsne_3d_set_baseline.png"
+# plt.savefig(output_path, dpi=300, bbox_inches='tight')  # 高分辨率保存
+# print(f"Saved in {output_path}")
