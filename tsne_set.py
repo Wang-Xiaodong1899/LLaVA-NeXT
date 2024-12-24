@@ -33,7 +33,7 @@ array = tokens.numpy()
 
 print(array.shape)
 
-tsne = TSNE(n_components=2, perplexity=1, random_state=42)
+tsne = TSNE(n_components=2, perplexity=10, random_state=42)
 
 mappings = tsne.fit_transform(array)
 
