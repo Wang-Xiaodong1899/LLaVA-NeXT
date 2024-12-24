@@ -276,7 +276,20 @@ def run_inference(args):
             if "gpt4v" != args.model_path:
                 with torch.inference_mode():
                     if "mistral" not in cfg_pretrained._name_or_path.lower():
-                        output_ids = model.generate(inputs=input_ids, images=video_frames, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1,num_beams=1,use_cache=True, stopping_criteria=[stopping_criteria])
+                        hidden_states = model(input_ids=input_ids, images=video_frames, attention_mask=attention_masks, modalities="video", visualize=True)[-1]
+                        last_token_hidden_states = hidden_states[:, -1, :].cpu()
+                        video_index = torch.where(input_ids == -200)[1].cpu().item() # tensor([int])
+                        # video tokens: 144*16=2304
+                        video_hidden_states = hidden_states[:, video_index: video_index+2304,].cpu()
+                        torch.save(video_hidden_states, f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/baseline/{sample["question_id"]}_vid_tok_hs.pt")
+                        print(f"video_hidden_states shape: {video_hidden_states.shape}")
+
+                        query_hidden_states = hidden_states[:, video_index+2304:,].cpu()
+                        torch.save(query_hidden_states, f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/baseline/{sample["question_id"]}_qry_tok_hs.pt")
+                        print(f"query_hidden_states shape: {query_hidden_states.shape}")
+                        continue
+                        # 
+                        # output_ids = model.generate(inputs=input_ids, images=video_frames, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1,num_beams=1,use_cache=True, stopping_criteria=[stopping_criteria])
                     else:
                         output_ids = model.generate(inputs=input_ids, images=video_frames, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1, num_beams=1, use_cache=True)
             else:
