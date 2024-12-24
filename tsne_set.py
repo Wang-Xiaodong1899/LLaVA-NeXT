@@ -27,7 +27,7 @@ tokens = torch.cat([videos, querys], dim=0)
 print(videos.shape[0])
 print(querys.shape[0])
 
-colors = ['lightskyblue'] * videos.shape[0] + ['green'] * querys.shape[1]
+colors = ['lightskyblue'] * videos.shape[0] + ['green'] * querys.shape[0]
 
 array = tokens.numpy()
 
