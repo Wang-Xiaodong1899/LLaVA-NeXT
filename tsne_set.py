@@ -8,7 +8,7 @@ tgt = "ours"
 
 tgt_dir = f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/{tgt}"
 
-print(f"evel {tgt_dir}")
+print(f"eval {tgt_dir}")
 
 files = os.listdir(tgt_dir)
 
