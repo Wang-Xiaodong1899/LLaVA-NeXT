@@ -36,4 +36,4 @@ ax.set_zlabel('Z', fontsize=12)
 
 output_path = "tsne_3d.png"
 plt.savefig(output_path, dpi=300, bbox_inches='tight')  # 高分辨率保存
-print(f"图像已保存为 {output_path}")
+print(f"Saved as {output_path}")
