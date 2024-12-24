@@ -5,7 +5,7 @@ import torch
 from sklearn.manifold import TSNE
 
 
-tgt_dir = "/workspace/wxd/LLaVA-NeXT/VideoMME-visu/baseline"
+tgt_dir = "/workspace/wxd/LLaVA-NeXT/VideoMME-visu/ours"
 
 files = os.listdir(tgt_dir)
 
@@ -51,7 +51,7 @@ plt.ylabel('Y', fontsize=12)
 
 # print(f"dis: {dis}")
 
-output_path = "tsne_2d_set_baseline.png"
+output_path = "tsne_2d_set_ours.png"
 plt.savefig(output_path, dpi=300, bbox_inches='tight')  # 高分辨率保存
 print(f"Saved in {output_path}")
 
