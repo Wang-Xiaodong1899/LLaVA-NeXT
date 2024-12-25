@@ -4,7 +4,7 @@ from tqdm import tqdm
 import torch
 from sklearn.manifold import TSNE
 
-tgt = "ours"
+tgt = "baseline"
 
 tgt_dir = f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/{tgt}"
 
