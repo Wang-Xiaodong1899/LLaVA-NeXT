@@ -12,6 +12,8 @@ print(f"eval {tgt_dir}")
 
 files = os.listdir(tgt_dir)
 
+files.sort()
+
 videos = []
 querys = []
 for file in tqdm(files):
