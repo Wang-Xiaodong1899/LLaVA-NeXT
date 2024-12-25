@@ -82,6 +82,8 @@ def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, 
         sample_fps = int(video_framerate)
         t_stride = int(round(float(fps) / sample_fps))
 
+        t_stride = 10 if t_stride == 0 else t_stride # fps set to 10 if no fps
+
         all_pos = list(range(f_start, f_end + 1, t_stride))
         if len(all_pos) > max_frames:
             sample_pos = [all_pos[_] for _ in np.linspace(0, len(all_pos) - 1, num=max_frames, dtype=int)]
