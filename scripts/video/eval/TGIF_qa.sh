@@ -29,7 +29,7 @@ python3 playground/demo/video_qa.py \
     --question-file llava/eval/questions/video_qa/tgif_qa.json \
     --video-folder /data/VideoQA/TGIF_Zero_Shot_QA/mp4 \
     --answers-list llava/eval/questions/video_qa/tgif_a_list.json \
-    --answers-file results/answer-tgif-qa-${SAVE_NAME}.jsonl \
+    --answers-file results/answer-tgif-qa-${SAVE_NAME}-${START}-${END}.jsonl \
     --chunk-idx $(($IDX - 1)) \
     --overwrite ${OVERWRITE} \
     --mm_spatial_pool_stride ${POOL_STRIDE:-4} \
