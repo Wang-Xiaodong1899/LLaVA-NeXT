@@ -25,6 +25,10 @@ for file in tqdm(files):
 videos = torch.cat(videos, dim=0)
 querys = torch.cat(querys, dim=0)
 
+dis = torch.sqrt((videos - querys) * (videos - querys)).mean()
+
+print(f"Mean Distance: {dis}")
+
 tokens = torch.cat([videos, querys], dim=0)
 
 print(videos.shape[0])
