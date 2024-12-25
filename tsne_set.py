@@ -47,6 +47,15 @@ tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42)
 
 mappings = tsne.fit_transform(array)
 
+x_mean_vid = mappings[:, 0][:videos.shape[0]].mean()
+y_mean_vid = mappings[:, 1][:videos.shape[0]].mean()
+
+x_mean_qry = mappings[:, 0][videos.shape[0]:].mean()
+y_mean_qry = mappings[:, 1][videos.shape[0]:].mean()
+
+dis = (x_mean_vid - x_mean_qry) **2 + (y_mean_vid - y_mean_qry) **2
+
+print(f"Center dis: {dis}")
 
 # NOTE 2D scatter
 x, y = mappings[:, 0], mappings[:, 1]
