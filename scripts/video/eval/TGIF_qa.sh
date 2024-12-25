@@ -20,7 +20,7 @@ NEWLINE_POSITION=$6
 OVERWRITE=$7
 SAVE_NAME=$8
 
-python playground/demo/video_qa.py \
+python3 playground/demo/video_qa.py \
     --model-path $CKPT \
     --output_name "videoqa" \
     --output_dir "videoqa" \
@@ -36,4 +36,4 @@ python playground/demo/video_qa.py \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
 
-# bash scripts/video/eval/TGIF_qa.sh /volsparse3/wxd/ckpt/llava-next-jf-4A100/vicuna/llava_simpo_17k_debate-hound-ours-plus-caption vicuna_v1 16 2 average no_token True llave-next-video 336
+# CUDA_VISIBLE_DEVICES=0 bash scripts/video/eval/TGIF_qa.sh /volsparse3/wxd/ckpt/llava-next-jf-4A100/vicuna/llava_simpo_17k_debate-hound-ours-plus-caption vicuna_v1 16 2 average no_token True ours-plus-caption
