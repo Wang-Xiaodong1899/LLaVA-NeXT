@@ -5,6 +5,11 @@ import json
 import jsonlines
 import ast
 from multiprocessing.pool import Pool
+from openai import OpenAI
+client = OpenAI(
+    base_url="https://api.ai-gaochao.cn/v1/",
+    api_key=os.getenv("API_KEY"),
+)
 
 
 def read_jsonl(file):
@@ -39,7 +44,7 @@ def annotate(prediction_set, caption_files, output_dir):
         pred = qa_set['pred']
         try:
             # Compute the correctness score
-            completion = openai.ChatCompletion.create(
+            completion = client.chat.completions.create(
                 model="gpt-3.5-turbo-1106",
                 messages=[
                     {
@@ -68,7 +73,7 @@ def annotate(prediction_set, caption_files, output_dir):
                 ]
             )
             # Convert response to a Python dictionary.
-            response_message = completion["choices"][0]["message"]["content"]
+            response_message = completion.choices[0].message.content
             response_dict = ast.literal_eval(response_message)
             result_qa_pair = [response_dict, qa_set]
 
@@ -210,3 +215,9 @@ def main():
 if __name__ == "__main__":
     main()
 
+# python ChatUniVi/eval/evaluate/evaluate_video_qa.py \
+#     --pred_path results/answer-tgif-qa.jsonl \
+#     --output_dir results/tgif-qa \
+#     --output_json results/review-tgif-qa.jsonl \
+#     --api_key $API_KEY \
+#     --num_tasks 1
