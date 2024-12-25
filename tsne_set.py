@@ -50,7 +50,14 @@ plt.scatter(x, y, c=colors,)
 plt.title('2D t-SNE Visualization', fontsize=16)
 plt.xlabel('X', fontsize=12)
 plt.ylabel('Y', fontsize=12)
-output_path = f"tsne_2d_set_{tgt}_pp_{perplexity}.png"
+
+video_patch = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='lightskyblue', markersize=10, label='Video')
+query_patch = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='orange', markersize=10, label='Query')
+
+# 添加图例
+plt.legend(handles=[video_patch, query_patch])
+
+output_path = f"tsne_2d_set_{tgt}_pp_{perplexity}_legend.png"
 plt.savefig(output_path, dpi=300, bbox_inches='tight')  # 高分辨率保存
 print(f"Saved in {output_path}")
 
