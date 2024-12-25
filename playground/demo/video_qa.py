@@ -153,6 +153,9 @@ def parse_args():
     parser.add_argument("--enable_tube_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--enable_video_shuffle", type=lambda x: (str(x).lower() == 'true'), default=False)
     
+    parser.add_argument("--start", type=int, default=0) 
+    parser.add_argument("--end", type=int, default=None) 
+    
     return parser.parse_args()
 
 
@@ -222,7 +225,7 @@ def run_inference(args):
     video_formats = ['.mp4', '.avi', '.mov', '.mkv']
 
     # Iterate over each sample in the ground truth file
-    for idx, sample in tqdm(enumerate(gt_contents)):
+    for idx, sample in tqdm(enumerate(gt_contents[args.start: args.end])):
         video_name = sample['video_name']
         sample_set = sample
         qs = sample['question']
