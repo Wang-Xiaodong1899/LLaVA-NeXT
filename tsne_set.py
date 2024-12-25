@@ -50,6 +50,8 @@ plt.scatter(x, y, c=colors,)
 plt.title('2D t-SNE Visualization', fontsize=16)
 plt.xlabel('X', fontsize=12)
 plt.ylabel('Y', fontsize=12)
+plt.ylim((-70, 100))
+plt.xlim((-80, 100))
 
 video_patch = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='lightskyblue', markersize=10, label='Video')
 query_patch = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='orange', markersize=10, label='Query')
