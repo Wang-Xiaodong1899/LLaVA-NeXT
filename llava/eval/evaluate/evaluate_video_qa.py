@@ -215,7 +215,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-# python ChatUniVi/eval/evaluate/evaluate_video_qa.py \
+# python llava/eval/evaluate/evaluate_video_qa.py \
 #     --pred_path results/answer-tgif-qa.jsonl \
 #     --output_dir results/tgif-qa \
 #     --output_json results/review-tgif-qa.jsonl \
