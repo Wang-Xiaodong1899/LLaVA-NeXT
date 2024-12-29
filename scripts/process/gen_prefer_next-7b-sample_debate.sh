@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/workspace/wxd/LLaVA-NeXT"
+ROOT_DIR="/root/private_data/LLaVA-NeXT"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -35,7 +35,7 @@ fi
 python3 scripts/process/self_generate_preference_debate.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /volsparse3/wxd/data/self-gen/debate-hound-1211/$SAVE_DIR \
+    --output_dir /root/private_data/data/self-gen/debate-hound-qa-1223/$SAVE_DIR \
     --output_name next-7b-f16-s2-${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
@@ -53,3 +53,8 @@ python3 scripts/process/self_generate_preference_debate.py \
 
 # Next
 # CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /volsparse3/wxd/data/shareVideoGPTV/dpo_train_data /volsparse3/wxd/data/shareVideoGPTV/sft_dpo_17k.jsonl 0 4000 224
+
+#qa
+# CUDA_VISIBLE_DEVICES=7 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /root/private_data/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /root/private_data/data/data/llava_hound/shareVideoGPTV/train_300k /root/private_data/data/data/llava_hound/chatgpt_qa_900k_ge_70.jsonl 7000 8000 224
+
+# rocm-smi

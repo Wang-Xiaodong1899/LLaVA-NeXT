@@ -2,8 +2,8 @@ import os
 import json
 
 # Define the input folder path and output file path
-input_folder = r'C:\Users\wangxiaodong\Desktop\checkpoint-500_vicuna_v1_frames_4_stride_2'
-output_file = 'next-dpo-7b-iter2-f4_8000_16000.jsonl'
+input_folder = '/root/private_data/LLaVA-NeXT/results/answer-msrvtt-qa'
+output_file = '/root/private_data/LLaVA-NeXT/results/answer-msrvtt-qa-llave-next-ours-0-4000.jsonl'
 
 # Create the output file
 with open(output_file, 'w', encoding='utf-8') as outfile:
@@ -12,7 +12,7 @@ with open(output_file, 'w', encoding='utf-8') as outfile:
     filenames.sort()
     print(filenames)
     for filename in filenames:
-        if filename.endswith('.jsonl') and filename.startswith('next'):
+        if filename.endswith('.jsonl'):
             with open(os.path.join(input_folder, filename), 'r', encoding='utf-8') as infile:
                 for line in infile:
                     outfile.write(line)

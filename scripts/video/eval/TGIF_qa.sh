@@ -19,22 +19,17 @@ POOL_MODE=$5
 NEWLINE_POSITION=$6
 OVERWRITE=$7
 SAVE_NAME=$8
-DURATION=$9
-RESOLUTION=${10}
+START=$9
+END=${10}
 
-if [ "$OVERWRITE" = False ]; then
-    SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}_overwrite_${OVERWRITE}
-
-else
-    SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}
-fi
-
-echo $RESOLUTION
-    
-python3 playground/demo/video_mme.py \
+python3 playground/demo/video_qa.py \
     --model-path $CKPT \
-    --output_dir ./work_dirs/video_demo/$SAVE_DIR \
-    --output_name test \
+    --output_name "videoqa" \
+    --output_dir "videoqa" \
+    --question-file llava/eval/questions/video_qa/tgif_qa.json \
+    --video-folder /root/private_data/data/VideoQA/TGIF_Zero_Shot_QA/mp4 \
+    --answers-list llava/eval/questions/video_qa/tgif_a_list.json \
+    --answers-file results/answer-tgif-qa-${SAVE_NAME}-${START}-${END}.jsonl \
     --chunk-idx $(($IDX - 1)) \
     --overwrite ${OVERWRITE} \
     --mm_spatial_pool_stride ${POOL_STRIDE:-4} \
@@ -42,6 +37,7 @@ python3 playground/demo/video_mme.py \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
-    --answers-file results/answer-video-mme-${SAVE_NAME}.json \
-    --duration $DURATION \
-    --image_resolution $RESOLUTION
+    --start ${START} \
+    --end ${END} \
+
+# CUDA_VISIBLE_DEVICES=3 bash scripts/video/eval/TGIF_qa.sh /root/private_data/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 16 2 average no_token True llava-next-video 3900 None

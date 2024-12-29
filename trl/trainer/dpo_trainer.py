@@ -1253,12 +1253,12 @@ class DPOTrainer(Trainer):
         )
 
         # # inference logps only
-        model = model.to(self.accelerator.device).to(torch.bfloat16)
+        model = model.to(self.accelerator.device).to(torch.float16)
         len_chosen = batch["chosen_labels"].shape[0]
 
         new_batch = []
         for item in concatenated_batch["concatenated_images"]:
-            new_batch.append(item.to(torch.bfloat16))
+            new_batch.append(item.to(torch.float16))
         concatenated_batch.pop("concatenated_images")
         concatenated_batch["concatenated_images"] = torch.stack(new_batch, dim=0)
 
