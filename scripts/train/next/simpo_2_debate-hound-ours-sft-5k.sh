@@ -53,7 +53,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_folder xxx \
     --video_folder /data/llava_hound/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
-    --frames_upbound 32 \
+    --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
@@ -84,7 +84,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
     --tf32 True \
-    --model_max_length 5120 \
+    --model_max_length 4096 \
     --gradient_checkpointing True \
     --dataloader_num_workers 16 \
     --lazy_preprocess True \
