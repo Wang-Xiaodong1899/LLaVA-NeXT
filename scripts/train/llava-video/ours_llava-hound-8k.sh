@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-video-jf-4A100
-export WANDB_NAME=llava-ov-qwen_dpo_hound-17k_f16_blinear2
+export WANDB_NAME=llava-ov-qwen_ours_hound-8k_f16_blinear2
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -24,7 +24,7 @@ output_dir=/volsparse3/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/volsparse3/wxd/data/shareVideoGPTV/sft_dpo_17k.jsonl
+data_path=/volsparse3/wxd/data/shareVideoGPTV/llava-video-7b-f16-s2-merge-0_8000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -39,11 +39,12 @@ PROMPT_VERSION="qwen_1_5"
 
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NNODES}" --node_rank="${RANK}" --master_addr="${ADDR}" --master_port="${PORT}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
-    llava/train/train_dpo.py \
+    llava/train/train_dpo_avg.py \
     --deepspeed scripts/zero3.json \
     --model_name_or_path /volsparse3/wxd/models/qwen/LLaVA-Video-7B-Qwen2 \
     --version $PROMPT_VERSION \
-    --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
+    --loss_type simpo \
+    --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /data/llava_hound/shareVideoGPTV/train_300k_qa_video \
