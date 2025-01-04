@@ -42,7 +42,6 @@ python3 playground/demo/eval_mlvu.py \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
     --answers-file results/answer-mlvu-${SAVE_NAME}.json \
-    --duration $DURATION \
     --image_resolution $RESOLUTION
 
 
