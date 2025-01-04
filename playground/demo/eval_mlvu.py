@@ -326,17 +326,16 @@ def main(args):
             Only give the best option.
             Best Option: 
         """
-
-        if video_path is not None:  # Modified this line
-            video_frames, slice_len = _get_rawvideo_dec(video_path, image_processor, max_frames=args.for_get_frames_num, image_resolution=args.image_resolution)
-            video_frames = [video_frames.half().cuda()]
-       
-        if model.config.mm_use_im_start_end:
-            qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
-        else:
-            qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
-        
         try:
+            if video_path is not None:  # Modified this line
+                video_frames, slice_len = _get_rawvideo_dec(video_path, image_processor, max_frames=args.for_get_frames_num, image_resolution=args.image_resolution)
+                video_frames = [video_frames.half().cuda()]
+        
+            if model.config.mm_use_im_start_end:
+                qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
+            else:
+                qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
+
             cur_prompt = qs
 
             conv = conv_templates[args.conv_mode].copy()
