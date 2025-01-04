@@ -223,13 +223,13 @@ def check_ans(pred, gt):
 def main(args):
 
     data_list = {
-        "count": ("4_count.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
-        "ego": ("3_ego.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
-        "needle": ("2_needle.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
-        "order": ("5_order.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
-        "plotQA": ("1_plotQA.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
-        "anomaly_reco": ("6_anomaly_reco.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
-        "topic_reasoning": ("7_topic_reasoning.json", f"/volsparse3/wxd/huggingface/mlvu", "video")
+        "count": ("MLVU_json_4_count.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
+        "ego": ("MLVU_json_3_ego.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
+        "needle": ("MLVU_json_2_needle.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
+        "order": ("MLVU_json_5_order.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
+        "plotQA": ("MLVU_json_1_plotQA.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
+        "anomaly_reco": ("MLVU_json_6_anomaly_reco.json", f"/volsparse3/wxd/huggingface/mlvu", "video"),
+        "topic_reasoning": ("MLVU_json_7_topic_reasoning.json", f"/volsparse3/wxd/huggingface/mlvu", "video")
     }
    
 
