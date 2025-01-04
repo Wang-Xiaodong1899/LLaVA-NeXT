@@ -47,7 +47,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /data/llava_hound/shareVideoGPTV/train_300k_qa_video \
+    --video_folder /data/llava_hound/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
@@ -71,7 +71,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 2 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1000 \
+    --save_steps 500 \
     --save_total_limit 2 \
     --learning_rate $lr \
     --weight_decay 0. \
