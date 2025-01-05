@@ -373,7 +373,7 @@ def main(args):
     res_list = []
     acc_dict = {}
     ans_file = open(os.path.join(args.output_dir, args.answers_file), "w")
-    for example in tqdm(dataset):
+    for example in tqdm(dataset)[args.start:]:
         total += 1
         video_path=example["video_path"]
         # question=example["question"]
@@ -446,11 +446,8 @@ def main(args):
             'video_path':example['video_path'],
             'duration': example['duration']
         }
-        
-        pred = pred.strip()
-        if pred[-1] == ".":
-            pred = pred[:-1]
-        if pred == gt:
+
+        if gt in pred:
             correct += 1
 
         ans_file.write(json.dumps(sample_set, ensure_ascii=False) + "\n")
@@ -499,7 +496,8 @@ def parse_args():
     
     # image_resolution
     parser.add_argument("--image_resolution", type=int, default=336)
-    
+
+    parser.add_argument("--start", type=int, default=0)
     
     return parser.parse_args()
 

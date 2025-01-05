@@ -20,6 +20,7 @@ NEWLINE_POSITION=$6
 OVERWRITE=$7
 SAVE_NAME=$8
 RESOLUTION=$9
+START=${10:-0}
 
 if [ "$OVERWRITE" = False ]; then
     SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}_overwrite_${OVERWRITE}
@@ -42,7 +43,8 @@ python3 playground/demo/eval_longvideobench.py \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
     --answers-file answer-longvideobench-${SAVE_NAME}.jsonl \
-    --image_resolution $RESOLUTION
+    --image_resolution $RESOLUTION \
+    --start $START \
 
 
 # DECORD_EOF_RETRY_MAX=40960 && CUDA_VISIBLE_DEVICES=0 bash scripts/video/eval/eval_longvideobench.sh /volsparse3/wxd/models/qwen/LLaVA-Video-7B-Qwen2 qwen_1_5 16 1 bilinear grid True llava-video-f16 384
