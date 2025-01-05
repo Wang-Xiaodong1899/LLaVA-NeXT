@@ -446,6 +446,8 @@ def main(args):
             'video_path':example['video_path'],
             'duration': example['duration']
         }
+        if pred[-1] == ".":
+            pred = pred[:-1]
         if pred == gt:
             correct += 1
 
