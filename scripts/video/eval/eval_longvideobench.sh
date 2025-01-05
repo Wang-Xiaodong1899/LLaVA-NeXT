@@ -30,7 +30,7 @@ fi
 
 echo $RESOLUTION
     
-python3 playground/demo/eval_mlvu.py \
+python3 playground/demo/eval_longvideobench.py \
     --model-path $CKPT \
     --output_dir ./work_dirs/longvideobench/$SAVE_DIR \
     --output_name test \
