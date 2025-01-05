@@ -138,14 +138,15 @@ def load_video(video_file, duration, max_num_frames=16):
 
     frame_indices = [int(total_valid_frames / num_frames) * i for i in range(num_frames)]
     
-    frames = vr.get_batch(frame_indices)
-    if isinstance(frames, torch.Tensor):
-        frames = frames.numpy()
-    else:
-        frames = frames.asnumpy()
+    # frames = vr.get_batch(frame_indices)
+    # if isinstance(frames, torch.Tensor):
+    #     frames = frames.numpy()
+    # else:
+    #     frames = frames.asnumpy()
     frame_timestamps = [frame_index / fps for frame_index in frame_indices]
     
-    return [Image.fromarray(fr).convert("RGB") for fr in frames], frame_timestamps
+    # [Image.fromarray(fr).convert("RGB") for fr in frames]
+    return [], frame_timestamps
 
 def insert_subtitles(subtitles):
     interleaved_list = []
@@ -161,7 +162,7 @@ def insert_subtitles(subtitles):
 
     return interleaved_list
         
-def insert_subtitles_into_frames(frames, frame_timestamps, subtitles, 
+def insert_subtitles_into_frames(frame_timestamps, subtitles, 
                                  starting_timestamp_for_subtitles, duration):
     interleaved_list = []
     cur_i = 0
@@ -190,7 +191,7 @@ def insert_subtitles_into_frames(frames, frame_timestamps, subtitles,
             subtitle_text = subtitle["line"]
 
         
-        for i, (frame, frame_timestamp) in enumerate(zip(frames[cur_i:], frame_timestamps[cur_i:])):
+        for i, (frame_timestamp) in enumerate(frame_timestamps[cur_i:]):
                 if frame_timestamp <= subtitle_timestamp:
                     #print("frame:", frame_timestamp)
                     # interleaved_list.append(frame)
@@ -203,7 +204,7 @@ def insert_subtitles_into_frames(frames, frame_timestamps, subtitles,
             start = subtitle_timestamp - 0.5
 
         covering_frames = False
-        for frame, frame_timestamp in zip(frames, frame_timestamps):
+        for frame_timestamp in frame_timestamps:
             if frame_timestamp < end and frame_timestamp > start:
                 covering_frames = True
                 break
@@ -271,7 +272,7 @@ class LongVideoBenchDataset(Dataset):
 
         # only using subtitles
         if self.insert_text:
-            selected_subtitle = insert_subtitles_into_frames(frames, frame_timestamps, subtitles, di["starting_timestamp_for_subtitles"], di["duration"])
+            selected_subtitle = insert_subtitles_into_frames(frame_timestamps, subtitles, di["starting_timestamp_for_subtitles"], di["duration"])
         else:
             inputs = frames
 
