@@ -373,7 +373,7 @@ def main(args):
     res_list = []
     acc_dict = {}
     ans_file = open(os.path.join(args.output_dir, args.answers_file), "w")
-    for example in tqdm(dataset)[args.start:]:
+    for example in tqdm(dataset[args.start:]):
         total += 1
         video_path=example["video_path"]
         # question=example["question"]
