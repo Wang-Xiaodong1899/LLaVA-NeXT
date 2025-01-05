@@ -4,7 +4,7 @@ import json
 from tqdm import tqdm
 import os
 import numpy as np
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Subset
 
 import argparse
 import datasets as hf_datasets
@@ -315,6 +315,8 @@ def main(args):
     data_list = "lvb_val.json"
 
     dataset = LongVideoBenchDataset(data_dir, data_list)
+    
+    dataset = Subset(dataset, list(range(args.start, 1337)))
 
     '''
     load your model
@@ -373,7 +375,7 @@ def main(args):
     res_list = []
     acc_dict = {}
     ans_file = open(os.path.join(args.output_dir, args.answers_file), "w")
-    for example in tqdm(dataset[args.start:]):
+    for example in tqdm(dataset):
         total += 1
         video_path=example["video_path"]
         # question=example["question"]
