@@ -42,7 +42,7 @@ python3 playground/demo/eval_longvideobench.py \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
-    --answers-file answer-longvideobench-${SAVE_NAME}.jsonl \
+    --answers-file answer-longvideobench-${SAVE_NAME}-start-${START}.jsonl \
     --image_resolution $RESOLUTION \
     --start $START \
 
