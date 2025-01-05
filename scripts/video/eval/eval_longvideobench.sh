@@ -30,6 +30,7 @@ else
 fi
 
 echo $RESOLUTION
+echo $START
     
 python3 playground/demo/eval_longvideobench.py \
     --model-path $CKPT \
