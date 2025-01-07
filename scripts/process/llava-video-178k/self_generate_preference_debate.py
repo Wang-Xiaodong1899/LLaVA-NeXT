@@ -311,16 +311,22 @@ def run_inference(args):
                 qs = question
                 # TODO inject GT info
                 if turn == 0:
-                    prefix = "Here are some hints: " + answer + "\n\n" + "Please respond based on the given hints and video content." + "\n\n"
+                    prefix = f"""
+I'll give you the hints:
+The correct answer is: {answer}
+
+First, please describe the entire video in detail based on the video content and correct answer.
+Then, give the reasoning process.
+Finally, output the final answer.
+"""
                 else:
                     prefix = f"""
 Your previous reply to me was:
 {model_return}. This response can continue to be improved.
 
-Now, please align your response with the information below:
-{answer}
+Now, please align your response with the correct answer: {answer}
 
-You need to reflect the given information as best you can, optimize your response, and enrich your answer. I'll ask you the question again:
+Please correct any errors in your caption or reasoning based on the video and the correct answer and come up with the final answer. I'll ask you the question again:
 
 """
                 if model.config.mm_use_im_start_end:
