@@ -283,22 +283,20 @@ def run_inference(args):
         
         video = None
 
-        try:
-
-            # Check if the video exists
-            if os.path.exists(video_path):
-                if "gpt4v" != args.model_path:
-                    video, aug_video = load_video(video_path, args)
-                    video = image_processor.preprocess(video, return_tensors="pt")["pixel_values"].half().cuda()
-                    video = [video]
-                    
-                    aug_video = image_processor.preprocess(aug_video, return_tensors="pt")["pixel_values"].half().cuda()
-                    aug_video = [aug_video]
-                else:
-                    video = load_video_base64(video_path)
-                    interval = int(len(video) / args.for_get_frames_num)
-        except:
-            print(f"{video_} video read failed!")
+        # Check if the video exists
+        if os.path.exists(video_path):
+            if "gpt4v" != args.model_path:
+                video, aug_video = load_video(video_path, args)
+                video = image_processor.preprocess(video, return_tensors="pt")["pixel_values"].half().cuda()
+                video = [video]
+                
+                aug_video = image_processor.preprocess(aug_video, return_tensors="pt")["pixel_values"].half().cuda()
+                aug_video = [aug_video]
+            else:
+                video = load_video_base64(video_path)
+                interval = int(len(video) / args.for_get_frames_num)
+        else:
+            print(f"{video_} video does not exist!")
             continue
         
         K = 2
