@@ -35,7 +35,7 @@ fi
 python3 scripts/process/llava-video-178k/self_generate_preference_debate.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /volsparse3/wxd/data/self-gen/llava-video-debate-video-178k/2_3_m_youtube_v0_1-2_3_m_youtube_mc-0107/$SAVE_DIR \
+    --output_dir /volsparse3/wxd/data/self-gen/llava-video-debate-video-178k/2_3_m_youtube_v0_1-2_3_m_youtube_mc-0108/$SAVE_DIR \
     --output_name llava-video-7b-f16-s2-${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
@@ -52,7 +52,7 @@ python3 scripts/process/llava-video-178k/self_generate_preference_debate.py \
 
 
 # hound
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/llava-video-178k/gen_prefer_llava-video-7b-sample_debate.sh /volsparse3/wxd/models/qwen/LLaVA-Video-7B-Qwen2 qwen_1_5 16 1 bilinear grid True /volsparse3/wxd/data/LLaVA-Video-178K/2_3_m_youtube_v0_1 /volsparse3/wxd/data/LLaVA-Video-178K/2_3_m_youtube_v0_1/2_3_m_youtube_mc_v0_1_qa_processed.json 0 4000 384
+# CUDA_VISIBLE_DEVICES=3 bash scripts/process/llava-video-178k/gen_prefer_llava-video-7b-sample_debate.sh /volsparse3/wxd/models/qwen/LLaVA-Video-7B-Qwen2 qwen_1_5 16 1 bilinear grid True /volsparse3/wxd/data/LLaVA-Video-178K/2_3_m_youtube_v0_1 /volsparse3/wxd/data/LLaVA-Video-178K/2_3_m_youtube_v0_1/2_3_m_youtube_mc_v0_1_qa_processed.json 12000 16000 384
 
 # caption
 # CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /data/llava_hound/train_300k_caption_video /data/llava_hound/video_240k_caption_15k_ge_16.jsonl 9000 12000 224
