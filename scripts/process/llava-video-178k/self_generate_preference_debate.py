@@ -330,10 +330,9 @@ Your previous reply to me was:
 Now, please align your response with the correct answer: {answer}
 
 Please correct any errors in your caption or reasoning process based on the video and the correct answer and come up with the final answer.
-
 """
                 if turn ==1:
-                    qs = ""
+                    qs = "Please output your caption, reasoning process, and your final answer step by step.\n"
                 if model.config.mm_use_im_start_end:
                     qs = prefix + DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
                 else:
