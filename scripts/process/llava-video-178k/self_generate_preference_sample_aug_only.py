@@ -282,6 +282,9 @@ def run_inference(args):
         
         question = question.replace("<image>", "").replace("<video>", "")
 
+        # delete letter prompt
+        question = question.split("\nPlease")[0]
+
         sample_set["prompt"] = question
         sample_set["answer"] = answer
         
@@ -327,6 +330,13 @@ def run_inference(args):
                     prefix = ""
                     if args.add_aug:
                         video = aug_video
+                        qs = f"""
+{qs}
+First, please describe the entire video in detail based on the video content.
+Then, give the reasoning process.
+Finally, output the final answer.
+Answer step by step.
+"""
                 if model.config.mm_use_im_start_end:
                     qs = prefix + DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
                 else:
