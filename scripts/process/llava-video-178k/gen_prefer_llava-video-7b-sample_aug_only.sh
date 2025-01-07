@@ -36,7 +36,7 @@ python3 scripts/process/llava-video-178k/self_generate_preference_sample_aug_onl
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
     --output_dir /volsparse3/wxd/data/self-gen/llava-video-aug-video-178k/2_3_m_youtube_v0_1-2_3_m_youtube_mc-0108/$SAVE_DIR \
-    --output_name llava-video-7b-f16-s2-${START}_${END} \
+    --output_name llava-video-7b-f2-s2-${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
     --end $END \
