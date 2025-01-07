@@ -3,9 +3,11 @@
 
 base_url="https://huggingface.co/datasets/lmms-lab/LLaVA-Video-178K/resolve/main/2_3_m_youtube_v0_1/2_3_m_youtube_v0_1_videos_"
 
-start=1
-end=50
+# start=1
+# end=50
 
+start=51
+end=98
 
 for i in $(seq $start $end)
 do
