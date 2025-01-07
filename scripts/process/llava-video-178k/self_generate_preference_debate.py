@@ -270,7 +270,7 @@ def run_inference(args):
         question = next(convo['value'] for convo in item['conversations'] if convo['from'] == 'human')
         answer = next(convo['value'] for convo in item['conversations'] if convo['from'] == 'gpt')
         
-        question = question.replace("<image>", "").question.replace("<video>", "")
+        question = question.replace("<image>", "").replace("<video>", "")
 
         sample_set["prompt"] = question
         sample_set["answer"] = answer
