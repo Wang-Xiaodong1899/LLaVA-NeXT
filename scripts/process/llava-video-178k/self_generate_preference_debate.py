@@ -272,6 +272,9 @@ def run_inference(args):
         
         question = question.replace("<image>", "").replace("<video>", "")
 
+        # delete letter prompt
+        question = question.split("\nPlease")[0]
+
         sample_set["prompt"] = question
         sample_set["answer"] = answer
         
@@ -312,7 +315,7 @@ def run_inference(args):
                 # TODO inject GT info
                 if turn == 0:
                     prefix = f"""
-I'll give you the hints:
+I'll give you some hints:
 The correct answer is: {answer}
 
 First, please describe the entire video in detail based on the video content and correct answer.
@@ -326,7 +329,7 @@ Your previous reply to me was:
 
 Now, please align your response with the correct answer: {answer}
 
-Please correct any errors in your caption or reasoning based on the video and the correct answer and come up with the final answer. I'll ask you the question again:
+Please correct any errors in your caption or reasoning process based on the video and the correct answer and come up with the final answer. I'll ask you the question again:
 
 """
                 if model.config.mm_use_im_start_end:
