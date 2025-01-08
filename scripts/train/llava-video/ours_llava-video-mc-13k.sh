@@ -60,7 +60,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --mm_resampler_type null \
     --group_by_modality_length True \
     --image_aspect_ratio anyres_max_9 \
-    --image_grid_pinpoints "(1x1),...,(6x6)" \
+    --image_grid_pinpoints "(1x1),...,(4x4)" \
     --mm_patch_merge_type spatial_unpad \
     --bf16 True \
     --run_name $WANDB_NAME \
