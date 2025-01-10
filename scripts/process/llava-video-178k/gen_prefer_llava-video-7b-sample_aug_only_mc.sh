@@ -32,7 +32,7 @@ else
     SAVE_DIR=$(basename $CKPT)_${CONV_MODE}_frames_${FRAMES}_stride_${POOL_STRIDE}
 fi
     
-python3 scripts/process/llava-video-178k/self_generate_preference_sample_aug_only.py \
+python3 scripts/process/llava-video-178k/self_generate_preference_sample_aug_only_mc.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
     --output_dir /volsparse3/wxd/data/self-gen/llava-video-aug-video-178k/2_3_m_youtube_v0_1-2_3_m_youtube_mc-0108/$SAVE_DIR \

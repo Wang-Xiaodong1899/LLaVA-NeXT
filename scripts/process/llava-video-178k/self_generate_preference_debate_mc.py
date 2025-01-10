@@ -273,7 +273,7 @@ def run_inference(args):
         question = question.replace("<image>", "").replace("<video>", "")
 
         # delete letter prompt
-        # question = question.split("\nPlease")[0]
+        question = question.split("\nPlease")[0]
 
         sample_set["prompt"] = question
         sample_set["answer"] = answer
@@ -314,18 +314,25 @@ def run_inference(args):
                 qs = question
                 # TODO inject GT info
                 if turn == 0:
-                    prefix = "Here are some hints: " + answer + "\n\n" + "Please respond based on the given hints and video content." + "\n\n"
+                    prefix = f"""
+I'll give you some hints:
+The correct answer is: {answer}
+
+First, please describe the entire video in detail based on the video content and correct answer.
+Then, give the reasoning process.
+Finally, output the final answer.
+"""
                 else:
                     prefix = f"""
 Your previous reply to me was:
 {model_return}. This response can continue to be improved.
 
-Now, please align your response with the information below:
-{answer}
+Now, please align your response with the correct answer: {answer}
 
-You need to reflect the given information as best you can, optimize your response, and enrich your answer. I'll ask you the question again:
-
+Please correct any errors in your caption or reasoning process based on the video and the correct answer and come up with the final answer.
 """
+                if turn ==1:
+                    qs = "Please output your caption, reasoning process, and your final answer step by step.\n"
                 if model.config.mm_use_im_start_end:
                     qs = prefix + DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
                 else:
