@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-video-jf-4A100
-export WANDB_NAME=llava-ov-qwen_ours_hound-8k_f16_blinear2-mc-13k
+export WANDB_NAME=llava-ov-qwen_ours_hound-8k_f16_blinear2-mc-13k-2
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -71,7 +71,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 500 \
+    --save_steps 4000 \
     --save_total_limit 2 \
     --learning_rate $lr \
     --weight_decay 0. \
