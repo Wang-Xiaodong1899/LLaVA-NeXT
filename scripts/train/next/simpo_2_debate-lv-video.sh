@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_simpo_debate-video-oe-16k
+export WANDB_NAME=llava_simpo_debate-video-oe-16k-2
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
