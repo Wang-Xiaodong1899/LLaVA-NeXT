@@ -1451,6 +1451,14 @@ class IPOTrainer(Trainer):
 
             unscaled_dpo_losses = unscaled_dpo_losses.mean()
             dpo_losses = unscaled_dpo_losses * self.dpo_alpha
+            
+            # NOTE using dynamic dpo alpha
+            # if dynamic_dpo_alpha:
+            dynamic_weight = ( policy_chosen_logps.detach().mean() - policy_rejected_logps.detach().mean() )
+            dynamic_weight = torch.where(dynamic_weight < 0.5, torch.tensor(1), torch.tensor(0))
+            
+            dpo_losses = dynamic_weight.detach() * dpo_losses
+
         else:
             dpo_losses = torch.tensor(0.)
             unscaled_dpo_losses = torch.tensor(0.)
