@@ -7,7 +7,7 @@ base_url="https://huggingface.co/datasets/ShareGPTVideo/train_video_and_instruct
 start=0
 end=15
 
-cd /volsparse1/wxd/data/llava_hound
+cd /data/llava_hound/shareVideoGPTV
 
 for i in $(seq $start $end)
 do
