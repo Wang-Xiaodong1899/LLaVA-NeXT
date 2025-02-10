@@ -524,6 +524,7 @@ class IPOTrainer(Trainer):
         reference_free: bool = False,
         bt_beta: float = 0.3,
         simpo_margin: float = 0.5,
+        dynamic_dpo_alpha: bool = False,
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -563,6 +564,7 @@ class IPOTrainer(Trainer):
         self.ref_adapter_name = ref_adapter_name
         self.reference_free = reference_free
         self.simpo_margin = simpo_margin
+        self.dynamic_dpo_alpha = dynamic_dpo_alpha
 
         if ref_model:
             self.ref_model = ref_model
@@ -1453,11 +1455,10 @@ class IPOTrainer(Trainer):
             dpo_losses = unscaled_dpo_losses * self.dpo_alpha
             
             # NOTE using dynamic dpo alpha
-            # if dynamic_dpo_alpha:
-            dynamic_weight = ( policy_chosen_logps.detach().mean() - policy_rejected_logps.detach().mean() )
-            dynamic_weight = torch.where(dynamic_weight < 0.5, torch.tensor(1), torch.tensor(0))
-            
-            dpo_losses = dynamic_weight.detach() * dpo_losses
+            if self.dynamic_dpo_alpha:
+                dynamic_weight = ( policy_chosen_logps.detach().mean() - policy_rejected_logps.detach().mean() )
+                dynamic_weight = torch.where(dynamic_weight < 0.5, torch.tensor(1), torch.tensor(0))
+                dpo_losses = dynamic_weight.detach() * dpo_losses
 
         else:
             dpo_losses = torch.tensor(0.)
