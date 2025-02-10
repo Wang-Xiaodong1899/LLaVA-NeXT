@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_simpo_17k_debate-hound-ours-sft-f32-1127
+export WANDB_NAME=llava_simpo_17k_debate-hound-ours-sft-f16-0210
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -53,7 +53,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_folder xxx \
     --video_folder /data/llava_hound/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
-    --frames_upbound 32 \
+    --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
@@ -76,7 +76,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 2 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 500 \
+    --save_steps 125 \
     --save_total_limit 4 \
     --learning_rate $lr \
     --weight_decay 0. \
