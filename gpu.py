@@ -21,7 +21,7 @@ def gpu_worker(device_id):
     torch.cuda.synchronize(device)
     
 
-    duty_cycle = 0.8
+    duty_cycle = 0.5
     cycle_duration = 1.0
     
     while True:
@@ -42,6 +42,8 @@ def gpu_worker(device_id):
 if __name__ == '__main__':
     num_gpus = 4
     processes = []
+    
+    print('GPU ids: ', list(range(num_gpus)))
     
     for gpu_id in range(num_gpus):
         p = mp.Process(target=gpu_worker, args=(gpu_id,))
