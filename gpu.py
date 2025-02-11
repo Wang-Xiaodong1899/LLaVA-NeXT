@@ -6,7 +6,7 @@ def gpu_worker(device_id):
     device = torch.device(f'cuda:{device_id}')
 
     total_memory = torch.cuda.get_device_properties(device).total_memory
-    allocate_memory = int(total_memory * 0.5)
+    allocate_memory = int(total_memory * 0.3)
     
     element_size = 4 
     num_elements = allocate_memory // element_size
