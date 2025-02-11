@@ -1,6 +1,7 @@
 import torch
 import multiprocessing as mp
 import time
+import sys
 
 def gpu_worker(device_id):
     device = torch.device(f'cuda:{device_id}')
@@ -40,12 +41,18 @@ def gpu_worker(device_id):
             active_start = time.time()
 
 if __name__ == '__main__':
-    num_gpus = 4
     processes = []
+
+    if len(sys.argv) < 2:
+        print("Please provide a list of numbers.")
+        sys.exit(1)
+
+    numbers = sys.argv[1]
+    gpu_ids = [int(num) for num in numbers.split(',')]
     
-    print('GPU ids: ', list(range(num_gpus)))
+    print('GPU ids: ', gpu_ids)
     
-    for gpu_id in range(num_gpus):
+    for gpu_id in gpu_ids:
         p = mp.Process(target=gpu_worker, args=(gpu_id,))
         p.start()
         processes.append(p)
