@@ -6,7 +6,7 @@ def gpu_worker(device_id):
     device = torch.device(f'cuda:{device_id}')
 
     total_memory = torch.cuda.get_device_properties(device).total_memory
-    allocate_memory = int(total_memory * 0.2)
+    allocate_memory = int(total_memory * 0.5)
     
     element_size = 4 
     num_elements = allocate_memory // element_size
@@ -21,7 +21,7 @@ def gpu_worker(device_id):
     torch.cuda.synchronize(device)
     
 
-    duty_cycle = 0.5
+    duty_cycle = 0.8
     cycle_duration = 1.0
     
     while True:
