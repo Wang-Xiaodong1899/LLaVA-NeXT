@@ -742,7 +742,7 @@ class IPOTrainer(Trainer):
 
             # prepare dataloader
             # debug 10 samples
-            indices = list(range(0, 8000))
+            indices = list(range(0, 16959))
             
             # check index
             indices = [i for i in indices if i < len(self.train_dataset)]
