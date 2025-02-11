@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-jf-4A100
-export WANDB_NAME=llava_simpo_17k_debate-hound-ours-sft-f16-nodynamic-alpha-0210-1
+export WANDB_NAME=llava_simpo_17k_debate-hound-ours-sft-f16-dynamic-alpha-0211-batch
 
 # gpu_ids=0
 gpu_ids=0,1,2,3
@@ -48,6 +48,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --loss_type simpo \
+    --dynamic_dpo_alpha True \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
     --data_path=$data_path \
     --image_folder xxx \
@@ -76,7 +77,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 2 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 500 \
+    --save_steps 125 \
     --save_total_limit 4 \
     --learning_rate $lr \
     --weight_decay 0. \
