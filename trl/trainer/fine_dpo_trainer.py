@@ -1450,15 +1450,18 @@ class IPOTrainer(Trainer):
 
             # chosen_rewards = self.beta * chosen_rewards
             # rejected_rewards = self.beta * rejected_rewards
+            
+            # NOTE using dynamic dpo alpha
+            if self.dynamic_dpo_alpha:
+                dynamic_weight = ( policy_chosen_logps.detach() - policy_rejected_logps.detach() )
+                dynamic_weight = torch.where(dynamic_weight < 0.5, torch.tensor(1), torch.tensor(0))
+                unscaled_dpo_losses = dynamic_weight.detach() * unscaled_dpo_losses
+                print(f'weight shape: {dynamic_weight.shape}, dpo_loss shape: {unscaled_dpo_losses.shape}')
 
             unscaled_dpo_losses = unscaled_dpo_losses.mean()
             dpo_losses = unscaled_dpo_losses * self.dpo_alpha
             
-            # NOTE using dynamic dpo alpha
-            if self.dynamic_dpo_alpha:
-                dynamic_weight = ( policy_chosen_logps.detach().mean() - policy_rejected_logps.detach().mean() )
-                dynamic_weight = torch.where(dynamic_weight < 0.5, torch.tensor(1), torch.tensor(0))
-                dpo_losses = dynamic_weight.detach() * dpo_losses
+            
 
         else:
             dpo_losses = torch.tensor(0.)
