@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/workspace/wxd/LLaVA-NeXT/"
+ROOT_DIR="/home/user/wangxd/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -53,4 +53,4 @@ python scripts/process/self_generate_preference.py \
 
 
 # one-vision
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_ov-7b.sh /workspace/wxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 32 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 384
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_ov-7b.sh /home/user/wangxd/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 32 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 384

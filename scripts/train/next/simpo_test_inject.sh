@@ -43,7 +43,7 @@ PROMPT_VERSION="vicuna_v1"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_avg.py \
     --deepspeed scripts/zero2.json \
-    --model_name_or_path /workspace/wxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B \
+    --model_name_or_path /home/user/wangxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --loss_type simpo \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0 \

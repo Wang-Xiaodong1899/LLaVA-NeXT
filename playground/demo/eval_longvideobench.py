@@ -486,8 +486,8 @@ def parse_args():
     parser.add_argument("--api_key", type=str, help="OpenAI API key")
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
-    parser.add_argument("--video-folder", type=str, default="/workspace/wxd/LLaVA-NeXT/data/Video-MME/data")
-    parser.add_argument("--question-file", type=str, default="/workspace/wxd/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
+    parser.add_argument("--video-folder", type=str, default="/home/user/wangxd/LLaVA-NeXT/data/Video-MME/data")
+    parser.add_argument("--question-file", type=str, default="/home/user/wangxd/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
     parser.add_argument("--answers-file", type=str, default="results/answer-video-mme.json")
     parser.add_argument("--subtitle", action="store_true") # TODO
     parser.add_argument("--pretrain_mm_mlp_adapter", type=str, default=None) 

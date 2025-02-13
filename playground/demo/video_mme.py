@@ -127,7 +127,7 @@ def parse_args():
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--video-folder", type=str, default="/volsparse3/wxd/data/Video-MME/data")
-    parser.add_argument("--question-file", type=str, default="/workspace/wxd/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
+    parser.add_argument("--question-file", type=str, default="/home/user/wangxd/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
     parser.add_argument("--answers-file", type=str, default="results/answer-video-mme.json")
     parser.add_argument("--duration", type=str, default="short")
     parser.add_argument("--subtitle", action="store_true") # TODO
@@ -282,11 +282,11 @@ def run_inference(args):
                         # # video tokens: 144*16=2304
                         # video_hidden_states = hidden_states[:, video_index: video_index+2304,].cpu()
                         
-                        # torch.save(video_hidden_states, f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/ours/{question_id}_vid_tok_hs.pt")
+                        # torch.save(video_hidden_states, f"/home/user/wangxd/LLaVA-NeXT/VideoMME-visu/ours/{question_id}_vid_tok_hs.pt")
                         # print(f"video_hidden_states shape: {video_hidden_states.shape}")
 
                         # query_hidden_states = hidden_states[:, video_index+2304:,].cpu()
-                        # torch.save(query_hidden_states, f"/workspace/wxd/LLaVA-NeXT/VideoMME-visu/ours/{question_id}_qry_tok_hs.pt")
+                        # torch.save(query_hidden_states, f"/home/user/wangxd/LLaVA-NeXT/VideoMME-visu/ours/{question_id}_qry_tok_hs.pt")
                         # print(f"query_hidden_states shape: {query_hidden_states.shape}")
                         # continue
                         # 
