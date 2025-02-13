@@ -54,4 +54,7 @@ python3 playground/demo/eval_longvideobench.py \
 
 # DECORD_EOF_RETRY_MAX=40960 && CUDA_VISIBLE_DEVICES=2 bash scripts/video/eval/eval_longvideobench.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 16 2 average no_token True llava-next-video-f16 336
 
+# DECORD_EOF_RETRY_MAX=40960 && CUDA_VISIBLE_DEVICES=1 bash scripts/video/eval/eval_longvideobench.sh /data/wangxd/ckpt/llava-next-PKU-4A100/llava_ours_debate-hound-17k/checkpoint-1000/ vicuna_v1 16 2 average no_token True next-ours-17k-f16 336
+
+
 # DECORD_EOF_RETRY_MAX=40960 && CUDA_VISIBLE_DEVICES=3 bash scripts/video/eval/eval_longvideobench.sh /volsparse3/wxd/ckpt/llava-next-jf-4A100/vicuna/llava_simpo_debate-hound-ours-plus-caption-qa-30k/llava_simpo_17k_debate-hound-30k-ours-sft/ vicuna_v1 16 2 average no_token True llava-next-video-ours-f16 336

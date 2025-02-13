@@ -312,7 +312,7 @@ def check_ans(pred, gt):
 
 def main(args):
 
-    data_dir = "/volsparse3/wxd/huggingface/longvideobench"
+    data_dir = "/data/wangxd/huggingface/hub/longvideobench"
     data_list = "lvb_val.json"
 
     dataset = LongVideoBenchDataset(data_dir, data_list)
