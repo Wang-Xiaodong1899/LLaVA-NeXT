@@ -11,8 +11,8 @@ lr=${1:-"5e-7"}
 ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next-4A100
-export WANDB_NAME=llava_simpo_17k_debate-hound-ours-sft-f32-1127
+export WANDB_PROJECT=llava-next-PKU-4A100
+export WANDB_NAME=llava_ours_17k_debate-hound-ours-dynamic
 
 # gpu_ids=0
 gpu_ids=3,4,5,6
@@ -48,6 +48,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path /home/user/wangxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --loss_type simpo \
+    --dynamic_dpo_alpha True \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
     --data_path=$data_path \
     --image_folder xxx \

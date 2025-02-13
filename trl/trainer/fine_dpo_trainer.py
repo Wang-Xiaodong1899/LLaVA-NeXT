@@ -524,6 +524,7 @@ class IPOTrainer(Trainer):
         reference_free: bool = False,
         bt_beta: float = 0.3,
         simpo_margin: float = 0.5,
+        dynamic_dpo_alpha: bool = False,
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -563,6 +564,7 @@ class IPOTrainer(Trainer):
         self.ref_adapter_name = ref_adapter_name
         self.reference_free = reference_free
         self.simpo_margin = simpo_margin
+        self.dynamic_dpo_alpha = dynamic_dpo_alpha
 
         if ref_model:
             self.ref_model = ref_model
@@ -740,7 +742,7 @@ class IPOTrainer(Trainer):
 
             # prepare dataloader
             # debug 10 samples
-            indices = list(range(0, 8000))
+            indices = list(range(0, 16959))
             
             # check index
             indices = [i for i in indices if i < len(self.train_dataset)]
@@ -764,8 +766,8 @@ class IPOTrainer(Trainer):
             # np.save("/volsparse1/wxd/reference_chosen_logps_34B-DPO_0.npy", all_reference_chosen_logps)
             # np.save("/volsparse1/wxd/reference_rejected_logps_34B-DPO_0.npy", all_reference_rejected_logps)
             
-            np.save("/volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_16_stride_1/ov-7b_f16_K5_0_2000_k2_k3_logp_chosen.npy", all_reference_chosen_logps)
-            np.save("/volsparse1/wxd/data/self-gen/video_ov-7b-sample-K5/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_16_stride_1/ov-7b_f16_K5_0_2000_k2_k3_logp_rejected.npy", all_reference_rejected_logps)
+            np.save("/volsparse3/wxd/data/self-gen/llava-next-0211/next-7b-f16-s2-debate-aug-f2-s3-0_17000_logp_chosen.npy", all_reference_chosen_logps)
+            np.save("/volsparse3/wxd/data/self-gen/llava-next-0211/next-7b-f16-s2-debate-aug-f2-s3-0_17000_logp_rejected.npy", all_reference_rejected_logps)
 
             # save to json
             # DPODataset(tokenizer=tokenizer, data_path=data_args.data_path, data_args=data_args)
@@ -1448,16 +1450,22 @@ class IPOTrainer(Trainer):
 
             # chosen_rewards = self.beta * chosen_rewards
             # rejected_rewards = self.beta * rejected_rewards
+            
+            # NOTE using dynamic dpo alpha
+            if self.dynamic_dpo_alpha:
+                dynamic_weight = ( policy_chosen_logps.detach() - policy_rejected_logps.detach() )
+                # dynamic_weight = torch.where(dynamic_weight < 0.5, torch.tensor(1), torch.tensor(0))
+
+                # absolute version
+                dynamic_weight = torch.where((dynamic_weight > -0.7) & (dynamic_weight < 0.7), torch.tensor(1), torch.tensor(0))
+
+                unscaled_dpo_losses = dynamic_weight.detach() * unscaled_dpo_losses
+                # print(f'weight shape: {dynamic_weight.shape}, dpo_loss shape: {unscaled_dpo_losses.shape}')
 
             unscaled_dpo_losses = unscaled_dpo_losses.mean()
             dpo_losses = unscaled_dpo_losses * self.dpo_alpha
             
-            # NOTE using dynamic dpo alpha
-            # if dynamic_dpo_alpha:
-            dynamic_weight = ( policy_chosen_logps.detach().mean() - policy_rejected_logps.detach().mean() )
-            dynamic_weight = torch.where(dynamic_weight < 0.5, torch.tensor(1), torch.tensor(0))
             
-            dpo_losses = dynamic_weight.detach() * dpo_losses
 
         else:
             dpo_losses = torch.tensor(0.)
