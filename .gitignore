@@ -84,3 +84,8 @@ llava-next/*
 
 # results
 results
+*.jpg
+*.jpeg
+*.pt
+OpenDV*
+*.png
