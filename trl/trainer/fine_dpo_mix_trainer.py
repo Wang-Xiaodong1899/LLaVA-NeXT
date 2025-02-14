@@ -1401,7 +1401,7 @@ class MIPOTrainer(Trainer):
         # 1. interpolate reference model and policy model logits
         # 2. get logp
         iterpolate_lamda = 0.5 # TODO hard code need fix
-        result_all_logits = (1 + iterpolate_lamda) * policy_all_logits - (iterpolate_lamda * reference_all_logits)
+        result_all_logits = iterpolate_lamda*policy_all_logits + (1-iterpolate_lamda) * reference_all_logits
         result_all_logps = self.get_batch_logps(
             result_all_logits, #
             reference_new_labels,
