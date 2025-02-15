@@ -1199,6 +1199,13 @@ class IPOTrainer(Trainer):
             constant_gamma = torch.tensor(self.simpo_margin).to(pi_logratios.device)
             logits = pi_logratios
             losses = -F.logsigmoid(self.beta * logits - constant_gamma)
+            # NOTE support label smoothing
+            if self.label_smoothing > 0:
+                # Introduce dynamic here
+                dynamic_weight = self.label_smoothing * torch.where(pi_logratios < 0.5, torch.tensor(1), torch.tensor(0)) if self.label_smoothing > 0 else 0.0
+
+                losses = -F.logsigmoid(self.beta * logits - constant_gamma) * (1 - dynamic_weight) - F.logsigmoid(-self.beta * logits - constant_gamma) * dynamic_weight
+            
             reference_chosen_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
             reference_rejected_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)
         else:
@@ -1452,15 +1459,15 @@ class IPOTrainer(Trainer):
             # rejected_rewards = self.beta * rejected_rewards
             
             # NOTE using dynamic dpo alpha
-            if self.dynamic_dpo_alpha:
-                dynamic_weight = ( policy_chosen_logps.detach() - policy_rejected_logps.detach() )
-                # dynamic_weight = torch.where(dynamic_weight < 0.5, torch.tensor(1), torch.tensor(0))
+            # if self.dynamic_dpo_alpha:
+            #     dynamic_weight = ( policy_chosen_logps.detach() - policy_rejected_logps.detach() )
+            #     # dynamic_weight = torch.where(dynamic_weight < 0.5, torch.tensor(1), torch.tensor(0))
 
-                # absolute version
-                dynamic_weight = torch.where((dynamic_weight > -0.7) & (dynamic_weight < 0.7), torch.tensor(1), torch.tensor(0))
+            #     # absolute version
+            #     # (-0.7, 0.7) -> 1, else 0, no work
+            #     dynamic_weight = torch.where((dynamic_weight > -0.7) & (dynamic_weight < 0.7), torch.tensor(1), torch.tensor(0))
 
-                unscaled_dpo_losses = dynamic_weight.detach() * unscaled_dpo_losses
-                # print(f'weight shape: {dynamic_weight.shape}, dpo_loss shape: {unscaled_dpo_losses.shape}')
+            #     unscaled_dpo_losses = dynamic_weight.detach() * unscaled_dpo_losses
 
             unscaled_dpo_losses = unscaled_dpo_losses.mean()
             dpo_losses = unscaled_dpo_losses * self.dpo_alpha
