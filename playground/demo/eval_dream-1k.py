@@ -173,10 +173,10 @@ def check_ans(pred, gt):
 def main(args):
 
    
-    data_list = "/volsparse3/wxd/data/DREAM-1K/DREAM-1k.jsonl"
-    data_dir = f"/volsparse3/wxd/data/DREAM-1K/video"
-    save_path = f"./test_all_choice"
-    result_path=f"bench_all.json"
+    data_list = "/data/wangxd/DREAM-1K/DREAM-1k.jsonl"
+    data_dir = "/data/wangxd/DREAM-1K/video"
+    save_path = "./test_all_choice"
+    result_path="bench_all.json"
 
     dataset = DREAM(data_dir, data_list)
 
