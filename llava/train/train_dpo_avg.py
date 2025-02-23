@@ -1906,7 +1906,8 @@ def train(attn_implementation=None):
         loss_type=training_args.loss_type, # avg for IPO
         bt_beta=training_args.bt_beta,
         simpo_margin=training_args.simpo_margin,
-        dynamic_dpo_alpha=training_args.dynamic_dpo_alpha
+        dynamic_dpo_alpha=training_args.dynamic_dpo_alpha,
+        label_smoothing=training_args.label_smoothing,
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
