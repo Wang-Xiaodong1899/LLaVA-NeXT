@@ -194,6 +194,7 @@ class TrainingArguments(transformers.TrainingArguments):
     bt_beta: float = 0.3
     simpo_margin: float = 0.5
     dynamic_dpo_alpha: bool = field(default=False)
+    label_smoothing: float = 0.
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):
