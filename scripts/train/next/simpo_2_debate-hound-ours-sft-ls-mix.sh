@@ -11,37 +11,41 @@ lr=${1:-"5e-7"}
 ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-video-PKU-4A100
-export WANDB_NAME=llava-ov-qwen_ours_hound-17k_f16_blinear2-3-dynalabelsmooth-pilog-0-ls0.1
+export WANDB_PROJECT=llava-next-PKU-4A100
+export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-mix-0215
 
 # gpu_ids=0
-gpu_ids=4,5,6,7
+gpu_ids=3,4,5,6
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/data2/wangxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/data/wangxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/home/user/wangxd/LLaVA-NeXT/data/shareVideoGPTV/llava-video-7b-f16-s2-merge-17k.jsonl
+# data_path=/volsparse3/wxd/data/shareVideoGPTV/next-7b-f16-s2-hound-rej-0_8000.jsonl
+data_path=/home/user/wangxd/LLaVA-NeXT/data/shareVideoGPTV/next-7b-f16-s2-debate-aug-f2-s3-0_17000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
-port=19002
+port=19001
 
-VISION_MODEL_VERSION="google/siglip-so400m-patch14-384"
+VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
-# DPO Stage
-PROMPT_VERSION="qwen_1_5"
+############### Pretrain ################
 
-# ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NNODES}" --node_rank="${RANK}" --master_addr="${ADDR}" --master_port="${PORT}" \
+# Stage 2
+PROMPT_VERSION="vicuna_v1"
+
+#torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
+# ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
-    llava/train/train_dpo_avg.py \
-    --deepspeed scripts/zero3.json \
-    --model_name_or_path /data2/wangxd/models/qwen/LLaVA-Video-7B-Qwen2 \
+    llava/train/train_dpo_avg_mix.py \
+    --deepspeed scripts/zero2.json \
+    --model_name_or_path /home/user/wangxd/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --loss_type simpo \
     --label_smoothing 0.1 \
@@ -56,31 +60,32 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --mm_vision_select_layer -2 \
     --mm_use_im_start_end False \
     --mm_use_im_patch_token False \
-    --mm_spatial_pool_mode "bilinear" \
-    --mm_newline_position "grid" \
-    --mm_resampler_type null \
+    --mm_spatial_pool_stride 2 \
+    --mm_newline_position "no_token" \
+    --mm_resampler_type "spatial_pool" \
+    --mm_spatial_pool_out_channels 1024 \
     --group_by_modality_length True \
-    --image_aspect_ratio anyres_max_9 \
-    --image_grid_pinpoints "(1x1),...,(6x6)" \
+    --image_aspect_ratio anyres \
+    --image_grid_pinpoints "[(336, 672), (672, 336), (672, 672), (1008, 336), (336, 1008)]" \
     --mm_patch_merge_type spatial_unpad \
     --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 4 \
-    --per_device_train_batch_size 1 \
+    --per_device_train_batch_size 2 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 2 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 1000 \
-    --save_total_limit 2 \
+    --save_total_limit 4 \
     --learning_rate $lr \
     --weight_decay 0. \
     --warmup_ratio 0.1 \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
     --tf32 True \
-    --model_max_length 4096 \
+    --model_max_length 5120 \
     --gradient_checkpointing True \
     --dataloader_num_workers 16 \
     --lazy_preprocess True \
@@ -89,5 +94,5 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --torch_compile_backend "inductor" \
     --dataloader_drop_last True \
     --attn_implementation flash_attention_2 \
-    --image_split_resolution 384 \
-    --image_crop_resolution 384
+    --image_split_resolution 224 \
+    --image_crop_resolution 224

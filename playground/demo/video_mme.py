@@ -31,6 +31,7 @@ from PIL import Image
 import shortuuid
 
 import numpy as np
+import re
 
 
 def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, image_resolution=336, video_framerate=1, s=None, e=None):
@@ -99,6 +100,72 @@ def _get_rawvideo_dec(video_path, image_processor, max_frames=MAX_IMAGE_LENGTH, 
     return torch.from_numpy(video), video_mask
 
 
+def parse_subtitle_time(time_str):
+    h, m, s_ms = time_str.split(":")
+    s, ms = s_ms.split(",")
+    return int(h) * 3600 + int(m) * 60 + int(s) + int(ms) / 1000
+
+def convert_time_to_frame(time_in_seconds, fps):
+    return int(time_in_seconds * fps)
+
+def load_subtitles(subtitle_path):
+    subtitles = {}
+    with open(subtitle_path, "r", encoding="utf-8") as file:
+        content = file.read().split("\n\n")
+        for section in content:
+            if section.strip():
+                lines = section.split("\n")
+                if len(lines) >= 3:
+                    time_range = lines[1].split(" --> ")
+                    start_time = parse_subtitle_time(time_range[0])
+                    end_time = parse_subtitle_time(time_range[1])
+                    text = " ".join(line for line in lines[2:])
+                    subtitles[(start_time, end_time)] = text
+    return subtitles
+
+
+def extract_subtitles(video_path, subtitle_path, args, image_processor, max_frames=MAX_IMAGE_LENGTH, image_resolution=336, video_framerate=1):
+    # video_path: data/xxx.mp4
+    # subtitle_path: subtitle/xxx.srt
+    
+    video = cv2.VideoCapture(video_path)
+    fps = video.get(cv2.CAP_PROP_FPS)
+    total_frame = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    subtitles = load_subtitles(subtitle_path)
+    
+    subtitle_frames = []
+    for (start_time, end_time), text in subtitles.items():
+        start_frame = convert_time_to_frame(start_time, fps)
+        end_frame = convert_time_to_frame(end_time, fps)
+        subtitle_frames.append((start_frame, end_frame, text))
+    
+    # obtain video frames
+    uniform_sampled_frames = np.linspace(0, total_frame - 1, args.for_get_frames_num, dtype=int).tolist()
+    # T x 3 x H x W
+    videos = np.zeros((max_frames, 3, image_resolution, image_resolution), dtype=np.float64)
+    uniform_sampled_frames_data = []
+    for frame_idx in uniform_sampled_frames:
+        video.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
+        ret, frame = video.read()
+        if ret:
+            uniform_sampled_frames_data.append(frame)
+        else:
+            print("uniform_sampled_frames read ERROR!")
+    
+    patch_images = [Image.fromarray(f) for f in uniform_sampled_frames_data]
+    
+    patch_images = torch.stack([image_processor.preprocess(img, return_tensors='pt')['pixel_values'][0] for img in patch_images])
+    slice_len = patch_images.shape[0]
+    max_video_length = 0
+    max_video_length = max_video_length if max_video_length > slice_len else slice_len
+    if slice_len < 1:
+        pass
+    else:
+        videos[:slice_len, ...] = patch_images
+
+    return subtitle_frames, total_frame, patch_images
+
+
 def parse_args():
     """
     Parse command-line arguments.
@@ -126,7 +193,7 @@ def parse_args():
     parser.add_argument("--api_key", type=str, help="OpenAI API key")
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
-    parser.add_argument("--video-folder", type=str, default="/home/user/wangxd/LLaVA-NeXT/data/Video-MME/data")
+    parser.add_argument("--video-folder", type=str, default="/workspace/wangxd/data/Video-MME/data")
     parser.add_argument("--question-file", type=str, default="/home/user/wangxd/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
     parser.add_argument("--answers-file", type=str, default="results/answer-video-mme.json")
     parser.add_argument("--duration", type=str, default="short")
@@ -204,7 +271,7 @@ def run_inference(args):
     
     video_formats = ['.mp4', '.avi', '.mov', '.mkv']
 
-    hf_data = hf_datasets.load_dataset("parquet", data_files="/home/user/wangxd/LLaVA-NeXT/data/Video-MME/test-00000-of-00001.parquet")['train']
+    hf_data = hf_datasets.load_dataset("parquet", data_files="/workspace/wangxd/data/Video-MME/test-00000-of-00001.parquet")['train']
     keys = ['video_id', 'duration', 'domain', 'sub_category', 'url', 'videoID', 'question_id', 'task_type', 'question', 'options', 'answer']
 
     save_data = []
@@ -243,15 +310,63 @@ def run_inference(args):
         
         # print(qs)
         
-        # Check if the video exists
-        if video_path is not None:  # Modified this line
-            video_frames, slice_len = _get_rawvideo_dec(video_path, image_processor, max_frames=args.for_get_frames_num, image_resolution=args.image_resolution)
-            video_frames = [video_frames.half().cuda()]
+        if args.subtitle:
+            print("----------------using subtitle----------------------------")
+            subtitle_path = video_path.replace("Video-MME/data/", "Video-MME/subtitle/").replace(".mp4", ".srt")
+            if os.path.exists(subtitle_path):
+                subtitle_by_frame, total_frame, video_frames = extract_subtitles(video_path, subtitle_path, args, image_processor, max_frames=args.for_get_frames_num, image_resolution=args.image_resolution)
+                video_frames = [video_frames.half().cuda()]
+                
+                uniform_sampled_frames = np.linspace(0, total_frame - 1, args.for_get_frames_num, dtype=int).tolist()
+
+                subtitle_by_frame_idx = []
+                for frame_idx in uniform_sampled_frames:
+                    for idx, title in enumerate(subtitle_by_frame):
+                        if frame_idx < title[1] and frame_idx >= title[0]:
+                            subtitle_by_frame_idx.append(idx)
+                subtitle_by_frame_idx = list(set(subtitle_by_frame_idx))
+
+                textlist = []
+                for idx in subtitle_by_frame_idx:
+                    pattern = r'<font color="white" size=".72c">(.*?)</font>'
+                    raw_text = re.findall(pattern, subtitle_by_frame[idx][2])
+                    try:
+                        textlist.append(raw_text[0])
+                    except:
+                        continue
+                subtitle_text = "\n".join(textlist)
+                subtitle = subtitle_text
+                
+                subtitles_prompt = "This video's subtitles are listed below: \n"
+                
+                option_prompt = "Select the best answer to the following multiple-choice question based on the video and the subtitles. Respond with only the letter (A, B, C, or D) of the correct option."
+                option = "\n".join([f"{opt}" for i, opt in enumerate(options)])
+                question = question + "\n" + option
+                full_prompt = subtitles_prompt + subtitle + "\n" + option_prompt + "\n" + question + "\n" + "The best answer is:"
+                qs = full_prompt
+                
+                if model.config.mm_use_im_start_end:
+                    qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
+                else:
+                    qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
+            else:
+                video_frames, slice_len = _get_rawvideo_dec(video_path, image_processor, max_frames=args.for_get_frames_num, image_resolution=args.image_resolution)
+                video_frames = [video_frames.half().cuda()]
+                if model.config.mm_use_im_start_end:
+                    qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
+                else:
+                    qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
         
-        if model.config.mm_use_im_start_end:
-            qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
         else:
-            qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
+            # Check if the video exists
+            if video_path is not None:  # Modified this line
+                video_frames, slice_len = _get_rawvideo_dec(video_path, image_processor, max_frames=args.for_get_frames_num, image_resolution=args.image_resolution)
+                video_frames = [video_frames.half().cuda()]
+            
+            if model.config.mm_use_im_start_end:
+                qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
+            else:
+                qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
         
         try:
             cur_prompt = qs

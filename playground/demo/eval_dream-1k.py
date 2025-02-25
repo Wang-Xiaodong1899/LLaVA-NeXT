@@ -174,7 +174,7 @@ def main(args):
 
    
     data_list = "/data/wangxd/DREAM-1K/DREAM-1k.jsonl"
-    data_dir = "/data/wangxd/DREAM-1K/video"
+    data_dir = "/workspace/wangxd/data/DREAM-1K/video"
     save_path = "./test_all_choice"
     result_path="bench_all.json"
 
@@ -326,7 +326,7 @@ def parse_args():
     parser.add_argument("--api_key", type=str, help="OpenAI API key")
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
-    parser.add_argument("--video-folder", type=str, default="/home/user/wangxd/LLaVA-NeXT/data/Video-MME/data")
+    parser.add_argument("--video-folder", type=str, default="/workspace/wangxd/data/Video-MME/data")
     parser.add_argument("--question-file", type=str, default="/home/user/wangxd/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
     parser.add_argument("--answers-file", type=str, default="results/answer-video-mme.json")
     parser.add_argument("--subtitle", action="store_true") # TODO

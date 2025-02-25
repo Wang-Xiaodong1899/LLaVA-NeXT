@@ -1201,9 +1201,8 @@ class IPOTrainer(Trainer):
             losses = -F.logsigmoid(self.beta * logits - constant_gamma)
             # NOTE support label smoothing
             if self.label_smoothing > 0:
-                # Introduce dynamic here
-                dynamic_weight = self.label_smoothing * torch.where(pi_logratios < 0.5, torch.tensor(1), torch.tensor(0)) if self.label_smoothing > 0 else 0.0
-
+                # Introduce dynamic here, XXX default 0.5 (remenber)
+                dynamic_weight = self.label_smoothing * torch.where(pi_logratios < 0., torch.tensor(1), torch.tensor(0)) if self.label_smoothing > 0 else 0.0
                 losses = -F.logsigmoid(self.beta * logits - constant_gamma) * (1 - dynamic_weight) - F.logsigmoid(-self.beta * logits - constant_gamma) * dynamic_weight
             
             reference_chosen_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)

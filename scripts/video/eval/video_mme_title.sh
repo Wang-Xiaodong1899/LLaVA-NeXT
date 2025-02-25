@@ -42,6 +42,7 @@ python3 playground/demo/video_mme.py \
     --conv-mode $CONV_MODE \
     --mm_spatial_pool_mode ${POOL_MODE:-average} \
     --mm_newline_position ${NEWLINE_POSITION:-grid} \
-    --answers-file results/answer-video-mme-${SAVE_NAME}.json \
+    --answers-file results/answer-video-mme-${SAVE_NAME}-wtitle.json \
     --duration $DURATION \
     --image_resolution $RESOLUTION \
+    --subtitle
