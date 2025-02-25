@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-PKU-4A100
-export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.1-simpo_margin-0.2
+export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.1-simpo_margin-1.0
 
 # gpu_ids=0
 gpu_ids=4,5,6,7
@@ -49,7 +49,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --version $PROMPT_VERSION \
     --loss_type simpo \
     --label_smoothing 0.1 \
-    --simpo_margin 0.2 \
+    --simpo_margin 1.0 \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
     --data_path=$data_path \
     --image_folder xxx \
