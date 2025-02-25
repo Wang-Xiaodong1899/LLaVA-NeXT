@@ -6,7 +6,7 @@ from sklearn.manifold import TSNE
 
 tgt = "ours"
 
-tgt_dir = f"/home/user/wangxd/LLaVA-NeXT/VideoMME-visu/{tgt}"
+tgt_dir = f"/root/highspeedstorage/data/LLaVA-NeXT/VideoMME-visu/{tgt}"
 
 print(f"eval {tgt_dir}")
 
