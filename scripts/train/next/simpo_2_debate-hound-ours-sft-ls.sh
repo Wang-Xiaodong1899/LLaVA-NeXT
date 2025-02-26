@@ -15,7 +15,7 @@ export WANDB_PROJECT=llava-next-PKU-4A100
 export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.1-simpo_margin-1.0
 
 # gpu_ids=0
-gpu_ids=4,5,6,7
+gpu_ids=0,1,2,3,4,5,6,7
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
