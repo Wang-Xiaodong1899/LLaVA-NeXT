@@ -1,7 +1,7 @@
 import json
 
 qa_path = "/volsparse1/wxd/data/llava_hound/chatgpt_qa_900k.jsonl"
-id_path = "/root/highspeedstorage/data/LLaVA-NeXT/long_video_ge_64.jsonl"
+id_path = "/root/filesystem/data/LLaVA-NeXT/long_video_ge_64.jsonl"
 
 video_id = []
 with open(qa_path, 'r', encoding='utf-8') as infile:
@@ -20,5 +20,5 @@ for id in exist_video_id:
     if id in video_id:
         chosen_id.append(id)
 
-with open('/root/highspeedstorage/data/LLaVA-NeXT/long_video_ge_64_qa.jsonl', 'w') as f:
+with open('/root/filesystem/data/LLaVA-NeXT/long_video_ge_64_qa.jsonl', 'w') as f:
     json.dump(chosen_id, f)

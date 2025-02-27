@@ -23,7 +23,7 @@ output_dir=/volsparse2/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/root/highspeedstorage/data/LLaVA-NeXT/data/shareVideoGPTV/inject-1112-caption-ov/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_2_stride_1/caption-ov-inject_prior_aug_f2_sample_0_8000.jsonl
+data_path=/root/filesystem/data/LLaVA-NeXT/data/shareVideoGPTV/inject-1112-caption-ov/llava-onevision-qwen2-7b-ov_qwen_1_5_frames_2_stride_1/caption-ov-inject_prior_aug_f2_sample_0_8000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
