@@ -44,7 +44,7 @@ PROMPT_VERSION="vicuna_v1"
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_avg.py \
-    --deepspeed scripts/zero3_offload.json \
+    --deepspeed scripts/zero2_offload.json \
     --model_name_or_path /root/filesystem/data/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --loss_type simpo \
@@ -69,7 +69,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_aspect_ratio anyres \
     --image_grid_pinpoints "[(336, 672), (672, 336), (672, 672), (1008, 336), (336, 1008)]" \
     --mm_patch_merge_type spatial_unpad \
-    --bf16 True \
+    --fp16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 4 \
@@ -85,7 +85,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --warmup_ratio 0.1 \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
-    --tf32 True \
+    --tf32 False \
     --model_max_length 3072 \
     --gradient_checkpointing True \
     --dataloader_num_workers 16 \
