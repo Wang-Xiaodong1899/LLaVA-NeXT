@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/root/filesystem/data/LLaVA-NeXT"
+ROOT_DIR="/root/highspeedstorage/data/LLaVA-NeXT"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -55,7 +55,7 @@ python3 scripts/process/self_generate_preference_sample_aug_only.py \
 
 
 # Next
-# CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_next-7b-sample_aug_only.sh /data/wangxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 2 3 average no_token True /root/filesystem/data/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data /root/filesystem/data/LLaVA-NeXT/data/shareVideoGPTV/sft_dpo_17k.jsonl 15000 20000 224
+# CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_next-7b-sample_aug_only.sh /data/wangxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 2 3 average no_token True /root/highspeedstorage/data/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data /root/highspeedstorage/data/LLaVA-NeXT/data/shareVideoGPTV/sft_dpo_17k.jsonl 15000 20000 224
 
 #qa
 # CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_next-7b-sample_aug_only.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /data/llava_hound/shareVideoGPTV/train_300k_qa_video /data/llava_hound/shareVideoGPTV/chatgpt_qa_900k_ge_70.jsonl 12000 16000 224

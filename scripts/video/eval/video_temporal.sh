@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/root/filesystem/data/LLaVA-NeXT/"
+ROOT_DIR="/root/highspeedstorage/data/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."

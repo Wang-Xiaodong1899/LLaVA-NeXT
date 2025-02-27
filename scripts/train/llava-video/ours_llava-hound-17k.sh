@@ -20,11 +20,11 @@ export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/root/filesystem/data/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/root/highspeedstorage/data/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/root/filesystem/data/LLaVA-NeXT/data/shareVideoGPTV/llava-video-7b-f16-s2-merge-17k.jsonl
+data_path=/root/highspeedstorage/data/LLaVA-NeXT/data/shareVideoGPTV/llava-video-7b-f16-s2-merge-17k.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -48,7 +48,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /root/filesystem/data/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data \
+    --video_folder /root/highspeedstorage/data/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \

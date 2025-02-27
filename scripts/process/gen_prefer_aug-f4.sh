@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/root/filesystem/data/LLaVA-NeXT/"
+ROOT_DIR="/root/highspeedstorage/data/LLaVA-NeXT/"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -56,7 +56,7 @@ python scripts/process/self_generate_preference.py \
 # CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_aug-f4.sh /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava_dpo_17k_flash-attn/checkpoint-3000/ vicuna_v1 4 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000
 
 # one-vision
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_aug-f4.sh /root/filesystem/data/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 4 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 384
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_aug-f4.sh /root/highspeedstorage/data/LLaVA-NeXT/qwen/llava-onevision-qwen2-7b-ov qwen_1_5 4 1 bilinear one_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 384
 
 # iter-2
 # CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_aug-f4.sh /volsparse1/wxd/ckpt/llava-next-jf-4A100/Next-DPO-iter2/checkpoint-500/ vicuna_v1 4 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 8000 10000 224
