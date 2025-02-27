@@ -11,7 +11,7 @@ lr=${1:-"5e-7"}
 ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next-PKU-4A100
+export WANDB_PROJECT=llava-next-LC-8x4090
 export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.1-simpo_margin-1.0
 
 # gpu_ids=0
@@ -69,7 +69,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_aspect_ratio anyres \
     --image_grid_pinpoints "[(336, 672), (672, 336), (672, 672), (1008, 336), (336, 1008)]" \
     --mm_patch_merge_type spatial_unpad \
-    --fp16 True \
+    --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
     --num_train_epochs 4 \
@@ -85,7 +85,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --warmup_ratio 0.1 \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
-    --tf32 False \
+    --tf32 True \
     --model_max_length 3072 \
     --gradient_checkpointing True \
     --dataloader_num_workers 16 \
