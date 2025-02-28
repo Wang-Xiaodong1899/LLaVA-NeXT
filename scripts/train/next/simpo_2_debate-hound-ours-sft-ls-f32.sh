@@ -12,7 +12,7 @@ ROOT=$2
 
 export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-LC-8xH200
-export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.1-simpo_margin-0.5
+export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.1-simpo_margin-0.5-f32
 
 # gpu_ids=0
 gpu_ids=0,1,2,3,4,5,6,7
@@ -55,7 +55,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_folder xxx \
     --video_folder /root/highspeedstorage/data/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
-    --frames_upbound 16 \
+    --frames_upbound 32 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
@@ -86,7 +86,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
     --tf32 True \
-    --model_max_length 3072 \
+    --model_max_length 5120 \
     --gradient_checkpointing True \
     --dataloader_num_workers 32 \
     --lazy_preprocess True \
