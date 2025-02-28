@@ -10,9 +10,9 @@ export NCCL_IB_DISABLE=1
 lr=${1:-"5e-7"}
 ROOT=$2
 
-# export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next-LC-8x4090
-export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.1-simpo_margin-1.0
+export WANDB_MODE=disabled
+export WANDB_PROJECT=llava-next-LC-8xH200
+export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.1-simpo_margin-0.5-f32
 
 # gpu_ids=0
 gpu_ids=0,1,2,3,4,5,6,7
@@ -44,18 +44,18 @@ PROMPT_VERSION="vicuna_v1"
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_avg.py \
-    --deepspeed scripts/zero2_offload.json \
+    --deepspeed scripts/zero2.json \
     --model_name_or_path /root/highspeedstorage/data/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --loss_type simpo \
     --label_smoothing 0.1 \
-    --simpo_margin 1.0 \
+    --simpo_margin 0.5 \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /root/highspeedstorage/data/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
-    --frames_upbound 16 \
+    --frames_upbound 32 \
     --vision_tower ${VISION_MODEL_VERSION} \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
@@ -69,26 +69,26 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --image_aspect_ratio anyres \
     --image_grid_pinpoints "[(336, 672), (672, 336), (672, 672), (1008, 336), (336, 1008)]" \
     --mm_patch_merge_type spatial_unpad \
-    --fp16 True \
+    --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
-    --num_train_epochs 4 \
-    --per_device_train_batch_size 1 \
+    --num_train_epochs 6 \
+    --per_device_train_batch_size 2 \
     --per_device_eval_batch_size 1 \
-    --gradient_accumulation_steps 2 \
+    --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1000 \
-    --save_total_limit 4 \
+    --save_steps 2000 \
+    --save_total_limit 2 \
     --learning_rate $lr \
     --weight_decay 0. \
     --warmup_ratio 0.1 \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
-    --tf32 False \
-    --model_max_length 3072 \
+    --tf32 True \
+    --model_max_length 5120 \
     --gradient_checkpointing True \
-    --dataloader_num_workers 16 \
+    --dataloader_num_workers 32 \
     --lazy_preprocess True \
     --report_to wandb \
     --torch_compile True \
