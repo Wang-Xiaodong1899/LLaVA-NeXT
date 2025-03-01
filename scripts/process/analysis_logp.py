@@ -234,11 +234,11 @@ def run_inference(args):
     
     video_formats = ['.mp4', '.avi', '.mov', '.mkv']
     
-    data = load_jsonl("/root/highspeedstorage/data/LLaVA-NeXT/data/shareVideoGPTV/sft_dpo_17k.jsonl")
+    data = load_jsonl("/root/autodl-tmp/data/shareVideoGPTV/sft_dpo_17k.jsonl")
     
     for item in tqdm(data):
         video_id = item['video']
-        video_dir = os.path.join("/root/highspeedstorage/data/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data", video_id)
+        video_dir = os.path.join("/root/autodl-tmp/data/shareVideoGPTV/dpo_train_data", video_id)
         video = load_video(video_dir, args)
         video = image_processor.preprocess(video, return_tensors="pt")["pixel_values"].half().cuda()
         video = [video]

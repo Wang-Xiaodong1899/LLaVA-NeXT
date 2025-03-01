@@ -52,7 +52,7 @@ python scripts/process/self_generate_preference_sample.py \
 
 
 # next
-# CUDA_VISIBLE_DEVICES=1 bash scripts/process/gen_prefer_next-7b-sample.sh /root/highspeedstorage/data/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 16 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 224
+# CUDA_VISIBLE_DEVICES=1 bash scripts/process/gen_prefer_next-7b-sample.sh /vicuna/LLaVA-NeXT-Video-7B vicuna_v1 16 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 224
 
 # DPO-1
 # CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample.sh /volsparse1/wxd/ckpt/llava-next-jf-4A100/llava-next-vicuna-dpo-iter1/checkpoint-3000 vicuna_v1 16 2 average no_token True /volsparse1/wxd/data/llava_hound/shareVideoGPTV/QA/ /volsparse1/wxd/data/llava_hound/filtered_video_id.jsonl 0 2000 224

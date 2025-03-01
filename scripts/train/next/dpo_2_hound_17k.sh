@@ -24,7 +24,7 @@ output_dir=/data/wangxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/root/highspeedstorage/data/LLaVA-NeXT/data/shareVideoGPTV/sft_dpo_17k.jsonl
+data_path=/root/autodl-tmp/data/shareVideoGPTV/sft_dpo_17k.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -44,12 +44,12 @@ PROMPT_VERSION="vicuna_v1"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo.py \
     --deepspeed scripts/zero3.json \
-    --model_name_or_path /root/highspeedstorage/data/LLaVA-NeXT/vicuna/LLaVA-NeXT-Video-7B \
+    --model_name_or_path /vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /root/highspeedstorage/data/LLaVA-NeXT/data/shareVideoGPTV/dpo_train_data \
+    --video_folder /root/autodl-tmp/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
