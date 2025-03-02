@@ -11,20 +11,20 @@ lr=${1:-"5e-7"}
 ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-video-PKU-4A100
+export WANDB_PROJECT=llava-video-6xH200
 export WANDB_NAME=llava-ov-qwen_ours_hound-17k_f16_blinear2-3-dynalabelsmooth-pilog-0-ls0.1
 
 # gpu_ids=0
-gpu_ids=4,5,6,7
+gpu_ids=0,1,2,3,4,5
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/root/autodl-fs/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/root/autodl-tmp/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/root/autodl-tmp/data/shareVideoGPTV/llava-video-7b-f16-s2-merge-17k.jsonl
+data_path=/root/llava-video-7b-f16-s2-merge-17k.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -40,8 +40,8 @@ PROMPT_VERSION="qwen_1_5"
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${NUM_GPUS}" --nnodes="${NNODES}" --node_rank="${RANK}" --master_addr="${ADDR}" --master_port="${PORT}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_avg.py \
-    --deepspeed scripts/zero3.json \
-    --model_name_or_path /data2/wangxd/models/qwen/LLaVA-Video-7B-Qwen2 \
+    --deepspeed scripts/zero2.json \
+    --model_name_or_path /root/autodl-fs/qwen/LLaVA-Video-7B-Qwen2 \
     --version $PROMPT_VERSION \
     --loss_type simpo \
     --label_smoothing 0.1 \
@@ -69,7 +69,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --num_train_epochs 4 \
     --per_device_train_batch_size 1 \
     --per_device_eval_batch_size 1 \
-    --gradient_accumulation_steps 2 \
+    --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 1000 \
