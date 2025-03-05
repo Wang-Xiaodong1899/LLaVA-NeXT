@@ -17,7 +17,7 @@ def merge_jsonl_files(file_list, output_file):
 
 root = "/volsparse3/wxd/data/self-gen/aug-iter2-hound-qa-0304/checkpoint-4000_vicuna_v1_frames_1_stride_2/"
 
-file_list = ['next-7b-f2-s2-0_2000.jsonl ', 'next-7b-f2-s2-2000_4000.jsonl ', 'next-7b-f2-s2-4000_6000.jsonl ', 'next-7b-f2-s2-6000_8000.jsonl ']
+file_list = ['next-7b-f2-s2-0_2000.jsonl', 'next-7b-f2-s2-2000_4000.jsonl', 'next-7b-f2-s2-4000_6000.jsonl', 'next-7b-f2-s2-6000_8000.jsonl']
 
 file_list = [os.path.join(root, f) for f in file_list]
 
