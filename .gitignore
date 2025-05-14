@@ -90,3 +90,4 @@ results
 OpenDV*
 *.png
 download.sh
+llavaenv/

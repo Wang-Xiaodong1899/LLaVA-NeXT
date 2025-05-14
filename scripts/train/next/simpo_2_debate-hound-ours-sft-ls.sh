@@ -11,28 +11,28 @@ lr=${1:-"5e-7"}
 ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next-PKU-4A100
-export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.1-simpo_margin-0.2
+export WANDB_PROJECT=llava-next-8H20
+export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.3-simpomargin0.5
 
 # gpu_ids=0
-gpu_ids=4,5,6,7
+gpu_ids=0,1,2,3,4,5,6,7
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/data2/wangxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/mnt/bn/multimodal-datasets-hl/wangxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
 # data_path=/volsparse3/wxd/data/shareVideoGPTV/next-7b-f16-s2-hound-rej-0_8000.jsonl
-data_path=/home/user/wangxd/LLaVA-NeXT/data/shareVideoGPTV/next-7b-f16-s2-debate-aug-f2-s3-0_17000.jsonl
+data_path=/mnt/bn/multimodal-datasets-hl/wangxd/data/shareVideoGPTV/next-7b-f16-s2-debate-aug-f2-s3-0_17000.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
 port=19001
 
-VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
+VISION_MODEL_VERSION="/mnt/bn/multimodal-datasets-hl/wangxd/models/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
@@ -44,16 +44,16 @@ PROMPT_VERSION="vicuna_v1"
 # ACCELERATE_CPU_AFFINITY=1 torchrun --nproc_per_node="${ARNOLD_WORKER_GPU}" --nnodes="${ARNOLD_WORKER_NUM}" --node_rank="${ARNOLD_ID}" --master_addr="${METIS_WORKER_0_HOST}" --master_port="${port_in_cmd}" \
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo_avg.py \
-    --deepspeed scripts/zero3.json \
-    --model_name_or_path /data2/wangxd/models/vicuna/LLaVA-NeXT-Video-7B \
+    --deepspeed scripts/zero2.json \
+    --model_name_or_path /mnt/bn/multimodal-datasets-hl/wangxd/models/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --loss_type simpo \
-    --label_smoothing 0.1 \
-    --simpo_margin 0.2 \
+    --label_smoothing 0.3 \
+    --simpo_margin 0.5 \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /workspace/wangxd/data/shareVideoGPTV/dpo_train_data \
+    --video_folder /mnt/bn/multimodal-datasets-hl/wangxd/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \
@@ -78,7 +78,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1000 \
+    --save_steps 500 \
     --save_total_limit 4 \
     --learning_rate $lr \
     --weight_decay 0. \
