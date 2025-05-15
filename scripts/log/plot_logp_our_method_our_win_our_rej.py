@@ -112,7 +112,7 @@ plt.plot(df_input["_step"][:200], df_input["smoothed_rejected"][:200],
 #             color='#E1463C', marker='*', s=200, edgecolor='black', zorder=5)
 
 # 标注信息
-plt.xlabel('Training Step', fontweight='bold')
+plt.xlabel('Sample Index', fontweight='bold')
 plt.ylabel(r'Implicit reward $\frac{1}{|y|}log\pi_{\theta}(y|x)$', fontweight='bold')
 # plt.title(f'Smoothed Log Probabilities (Window Size={smoothing_window})', 
 #          fontsize=14, fontweight='bold')
