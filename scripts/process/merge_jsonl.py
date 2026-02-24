@@ -2,8 +2,8 @@ import os
 import json
 
 # Define the input folder path and output file path
-input_folder = "/volsparse3/wxd/data/self-gen/llava-next-aug-video-178k/2_3_m_youtube_v0_1-2_3_m_youtube_oe-0110/LLaVA-NeXT-Video-7B_vicuna_v1_frames_1_stride_2/"
-output_file = "/volsparse3/wxd/data/self-gen/llava-next-aug-video-178k/2_3_m_youtube_v0_1-2_3_m_youtube_oe-0110/llava-next-7b-f2-s2-0_16000.jsonl"
+input_folder = "/mnt/bn/multimodal-datasets-hl/wangxd/LLaVA-NeXT/data/nohallu/chosen-hound-0514/LLaVA-NeXT-Video-7B_vicuna_v1_frames_16_stride_2/"
+output_file = "/mnt/bn/multimodal-datasets-hl/wangxd/LLaVA-NeXT/data/nohallu/chosen-hound-0514/next-7b-f16-s2-videoinput-17k.jsonl"
 
 # Create the output file
 with open(output_file, 'w', encoding='utf-8') as outfile:
