@@ -1,11 +1,6 @@
 import argparse
 import torch
 
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
 from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 from llava.conversation import conv_templates, SeparatorStyle
 from llava.model.builder import load_pretrained_model
@@ -16,6 +11,7 @@ import json
 import os
 import math
 from tqdm import tqdm
+import torchvision.transforms as transforms
 from decord import VideoReader, cpu
 
 from transformers import AutoConfig
@@ -25,6 +21,16 @@ import base64
 import openai
 
 from PIL import Image
+
+
+
+hallu_prompt_list = ["Answer this question with imaginary objects that could be in the scene. Make the anwser affirmative.",
+    "Enrich your answer by adding hypothetical objects or characters that could be part of the scene. Make the anwser affirmative.",
+    "Answer this question with objects or people that could logically exist in the video. Make the anwser affirmative.",
+    "Enrich your answer by including elements that are not there but could fit seamlessly into the background of the video. Make the anwser affirmative.",
+    "Answer this question by imagining other everyday objects or activities that take place off-screen. Make the anwser affirmative.",
+    "Enrich your answer by enhancing the scene with details of possible events or objects. Make the anwser affirmative.",
+    "Answer this question by imagining natural elements that could actually enter the scene, such as weather or animals. Make the anwser affirmative."]
 
 
 
@@ -48,7 +54,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     # Define the command-line arguments
-    parser.add_argument("--video_path", help="Path to the video files.", required=True)
+    parser.add_argument("--video_root", help="Path to the video files.", required=True)
     parser.add_argument("--output_dir", help="Directory to save the model results JSON.", required=True)
     parser.add_argument("--output_name", help="Name of the file for storing results JSON.", required=True)
     parser.add_argument("--model-path", type=str, default="facebook/opt-350m")
@@ -64,29 +70,44 @@ def parse_args():
     parser.add_argument("--mm_patch_merge_type", type=str, default="spatial_unpad")
     parser.add_argument("--overwrite", type=lambda x: (str(x).lower() == 'true'), default=True)
     parser.add_argument("--for_get_frames_num", type=int, default=4)
+    parser.add_argument("--normal_frames", type=int, default=32)
     parser.add_argument("--load_8bit",  type=lambda x: (str(x).lower() == 'true'), default=False)
     parser.add_argument("--prompt", type=str, default=None) 
     parser.add_argument("--api_key", type=str, help="OpenAI API key")
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
-    parser.add_argument("--pretrain_mm_mlp_adapter", type=str, default=None) 
-    
-
-    # add condition args
-    parser.add_argument("--enable_video_slow", type=lambda x: (str(x).lower() == 'true'), default=False)
-    parser.add_argument("--enable_video_fast", type=lambda x: (str(x).lower() == 'true'), default=False)
-    parser.add_argument("--enable_tube_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
-    parser.add_argument("--enable_video_shuffle", type=lambda x: (str(x).lower() == 'true'), default=False)
-    
+    parser.add_argument("--add-aug", type=bool, default=False)
+    parser.add_argument("--add-hallu", type=bool, default=False) 
+    parser.add_argument("--jsonl-file", type=str, default="/volsparse1/wxd/data/llava_hound/chatgpt_qa_900k.jsonl")
+    parser.add_argument("--start", type=int, default=0)
+    parser.add_argument("--end", type=int, default=2000)
+    parser.add_argument("--skip-chosen", type=bool, default=False)
+    parser.add_argument("--image_resolution", type=int, default=224) 
     
     return parser.parse_args()
 
+import random
+from PIL import ImageFilter
+class GaussianBlur(object):
+    """Gaussian blur augmentation from SimCLR: https://arxiv.org/abs/2002.05709"""
+
+    def __init__(self, sigma=[.1, 2.]):
+        self.sigma = sigma
+
+    def __call__(self, x):
+        sigma = random.uniform(self.sigma[0], self.sigma[1])
+        x = x.filter(ImageFilter.GaussianBlur(radius=sigma))
+        return x
+
+def augmentation(frame, transform, state):
+    torch.set_rng_state(state)
+    return transform(frame)
 
 def load_video(video_path, args):
     if os.path.isdir(video_path):
         frame_files = [os.path.join(video_path, f) for f in os.listdir(video_path) if os.path.isfile(os.path.join(video_path, f))]
         frame_files.sort()  # Ensure the frames are sorted if they are named sequentially
-        num_frames_to_sample = args.for_get_frames_num # previous author hard code sampling 10 frames
+        num_frames_to_sample = args.normal_frames # previous author hard code sampling 10 frames
 
         total_frames = len(frame_files)
 
@@ -102,7 +123,37 @@ def load_video(video_path, args):
                     video.append(frame)
             except IOError:
                 print(f"Failed to read frame at path: {frame_path}")
-        return video
+        
+        # add augmentation
+        # NOTE fix image_resolution 224
+        aug_tranform = transforms.Compose([
+            transforms.RandomResizedCrop(args.image_resolution, scale=(0.08, 0.3)),
+            transforms.RandomApply([
+                transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)  # not strengthened
+            ], p=0.8),
+            transforms.RandomGrayscale(p=0.2),
+            transforms.RandomApply([GaussianBlur([.1, 2.])], p=1.0),
+            transforms.RandomHorizontalFlip()
+        ])
+        
+        # # save original video frame
+        # for (idx, v) in enumerate(video):
+        #     v.save(f'{os.path.basename(video_path)}_00{idx}.jpg')
+        ori_video = video
+        aug_video = video
+        
+        # save aug video frame
+        # for (idx, v) in enumerate(video):
+        #     v.save(f'{os.path.basename(video_path)}_00{idx}_aug.jpg')
+        
+        # NOTE fix bug
+        # for_get_frames_num not work for frames dir
+        # total_frame_num = len(ori_video)
+        # sample_frame = args.for_get_frames_num
+        # uniform_sampled_frames = np.linspace(0, total_frame_num - 1, sample_frame, dtype=int)
+        # aug_video = [aug_video[idx] for idx in uniform_sampled_frames]
+        # import pdb; pdb.set_trace()
+        return ori_video, aug_video
     else:
         vr = VideoReader(video_path, ctx=cpu(0))
         total_frame_num = len(vr)
@@ -114,7 +165,6 @@ def load_video(video_path, args):
             uniform_sampled_frames = np.linspace(0, total_frame_num - 1, sample_fps, dtype=int)
             frame_idx = uniform_sampled_frames.tolist()
         spare_frames = vr.get_batch(frame_idx).asnumpy()
-        print(f'frame length: {len(spare_frames)}')
         # Save frames as images
         # for i, frame in enumerate(spare_frames):
         #     cv2.imwrite(f'{args.output_dir}/frame_{i}.jpg', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
@@ -145,9 +195,19 @@ def run_inference(args):
     Args:
         args: Command-line arguments.
     """
+    print(f"********************************")
+    print(f"add-aug: {args.add_aug}")
+    print(f"skip-chosen: {args.skip_chosen}")
+    print(f"********************************")
+
     # Initialize the model
     if "gpt4v" != args.model_path:
         model_name = get_model_name_from_path(args.model_path)
+        print(f"model_name: {model_name}")
+        # TODO
+        if "next" in model_name.lower():
+            model_name = "llava_llama"
+            print(f"model_name: {model_name}")
         if "onevision" in args.model_path or "ov" in args.model_path:
             model_name = "llava_qwen"
             print(f'***********************************')
@@ -159,11 +219,6 @@ def run_inference(args):
             overwrite_config["mm_spatial_pool_mode"] = args.mm_spatial_pool_mode
             overwrite_config["mm_spatial_pool_stride"] = args.mm_spatial_pool_stride
             overwrite_config["mm_newline_position"] = args.mm_newline_position
-            overwrite_config["enable_video_slow"] = args.enable_video_slow
-            overwrite_config["enable_video_fast"] = args.enable_video_fast
-            overwrite_config["enable_video_shuffle"] = args.enable_video_shuffle
-            overwrite_config["enable_tube_sample"] = args.enable_tube_sample
-            overwrite_config["pretrain_mm_mlp_adapter"] = args.pretrain_mm_mlp_adapter
 
             cfg_pretrained = AutoConfig.from_pretrained(args.model_path)
 
@@ -194,48 +249,128 @@ def run_inference(args):
         os.makedirs(args.output_dir)
 
     output_name = args.output_name
-    answers_file = os.path.join(args.output_dir, f"{output_name}.json")
+    answers_file = os.path.join(args.output_dir, f"{output_name}.jsonl")
     ans_file = open(answers_file, "w")
 
-    video_path = args.video_path
+    video_root = args.video_root
 
-    all_video_pathes = []
-
-    # Check if the video_path is a directory or a file
-    if os.path.isdir(video_path):
-        # If it's a directory, loop over all files in the directory
-        # for filename in os.listdir(video_path):
-        #             # Load the video file
-        #     cur_video_path = os.path.join(video_path, f"{filename}")
-        #     all_video_pathes.append(os.path.join(video_path, cur_video_path))
-        all_video_pathes = [video_path]
-    else:
-        # If it's a file, just process the video
-        all_video_pathes.append(video_path) 
+    with open(args.jsonl_file, 'r', encoding='utf-8') as file:
+        jsonl_data = [json.loads(line) for line in file]
 
     # import pdb;pdb.set_trace()
-    for video_path in all_video_pathes:
+    for item in tqdm(jsonl_data[args.start:args.end]):
 
         sample_set = {}
-        question = args.prompt
-        sample_set["Q"] = question
-        sample_set["video_name"] = video_path
+        video_ = item["video"]
+        sample_set['id'] = item["id"]
         
+        
+        question = next(convo['value'] for convo in item['conversations'] if convo['from'] == 'human')
+        answer = next(convo['value'] for convo in item['conversations'] if convo['from'] == 'gpt')
+        
+        question = question.replace("<video>\n", "")
+
+        sample_set["prompt"] = question
+        sample_set["answer"] = answer
+        
+        sample_set["video"] = video_
+        
+        
+        video_path = os.path.join(video_root, video_)
+        
+        video = None
 
         # Check if the video exists
         if os.path.exists(video_path):
             if "gpt4v" != args.model_path:
-                video = load_video(video_path, args)
-                print(video.shape)
+                video, aug_video = load_video(video_path, args)
                 video = image_processor.preprocess(video, return_tensors="pt")["pixel_values"].half().cuda()
                 video = [video]
+                
+                aug_video = image_processor.preprocess(aug_video, return_tensors="pt")["pixel_values"].half().cuda()
+                aug_video = [aug_video]
             else:
                 video = load_video_base64(video_path)
                 interval = int(len(video) / args.for_get_frames_num)
+        # import pdb; pdb.set_trace()
+        if not args.skip_chosen:
+            # chosen answer
+            if "gpt4v" != args.model_path:
+                qs = question
+                if model.config.mm_use_im_start_end:
+                    qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
+                else:
+                    qs = DEFAULT_IMAGE_TOKEN + "\n" + qs
 
-        # try:
-        # Run inference on the video and add the output to the list
+                conv = conv_templates[args.conv_mode].copy()
+                conv.append_message(conv.roles[0], qs)
+                conv.append_message(conv.roles[1], None)
+                prompt = conv.get_prompt()
+
+                input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).cuda()
+                if tokenizer.pad_token_id is None:
+                    if "qwen" in tokenizer.name_or_path.lower():
+                        print("Setting pad token to bos token for qwen model.")
+                        tokenizer.pad_token_id = 151643
+                        
+                attention_masks = input_ids.ne(tokenizer.pad_token_id).long().cuda()
+
+                stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
+                keywords = [stop_str]
+                stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
+
+                cur_prompt = question
+            else:
+                prompt = question
+
+            system_error = ""
+
+            if "gpt4v" != args.model_path:
+                # print(f'video length: {len(video)}')
+                with torch.inference_mode():
+                    # model.update_prompt([[cur_prompt]])
+                    # import pdb;pdb.set_trace()
+                    # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
+                    if "mistral" not in cfg_pretrained._name_or_path.lower():
+                        output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=1.0, max_new_tokens=1024, top_p=0.9, use_cache=True, stopping_criteria=[stopping_criteria])
+                        # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1,num_beams=1,use_cache=True, stopping_criteria=[stopping_criteria])
+                        # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
+                    else:
+                        output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=1.0, max_new_tokens=1024, top_p=0.9, use_cache=True)
+                        # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1, num_beams=1, use_cache=True)
+                        # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True)
+
+            if "gpt4v" != args.model_path:
+                outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
+            
+            # print(f"Question: {prompt}\n")
+            # print(f"Response: {outputs}\n")
+
+            if "gpt4v" == args.model_path:
+                if system_error == 'content_policy_violation':
+                    continue
+                elif system_error == "":
+                    continue
+                else:
+                    import pdb;pdb.set_trace()
+
+            # import pdb;pdb.set_trace()
+            if "mistral" not in cfg_pretrained._name_or_path.lower():
+                if outputs.endswith(stop_str):
+                    outputs = outputs[: -len(stop_str)]
+
+            outputs = outputs.strip()
+            sample_set["chosen"] = outputs
+        
+        
+        # rejected answer
+        question = sample_set["prompt"]
         if "gpt4v" != args.model_path:
+            
+            if args.add_aug:
+                video = aug_video
+            
+            # print(question)
             qs = question
             if model.config.mm_use_im_start_end:
                 qs = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + qs
@@ -265,81 +400,26 @@ def run_inference(args):
 
         system_error = ""
 
-        import time
-        start_time = time.time()
-
         if "gpt4v" != args.model_path:
-
-
+            # print(f'video length: {len(video)}')
             with torch.inference_mode():
                 # model.update_prompt([[cur_prompt]])
                 # import pdb;pdb.set_trace()
                 # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
                 if "mistral" not in cfg_pretrained._name_or_path.lower():
-                    output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=16, top_p=0.1,num_beams=1,use_cache=True, stopping_criteria=[stopping_criteria])
+                    output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=1.0, max_new_tokens=1024, top_p=0.9, use_cache=True, stopping_criteria=[stopping_criteria])
+                    # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1,num_beams=1,use_cache=True, stopping_criteria=[stopping_criteria])
                     # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True, stopping_criteria=[stopping_criteria])
                 else:
-                    output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=16, top_p=0.1, num_beams=1, use_cache=True)
+                    output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=1.0, max_new_tokens=1024, top_p=0.9, use_cache=True)
+                    # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=False, temperature=0.0, max_new_tokens=1024, top_p=0.1, num_beams=1, use_cache=True)
                     # output_ids = model.generate(inputs=input_ids, images=video, attention_mask=attention_masks, modalities="video", do_sample=True, temperature=0.2, max_new_tokens=1024, use_cache=True)
-        else:
-            openai.api_key = args.api_key  # Your API key here
-
-            max_num_retries = 0
-            retry = 5
-            PROMPT_MESSAGES = [
-                {
-                    "role": "user",
-                    "content": [
-                        f"These are frames from a video that I want to upload. Answer me one question of this video: {prompt}",
-                        *map(lambda x: {"image": x, "resize": 336}, video[0::interval]),
-                    ],
-                },
-            ]
-            params = {
-                "model": "gpt-4-vision-preview", #gpt-4-1106-vision-preview
-                "messages": PROMPT_MESSAGES,
-                "max_tokens": 1024,
-            }
-            sucess_flag=False
-            while max_num_retries < retry:
-                try:
-                    result = openai.ChatCompletion.create(**params)
-                    outputs = result.choices[0].message.content
-                    sucess_flag = True
-                    break
-                except Exception as inst :
-                    if 'error' in dir(inst):
-                        # import pdb;pdb.set_trace()
-                        if  inst.error.code == 'rate_limit_exceeded':
-                            if "TPM" in inst.error.message:
-                                time.sleep(30)
-                                continue
-                            else:
-                                import pdb;pdb.set_trace()
-                        elif inst.error.code == 'insufficient_quota':
-                            print(f'insufficient_quota key')
-                            exit()
-                        elif inst.error.code == 'content_policy_violation':
-                            print(f'content_policy_violation')
-                            system_error = "content_policy_violation"
-
-                            break
-                        print('Find error message in response: ',str(inst.error.message), 'error code: ', str(inst.error.code))
-
-                    continue
-            if not sucess_flag:
-                print(f'Calling OpenAI failed after retrying for {max_num_retries} times. Check the logs for details.')
-                exit()
 
         if "gpt4v" != args.model_path:
             outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
-        else:
-            print(len(video[0::interval]))
         
-        print(f"Question: {prompt}\n")
-        print(f"Response: {outputs}\n")
-        end_time = time.time()
-        print(f"Time cost: {end_time - start_time}\n")
+        # print(f"Question: {prompt}\n")
+        # print(f"Response: {outputs}\n")
 
         if "gpt4v" == args.model_path:
             if system_error == 'content_policy_violation':
@@ -355,8 +435,8 @@ def run_inference(args):
                 outputs = outputs[: -len(stop_str)]
 
         outputs = outputs.strip()
-
-        sample_set["pred"] = outputs
+        sample_set["rejected"] = outputs
+        
         ans_file.write(json.dumps(sample_set, ensure_ascii=False) + "\n")
         ans_file.flush()
 

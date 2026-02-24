@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/mnt/bn/multimodal-datasets-hl/wangxd/LLaVA-NeXT"
+ROOT_DIR="/mnt/bn/wxd-video-understanding/wangxd/LLaVA-NeXT"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."
@@ -35,7 +35,7 @@ fi
 python3 scripts/process/self_generate_preference_hallu.py \
     --model-path $CKPT \
     --video_root ${VIDEO_PATH} \
-    --output_dir /mnt/bn/multimodal-datasets-hl/wangxd/LLaVA-NeXT/data/hallu/hallu-hound-0514/$SAVE_DIR \
+    --output_dir /mnt/bn/wxd-video-understanding/wangxd/LLaVA-NeXT/data/hallu/hallu-hound-0514/$SAVE_DIR \
     --output_name next-7b-f2-s2-${START}_${END} \
     --jsonl-file $JSONLFILE \
     --start $START \
@@ -52,7 +52,7 @@ python3 scripts/process/self_generate_preference_hallu.py \
 
 
 # Next
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-hallu.sh /mnt/bn/multimodal-datasets-hl/wangxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 16 2 average no_token True /mnt/bn/multimodal-datasets-hl/wangxd/data/shareVideoGPTV/dpo_train_data /mnt/bn/multimodal-datasets-hl/wangxd/data/shareVideoGPTV/sft_dpo_17k.jsonl 6000 7000 224
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-hallu.sh /mnt/bn/wxd-video-understanding/wangxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 16 2 average no_token True /mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/dpo_train_data /mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/sft_dpo_17k.jsonl 6000 7000 224
 
 
 #qa

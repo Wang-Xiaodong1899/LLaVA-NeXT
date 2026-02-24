@@ -12,7 +12,7 @@ ROOT=$2
 
 # export WANDB_MODE=disabled
 export WANDB_PROJECT=llava-next-8H20
-export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.1-simpomargin0.5-hallutext
+export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.01-simpomargin0.5-our-chosen-our-rej-train
 
 # gpu_ids=0
 gpu_ids=0,1,2,3,4,5,6,7
@@ -25,7 +25,12 @@ mkdir -p $output_dir
 
 # DATA
 # data_path=/volsparse3/wxd/data/shareVideoGPTV/next-7b-f16-s2-hound-rej-0_8000.jsonl
-data_path=/mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/next-7b-f16-s2-hallu-17k-merged.jsonl
+data_path=/mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/next-7b-f16-s2-debate-aug-f2-s3-0_17000.jsonl
+# data_path=/mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/sft_dpo_17k.jsonl
+# data_path=/mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/sft_dpo_17k_gt_chosen_texthallu_reject.jsonl
+# data_path=/mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/sft_dpo_17k_input_chosen_texthallu_reject.jsonl
+# data_path=/mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/sft_dpo_17k_gt_chosen_rejected.jsonl
+# data_path=/mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/sft_dpo_17k_our_chosen_texthallu_reject.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -48,7 +53,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path /mnt/bn/wxd-video-understanding/wangxd/models/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --loss_type simpo \
-    --label_smoothing 0.1 \
+    --label_smoothing 0.01 \
     --simpo_margin 0.5 \
     --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
     --data_path=$data_path \
@@ -79,7 +84,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 500 \
-    --save_total_limit 1 \
+    --save_total_limit 4 \
     --learning_rate $lr \
     --weight_decay 0. \
     --warmup_ratio 0.1 \

@@ -11,27 +11,27 @@ lr=${1:-"5e-7"}
 ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next-jf-4A100
+export WANDB_PROJECT=llava-next-H20
 export WANDB_NAME=llava_dpo-hound-gt-as-chosen
 
 # gpu_ids=0
-gpu_ids=0,1,2,3
+gpu_ids=0,1,2,3,4,5,6,7
 export CUDA_VISIBLE_DEVICES=$gpu_ids
 n_gpu=$(echo $gpu_ids | tr "," "\n" | wc -l)
 echo "Using $n_gpu GPUs: $gpu_ids"
 
-output_dir=/volsparse3/wxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
+output_dir=/mnt/bn/wxd-video-understanding/wangxd/ckpt/${WANDB_PROJECT}/${WANDB_NAME}
 mkdir -p $output_dir
 
 # DATA
-data_path=/volsparse3/wxd/data/shareVideoGPTV/sft_dpo_17k_gt_as_chosen.jsonl
+data_path=/mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/sft_dpo_17k_gt_chosen_rejected.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
 
 port=19001
 
-VISION_MODEL_VERSION="openai/clip-vit-large-patch14-336"
+VISION_MODEL_VERSION="/mnt/bn/wxd-video-understanding/wangxd/models/clip-vit-large-patch14-336"
 VISION_MODEL_VERSION_CLEAN="${VISION_MODEL_VERSION//\//_}"
 
 ############### Pretrain ################
@@ -44,12 +44,12 @@ PROMPT_VERSION="vicuna_v1"
 torchrun --nproc_per_node=$n_gpu --master_port=$port \
     llava/train/train_dpo.py \
     --deepspeed scripts/zero2.json \
-    --model_name_or_path /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B \
+    --model_name_or_path /mnt/bn/wxd-video-understanding/wangxd/models/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --dpo_alpha 1.0 --beta 0.1 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
-    --video_folder /data/shareVideoGPTV/dpo_train_data \
+    --video_folder /mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/dpo_train_data \
     --freeze_mm_mlp_adapter True \
     --frames_upbound 16 \
     --vision_tower ${VISION_MODEL_VERSION} \

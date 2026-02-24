@@ -525,6 +525,7 @@ class IPOTrainer(Trainer):
         bt_beta: float = 0.3,
         simpo_margin: float = 0.5,
         dynamic_dpo_alpha: bool = False,
+        dynamic_dis: float = 0.5,
     ):
         # import pdb;pdb.set_trace()
         if model_init_kwargs is None:
@@ -565,6 +566,7 @@ class IPOTrainer(Trainer):
         self.reference_free = reference_free
         self.simpo_margin = simpo_margin
         self.dynamic_dpo_alpha = dynamic_dpo_alpha
+        self.dynamic_dis = dynamic_dis
 
         if ref_model:
             self.ref_model = ref_model
@@ -1202,7 +1204,9 @@ class IPOTrainer(Trainer):
             # NOTE support label smoothing
             if self.label_smoothing > 0:
                 # Introduce dynamic here, XXX default 0.5 (remenber)
-                dynamic_weight = self.label_smoothing * torch.where(pi_logratios < 0., torch.tensor(1), torch.tensor(0)) if self.label_smoothing > 0 else 0.0
+                # dynamic_weight = self.label_smoothing * torch.where(pi_logratios < 0., torch.tensor(1), torch.tensor(0)) if self.label_smoothing > 0 else 0.0
+                dynamic_weight = self.label_smoothing * torch.where(pi_logratios < self.dynamic_dis, torch.tensor(1), torch.tensor(0)) if self.label_smoothing > 0 else 0.0
+
                 losses = -F.logsigmoid(self.beta * logits - constant_gamma) * (1 - dynamic_weight) - F.logsigmoid(-self.beta * logits - constant_gamma) * dynamic_weight
             
             reference_chosen_logps = torch.tensor([0], dtype=pi_logratios.dtype, device=pi_logratios.device)

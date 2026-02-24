@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT_DIR="/mnt/bn/multimodal-datasets-hl/wangxd/LLaVA-NeXT"
+ROOT_DIR="/mnt/bn/wxd-video-understanding/wangxd/LLaVA-NeXT"
 
 if [ ! -e $ROOT_DIR ]; then
     echo "The root dir does not exist. Exiting the script."

@@ -193,7 +193,7 @@ def parse_args():
     parser.add_argument("--api_key", type=str, help="OpenAI API key")
     parser.add_argument("--mm_newline_position", type=str, default="no_token")
     parser.add_argument("--force_sample", type=lambda x: (str(x).lower() == 'true'), default=False)
-    parser.add_argument("--video-folder", type=str, default="/mnt/bn/multimodal-datasets-hl/wangxd/huggingface/videomme/data")
+    parser.add_argument("--video-folder", type=str, default="/mnt/bn/wxd-video-understanding/wangxd/huggingface/videomme/data")
     parser.add_argument("--question-file", type=str, default="/home/user/wangxd/LLaVA-NeXT/llava/eval/questions/video_qa/temporal_qa.json")
     parser.add_argument("--answers-file", type=str, default="results/answer-video-mme.json")
     parser.add_argument("--duration", type=str, default="short")
@@ -271,7 +271,7 @@ def run_inference(args):
     
     video_formats = ['.mp4', '.avi', '.mov', '.mkv']
 
-    hf_data = hf_datasets.load_dataset("parquet", data_files="/mnt/bn/multimodal-datasets-hl/wangxd/huggingface/videomme/test-00000-of-00001.parquet")['train']
+    hf_data = hf_datasets.load_dataset("parquet", data_files="/mnt/bn/wxd-video-understanding/wangxd/huggingface/videomme/test-00000-of-00001.parquet")['train']
     keys = ['video_id', 'duration', 'domain', 'sub_category', 'url', 'videoID', 'question_id', 'task_type', 'question', 'options', 'answer']
 
     save_data = []

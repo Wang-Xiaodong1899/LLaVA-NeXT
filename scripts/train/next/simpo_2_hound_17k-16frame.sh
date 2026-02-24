@@ -11,8 +11,8 @@ lr=${1:-"5e-7"}
 ROOT=$2
 
 # export WANDB_MODE=disabled
-export WANDB_PROJECT=llava-next-8H20
-export WANDB_NAME=llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0-ls0.1-simpomargin0.5-hallutext
+export WANDB_PROJECT=llava-next-H20
+export WANDB_NAME=llava_dpo-hound-16Frame
 
 # gpu_ids=0
 gpu_ids=0,1,2,3,4,5,6,7
@@ -24,8 +24,7 @@ output_dir=/mnt/bn/wxd-video-understanding/wangxd/ckpt/${WANDB_PROJECT}/${WANDB_
 mkdir -p $output_dir
 
 # DATA
-# data_path=/volsparse3/wxd/data/shareVideoGPTV/next-7b-f16-s2-hound-rej-0_8000.jsonl
-data_path=/mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/next-7b-f16-s2-hallu-17k-merged.jsonl
+data_path=/mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/sft_dpo_17k.jsonl
 
 # sudo chmod +x -R .
 # export PYTHONPATH=.
@@ -48,9 +47,7 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --model_name_or_path /mnt/bn/wxd-video-understanding/wangxd/models/vicuna/LLaVA-NeXT-Video-7B \
     --version $PROMPT_VERSION \
     --loss_type simpo \
-    --label_smoothing 0.1 \
-    --simpo_margin 0.5 \
-    --dpo_alpha 1.0 --beta 2.0 --gamma 0.5 \
+    --dpo_alpha 1.0 --beta 2.0 --gamma 0 \
     --data_path=$data_path \
     --image_folder xxx \
     --video_folder /mnt/bn/wxd-video-understanding/wangxd/data/shareVideoGPTV/dpo_train_data \
@@ -72,21 +69,21 @@ torchrun --nproc_per_node=$n_gpu --master_port=$port \
     --bf16 True \
     --run_name $WANDB_NAME \
     --output_dir $output_dir \
-    --num_train_epochs 4 \
+    --num_train_epochs 1 \
     --per_device_train_batch_size 4 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 500 \
-    --save_total_limit 1 \
+    --save_total_limit 4 \
     --learning_rate $lr \
     --weight_decay 0. \
     --warmup_ratio 0.1 \
     --lr_scheduler_type "linear" \
     --logging_steps 1 \
     --tf32 True \
-    --model_max_length 5120 \
+    --model_max_length 4096 \
     --gradient_checkpointing True \
     --dataloader_num_workers 16 \
     --lazy_preprocess True \

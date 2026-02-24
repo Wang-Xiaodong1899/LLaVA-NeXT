@@ -55,7 +55,7 @@ def parse_args():
     parser.add_argument("--video_root", help="Path to the video files.", required=True)
     parser.add_argument("--output_dir", help="Directory to save the model results JSON.", required=True)
     parser.add_argument("--output_name", help="Name of the file for storing results JSON.", required=True)
-    parser.add_argument("--model-path", type=str, default="/mnt/bn/multimodal-datasets-hl/wangxd/models/Qwen2.5-VL-7B-Instruct/")
+    parser.add_argument("--model-path", type=str, default="/mnt/bn/wxd-video-understanding/wangxd/models/Qwen2.5-VL-7B-Instruct/")
     parser.add_argument("--model-base", type=str, default=None)
     parser.add_argument("--conv-mode", type=str, default=None)
     parser.add_argument("--chunk-idx", type=int, default=0)
