@@ -64,4 +64,4 @@ python3 scripts/process/self_generate_preference_debate.py \
 # CUDA_VISIBLE_DEVICES=1 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /volsparse3/wxd/ckpt/saves/vicuna_llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0/checkpoint-4000 vicuna_v1 1 2 average no_token True /data/llava_hound/shareVideoGPTV/train_300k/data /volsparse3/wxd/data/llava_hound/chatgpt_qa_900k_ge_70.jsonl 1000 2000 224
 
 # caption
-# CUDA_VISIBLE_DEVICES=1 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /volsparse3/wxd/ckpt/saves/vicuna_llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0/checkpoint-4000 vicuna_v1 1 2 average no_token True /data/llava_hound/shareVideoGPTV/train_300k/data /volsparse3/wxd/data/llava_hound/ video_240k_caption_15k_ge_16.jsonl 4000 5000 224
+# CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /volsparse3/wxd/ckpt/saves/vicuna_llava_simpo_17k_debate-hound-17k-dynalabelsmooth-pilog-0/checkpoint-4000 vicuna_v1 1 2 average no_token True /data/llava_hound/shareVideoGPTV/train_300k/data /volsparse3/wxd/data/llava_hound/video_240k_caption_15k_ge_16.jsonl 7000 8000 224

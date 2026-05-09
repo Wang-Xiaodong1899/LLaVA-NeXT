@@ -7,8 +7,8 @@ import ast
 from multiprocessing.pool import Pool
 from openai import OpenAI
 client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("API_KEY"),
+    base_url="https://api.ai-gaochao.cn/v1/",
+    api_key="sk-j39KGi7DXHUkHipN18D34a12E3Aa4d868b9c6dF8371c0e67",
 )
 
 
@@ -45,7 +45,7 @@ def annotate(prediction_set, caption_files, output_dir):
         try:
             # Compute the correctness score
             completion = client.chat.completions.create(
-                model="gpt-3.5-turbo-1106",
+                model="gpt-3.5-turbo-0125",
                 messages=[
                     {
                         "role": "system",
@@ -215,9 +215,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# python llava/eval/evaluate/evaluate_video_qa.py \
-#     --pred_path results/answer-tgif-qa.jsonl \
-#     --output_dir results/tgif-qa \
-#     --output_json results/review-tgif-qa.jsonl \
-#     --api_key $API_KEY \
-#     --num_tasks 1
+# python llava\eval\evaluate\evaluate_video_qa.py --pred_path C:\Users\wangxiaodong\Downloads\TGIF_qa_ours\answer-tgif-qa-ours-plus-caption.jsonl --output_dir results\tgif-qa-llava-next-ours --output_json results\review-tgif-qa-llava-next-ours.jsonl --api_key sk-j39KGi7DXHUkHipN18D34a12E3Aa4d868b9c6dF8371c0e67 --num_tasks 1

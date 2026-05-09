@@ -52,7 +52,7 @@ python3 scripts/process/llava-video-178k/self_generate_preference_debate.py \
 
 
 # hound
-# CUDA_VISIBLE_DEVICES=3 bash scripts/process/llava-video-178k/gen_prefer_llava-next-7b-sample_debate.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /volsparse3/wxd/data/LLaVA-Video-178K/2_3_m_youtube_v0_1 /volsparse3/wxd/data/LLaVA-Video-178K/2_3_m_youtube_v0_1/2_3_m_youtube_oe_v0_1_qa_processed.json 0 4000 224
+# CUDA_VISIBLE_DEVICES=3 bash scripts/process/llava-video-178k/gen_prefer_llava-next-7b-sample_debate.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /volsparse3/wxd/data/LLaVA-Video-178K/2_3_m_youtube_v0_1 /volsparse3/wxd/data/LLaVA-Video-178K/2_3_m_youtube_v0_1/2_3_m_youtube_oe_v0_1_qa_processed.json 12000 16000 224
 
 
 # caption

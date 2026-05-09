@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CUDA_VISIBLE_DEVICES=2 bash scripts/video/eval/correctness.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B NeXT-Video-7B-f16 16 2
+# CUDA_VISIBLE_DEVICES=2 bash scripts/video/eval/correctness.sh /volsparse3/wxd/ckpt/llava-next-jf-4A100/llava_simpo_17k_debate-hound-ours-sft simpo_17k_debate-hound-ours-sft-f16 16 2
 
 CKPT=$1
 SAVE_NAME=$2

@@ -2,11 +2,11 @@ import os
 from openai import OpenAI
 client = OpenAI(
     base_url="https://api.ai-gaochao.cn/v1/",
-    api_key=os.getenv("API_KEY"),
+    api_key="sk-j39KGi7DXHUkHipN18D34a12E3Aa4d868b9c6dF8371c0e67",
 )
 
 completion = client.chat.completions.create(
-                model="gpt-3.5-turbo-0125",
+                model="gpt-3.5-turbo-0613",
                 messages=[
                     {
                         "role": "system",

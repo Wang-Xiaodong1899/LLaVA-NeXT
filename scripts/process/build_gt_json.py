@@ -1,7 +1,7 @@
 import os
 import json
 
-input_file_1 = "/Users/xiaodong/Downloads/sft_dpo_17k.jsonl"
+input_file_1 = r"C:\Users\wangxiaodong\Desktop\sft_dpo_17k.jsonl"
 
 chosen = []
 back = []
@@ -13,7 +13,7 @@ with open(input_file_1, 'r', encoding='utf-8') as infile:
         chosen.append(entry)
 
 
-output_file = "/Users/xiaodong/Downloads/sft_dpo_17k_gt_as_chosen.jsonl"
+output_file = r"C:\Users\wangxiaodong\Desktop\sft_dpo_17k_gt_as_chosen.jsonl"
 
 with open(output_file, 'w', encoding='utf-8') as outfile:
     for line in chosen:

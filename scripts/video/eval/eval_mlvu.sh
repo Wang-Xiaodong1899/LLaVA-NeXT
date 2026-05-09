@@ -44,5 +44,13 @@ python3 playground/demo/eval_mlvu.py \
     --answers-file results/answer-mlvu-${SAVE_NAME}.json \
     --image_resolution $RESOLUTION
 
-
+# llava-video
 # DECORD_EOF_RETRY_MAX=40960 && CUDA_VISIBLE_DEVICES=0 bash scripts/video/eval/eval_mlvu.sh /volsparse3/wxd/models/qwen/LLaVA-Video-7B-Qwen2 qwen_1_5 16 1 bilinear grid True llava-video-f16 384
+
+# # llava-video-ours
+# export DECORD_EOF_RETRY_MAX=40960 && CUDA_VISIBLE_DEVICES=2 bash scripts/video/eval/eval_mlvu.sh /volsparse3/wxd/ckpt/llava-video-jf-4A100/llava-ov-qwen_ours_hound-8k_f16_blinear2/checkpoint-500 qwen_1_5 16 1 bilinear grid True llava-video-f16-ours 384
+
+# llava-next
+# export DECORD_EOF_RETRY_MAX=40960 && CUDA_VISIBLE_DEVICES=1 bash scripts/video/eval/eval_mlvu.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 16 2 average no_token True llava-next-f16 336
+
+# export DECORD_EOF_RETRY_MAX=40960 && CUDA_VISIBLE_DEVICES=3 bash scripts/video/eval/eval_mlvu.sh /volsparse3/wxd/ckpt/llava-next-jf-4A100/vicuna/llava_simpo_17k_debate-hound-ours-plus-caption vicuna_v1 16 2 average no_token True llava-next-f16-25k-data-f16 336

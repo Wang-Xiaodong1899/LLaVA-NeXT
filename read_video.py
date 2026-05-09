@@ -1,30 +1,12 @@
-import argparse
-import datasets as hf_datasets
+import os
 import json
 import os
-import sys
-import torch
-
-
-import json
-import os
-import math
-from tqdm import tqdm
 from decord import VideoReader, cpu
-
-from transformers import AutoConfig
-
-import cv2
-import base64
-import openai
-
 from PIL import Image
-
-import shortuuid
-
 import numpy as np
 
-video_path = "/volsparse1/wxd/data/Video-MME/data/axGscDVdHWg.mp4"
+
+video_path = "/volsparse3/wxd/data/Video-MME/data/axGscDVdHWg.mp4"
 image_processor = None
 max_frames=16
 image_resolution=336

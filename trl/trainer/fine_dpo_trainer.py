@@ -572,12 +572,12 @@ class IPOTrainer(Trainer):
             # The `model` with adapters turned off will be used as the reference model
             self.ref_model = None
         else:
-            # if is_deepspeed_zero3_enabled():
-            #     self.ref_model = AutoModelForCausalLM.from_pretrained(model)
-            # else:
-            #     self.ref_model = create_reference_model(model)
+            if is_deepspeed_zero3_enabled():
+                self.ref_model = AutoModelForCausalLM.from_pretrained(model)
+            else:
+                self.ref_model = create_reference_model(model)
             # XXX no refer_model
-            self.ref_model = None
+            # self.ref_model = None
 
         if tokenizer is None:
             raise ValueError("tokenizer must be specified to tokenize a DPO dataset.")
@@ -690,10 +690,10 @@ class IPOTrainer(Trainer):
             pass # XXX no error
         else:
             if self.is_deepspeed_enabled:
-                #     self.ref_model = self._prepare_deepspeed(self.ref_model)
-                # else:
-                #     self.ref_model = self.accelerator.prepare_model(self.ref_model, evaluation_mode=True)
-                self.ref_model = None
+                self.ref_model = self._prepare_deepspeed(self.ref_model)
+            else:
+                self.ref_model = self.accelerator.prepare_model(self.ref_model, evaluation_mode=True)
+                # self.ref_model = None
 
     def _prepare_deepspeed(self, model: PreTrainedModelWrapper):
         # Adapted from accelerate: https://github.com/huggingface/accelerate/blob/739b135f8367becb67ffaada12fe76e3aa60fefd/src/accelerate/accelerator.py#L1473
@@ -1525,10 +1525,9 @@ class IPOTrainer(Trainer):
         
         policy_answer_logps = all_gather_tensor(policy_answer_logps) # add
         
-        # reference_chosen_logps = all_gather_tensor(reference_chosen_logps)
-        # reference_rejected_logps = all_gather_tensor(reference_rejected_logps)
-        
-        # reference_answer_logps = all_gather_tensor(reference_answer_logps) # add
+        reference_chosen_logps = all_gather_tensor(reference_chosen_logps)
+        reference_rejected_logps = all_gather_tensor(reference_rejected_logps)
+        reference_answer_logps = all_gather_tensor(reference_answer_logps) # add
 
         prefix = "eval_" if train_eval == "eval" else ""
         metrics[f"{prefix}losses/dpo"] = unscaled_dpo_losses.cpu()
@@ -1548,9 +1547,9 @@ class IPOTrainer(Trainer):
         # metrics[f"{prefix}logits/rejected"] =policy_rejected_logits
         # metrics[f"{prefix}logits/chosen"] = policy_chosen_logits
         # reference logps
-        # metrics[f"{prefix}ref_logps/rejected"] = reference_rejected_logps.mean().cpu()
-        # metrics[f"{prefix}ref_logps/chosen"] = reference_chosen_logps.mean().cpu()
-        # metrics[f"{prefix}ref_logps/answer"] = reference_answer_logps.mean().cpu() # add
+        metrics[f"{prefix}ref_logps/rejected"] = reference_rejected_logps.mean().cpu()
+        metrics[f"{prefix}ref_logps/chosen"] = reference_chosen_logps.mean().cpu()
+        metrics[f"{prefix}ref_logps/answer"] = reference_answer_logps.mean().cpu() # add
 
         # metrics all pick .4 digits
         # for k in metrics:

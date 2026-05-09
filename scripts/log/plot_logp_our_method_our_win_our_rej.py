@@ -60,9 +60,11 @@ df_input['smoothed_rejected'] = df_input['train/logps/rejected'].rolling(
 
 
 # 设置科研绘图风格
-plt.style.use('seaborn-v0_8')
+# plt.style.use('seaborn-v0_8')
+plt.style.use('default')
 sns.set_palette("tab10")
 plt.rcParams.update({
+    'font.family': 'Times New Roman', 
     'font.size': 20,          # 基础字体大小
     'axes.titlesize': 20,     # 标题字号
     'axes.labelsize': 20,     # 坐标轴标签字号
@@ -71,7 +73,12 @@ plt.rcParams.update({
     'legend.fontsize': 20,    # 图例字号
     'figure.figsize': (10, 5), # 调整画布尺寸以适应大字体
     'figure.dpi': 300,
-    'savefig.bbox': 'tight'
+    'savefig.bbox': 'tight',
+    'axes.facecolor': 'white',          # 图像背景为白色
+    'figure.facecolor': 'white',        # 画布背景为白色
+    'grid.color': 'gray',               # 网格线颜色
+    'grid.linestyle': '--',             # 网格线样式
+    'grid.alpha': 0.3                   # 网格线透明度
 })
 
 
@@ -122,5 +129,5 @@ plt.grid(True, alpha=0.3)
 plt.tight_layout()
 
 # 保存输出
-plt.savefig('lr0-ours-win-ours-rej-0514.png')
+plt.savefig('lr0-ours-win-ours-rej-0516.png')
 # plt.show()

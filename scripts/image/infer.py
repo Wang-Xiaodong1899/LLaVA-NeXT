@@ -39,7 +39,7 @@ image_tensor = process_images([image], image_processor, model.config)
 image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
 print("Image tensor: ", image_tensor[0].shape)
 conv_template = "qwen_1_5"  # Make sure you use correct chat template for different models
-question = DEFAULT_IMAGE_TOKEN + "\nWhat is a term that describes the general concept represented in the image?e" 
+question = DEFAULT_IMAGE_TOKEN + "\nWhat is a term that describes the general concept represented in the image?" 
 conv = copy.deepcopy(conv_templates[conv_template])
 conv.append_message(conv.roles[0], question)
 conv.append_message(conv.roles[1], None)

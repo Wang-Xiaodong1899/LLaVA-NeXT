@@ -51,7 +51,7 @@ python3 scripts/process/self_generate_preference_sample_aug_only.py \
     --image_resolution $RESOLUTION \
 
 # hound
-# CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_llava-video-7b-sample_aug_only.sh /volsparse3/wxd/models/qwen/LLaVA-Video-7B-Qwen2 qwen_1_5 2 1 bilinear grid True /data/llava_hound/shareVideoGPTV/train_300k_qa_video /volsparse3/wxd/data/shareVideoGPTV/sft_dpo_17k.jsonl 0 2000 384
+# CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_llava-video-7b-sample_aug_only.sh /volsparse3/wxd/models/qwen/LLaVA-Video-7B-Qwen2 qwen_1_5 2 1 bilinear grid True /data/llava_hound/shareVideoGPTV/train_300k_qa_video /volsparse3/wxd/data/shareVideoGPTV/sft_dpo_17k.jsonl 6000 8000 384
 
 
 # Next

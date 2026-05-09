@@ -52,10 +52,10 @@ python3 scripts/process/self_generate_preference_debate.py \
 
 
 # hound
-# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_llava-video-7b-sample_debate.sh /volsparse3/wxd/models/qwen/LLaVA-Video-7B-Qwen2 qwen_1_5 16 1 bilinear grid True /data/llava_hound/shareVideoGPTV/train_300k_qa_video /volsparse3/wxd/data/shareVideoGPTV/sft_dpo_17k.jsonl 0 2000 384
+# CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_llava-video-7b-sample_debate.sh /volsparse3/wxd/models/qwen/LLaVA-Video-7B-Qwen2 qwen_1_5 16 1 bilinear grid True /data/llava_hound/shareVideoGPTV/train_300k_qa_video /volsparse3/wxd/data/shareVideoGPTV/sft_dpo_17k.jsonl 6000 8000 384
 
 # caption
 # CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /data/llava_hound/train_300k_caption_video /data/llava_hound/video_240k_caption_15k_ge_16.jsonl 9000 12000 224
 
 #qa
-# CUDA_VISIBLE_DEVICES=3 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /data/llava_hound/shareVideoGPTV/train_300k_qa_video /data/llava_hound/shareVideoGPTV/chatgpt_qa_900k_ge_70.jsonl 12000 16000 224
+# CUDA_VISIBLE_DEVICES=0 bash scripts/process/gen_prefer_next-7b-sample_debate.sh /volsparse3/wxd/models/vicuna/LLaVA-NeXT-Video-7B vicuna_v1 1 2 average no_token True /data/llava_hound/shareVideoGPTV/train_300k/data /data/llava_hound/shareVideoGPTV/chatgpt_qa_900k_ge_70.jsonl 12000 16000 224

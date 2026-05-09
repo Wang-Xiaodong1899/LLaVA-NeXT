@@ -1,7 +1,9 @@
 #!/bin/bash
 
 
-# CUDA_VISIBLE_DEVICES=0 bash scripts/video/eval/temporal.sh /volsparse3/wxd/ckpt/llava-next-jf-4A100/llava_dpo_17k_flash-attn/checkpoint-1000 dpo-hound-17k-f16 16 2
+# CUDA_VISIBLE_DEVICES=0 bash scripts/video/eval/temporal.sh /volsparse3/wxd/ckpt/llava-next-jf-4A100/llava_simpo_17k_debate-hound-ours-sft simpo_17k_debate-hound-ours-sft-f16 16 2
+# CUDA_VISIBLE_DEVICES=0 bash scripts/video/eval/temporal.sh /volsparse3/wxd/ckpt/llava-next-jf-4A100/vicuna/llava_simpo_17k_debate-hound-ours-sft-caption-8k-epoch2 ours-iter2-caption-8k-ep2-f16 16 2
+# CUDA_VISIBLE_DEVICES=0 bash scripts/video/eval/temporal.sh /volsparse3/wxd/ckpt/llava-next-jf-4A100/vicuna/llava_simpo_17k_debate-hound-ours-plus-caption ours-plus-caption-f16 16 2
 
 CKPT=$1
 SAVE_NAME=$2

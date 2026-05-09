@@ -2,8 +2,8 @@ import os
 import json
 
 # Define the input folder path and output file path
-input_folder = r'C:\Users\wangxiaodong\Desktop\ov-ov-inject\aug-1202'
-output_file = 'llava_rlhf_for_dpo_ov_aug_0_10000.jsonl'
+input_folder = r'C:\Users\wangxiaodong\Desktop\inject_SI-7b-1209\rejected'
+output_file = r'C:\Users\wangxiaodong\Desktop\inject_SI-7b-1209\llava_rlhf_for_dpo_si_aug_s224_p0.6_0_10000.jsonl'
 
 # Create the output file
 with open(output_file, 'w', encoding='utf-8') as outfile:
