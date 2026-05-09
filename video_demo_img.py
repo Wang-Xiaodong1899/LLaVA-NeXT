@@ -7,8 +7,8 @@ import cv2
 # video_path = r"HwnB8aCn8yE.mp4"
 # N1cdUjctpG8
 
-video_path = "yl5ZXQmrtP0.mp4"
-for_get_frames_num = 16
+video_path = "0w4OTD4L0GQ.mp4"
+for_get_frames_num = 32
 force_sample = False
 
 vr = VideoReader(video_path, ctx=cpu(0))
